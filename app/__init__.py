@@ -1,13 +1,10 @@
 from flask import Flask, render_template
 
-# bagi kegunaan konfigurasi DB
-from app.extensions import db, migrate
+# load semua extension yg berkaitan
+from app.extensions import db, login_manager, migrate
 
 # semua config file diletakkan dalam satu file
 from config import Config
-
-# setup utk akaun admin
-from app.admin_setup import ensure_default_admin
 
 def create_app():
     app = Flask(__name__)
@@ -17,10 +14,12 @@ def create_app():
     # initialze Flask application
     db.init_app(app)
     migrate.init_app(app, db)
+    login_manager.init_app(app)
     # selesai initialze
-    # DB setup
+    
+    # setup database
     from app import models
-
+    
     from app.auth import auth_bp
     from app.auth import routes
 

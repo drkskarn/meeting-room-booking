@@ -1,10 +1,11 @@
 from flask import flash, redirect, render_template, url_for
 
 from app.auth import auth_bp
-from app.auth.forms import RegistrationForm
+from app.auth.forms import LoginForm, RegistrationForm
 from app.extensions import db
 from app.models import User
 
+from flask_login import current_user, login_required, login_user, logout_user
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
@@ -36,4 +37,78 @@ def register():
     return render_template(
         "auth/register.html",
         form=form
+    )
+
+
+@auth_bp.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("auth.dashboard"))
+
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        email = form.email.data.strip().lower()
+
+        user = db.session.scalar(
+            db.select(User).where(
+                User.email == email
+            )
+        )
+
+        if user is None or not user.check_password(form.password.data):
+            flash(
+                "Alamat emel atau kata laluan tidak sah.",
+                "danger"
+            )
+
+            return render_template(
+                "auth/login.html",
+                form=form
+            )
+
+        if not user.is_active:
+            flash(
+                "Akaun anda belum diaktifkan. "
+                "Sila aktifkan akaun melalui emel terlebih dahulu.",
+                "warning"
+            )
+
+            return render_template(
+                "auth/login.html",
+                form=form
+            )
+
+        login_user(user)
+
+        return redirect(
+            url_for("auth.dashboard")
+        )
+
+    return render_template(
+        "auth/login.html",
+        form=form
+    )
+
+
+@auth_bp.route("/logout")
+@login_required
+def logout():
+    logout_user()
+
+    flash(
+        "Anda telah log keluar.",
+        "success"
+    )
+
+    return redirect(
+        url_for("auth.login")
+    )
+    
+
+@auth_bp.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template(
+        "auth/dashboard.html"
     )

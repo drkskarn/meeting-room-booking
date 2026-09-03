@@ -12,7 +12,7 @@ from wtforms.validators import (
 from app.extensions import db
 from app.models import User
 
-
+# Form untuk register
 class RegistrationForm(FlaskForm):
     email = StringField(
         "Alamat Emel",
@@ -118,3 +118,22 @@ class RegistrationForm(FlaskForm):
             raise ValidationError(
                 "No Pengenalan ini telah didaftarkan."
             )
+            
+# Form untuk Login
+class LoginForm(FlaskForm):
+    email = StringField(
+        "Alamat Emel",
+        validators=[
+            DataRequired(),
+            Email()
+        ]
+    )
+
+    password = PasswordField(
+        "Kata Laluan",
+        validators=[
+            DataRequired()
+        ]
+    )
+
+    submit = SubmitField("Log Masuk")

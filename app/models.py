@@ -3,12 +3,16 @@ from datetime import datetime, timezone
 from sqlalchemy import Boolean, DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.extensions import db
+from app.extensions import db, login_manager
+
+# untuk kegunaan extension flask login_manager
+from flask_login import UserMixin
 
 # untuk kegunaan password hashing
 from werkzeug.security import generate_password_hash, check_password_hash
 
-class User(db.Model):
+class User(UserMixin, db.Model):
+    
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -24,20 +28,20 @@ class User(db.Model):
         nullable=False
     )
 
-    identification_no: Mapped[str] = mapped_column(
+    identification_no: Mapped[str | None] = mapped_column(
         String(12), #disimpan dalam string sbb bukan utk kegunaan pengiraan matematik
         unique=True,
         # nullable=False
         nullable=True
     )
 
-    division_name: Mapped[str] = mapped_column(
+    division_name: Mapped[str | None] = mapped_column(
         String(255),
         # nullable=False
         nullable=True
     )
 
-    unit_name: Mapped[str] = mapped_column(
+    unit_name: Mapped[str | None] = mapped_column(
         String(255),
         # nullable=False
         nullable=True
@@ -78,3 +82,7 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(User, int(user_id))
