@@ -3,10 +3,16 @@ from flask import Flask, render_template
 # bagi kegunaan konfigurasi DB
 from app.extensions import db, migrate
 
+# semua config file diletakkan dalam satu file
+from config import Config
+
+# setup utk akaun admin
+from app.admin_setup import ensure_default_admin
+
 def create_app():
     app = Flask(__name__)
-    # penetapan DB dan jenis engine DB yg  digunakan
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///meeting_room.db"
+
+    app.config.from_object(Config)
     
     # initialze Flask application
     db.init_app(app)
@@ -15,6 +21,11 @@ def create_app():
     # import models ke Flask application
     from app import models
 
+    # setup utk akaun admin, selepas model di import
+    from app.admin_setup import ensure_default_admin
+    with app.app_context():
+        ensure_default_admin(app)
+        
     # Flask route management
     @app.route("/")
     # default index route

@@ -5,6 +5,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.extensions import db
 
+# untuk kegunaan password hashing
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(db.Model):
     __tablename__ = "users"
@@ -25,17 +27,20 @@ class User(db.Model):
     identification_no: Mapped[str] = mapped_column(
         String(12), #disimpan dalam string sbb bukan utk kegunaan pengiraan matematik
         unique=True,
-        nullable=False
+        # nullable=False
+        nullable=True
     )
 
     division_name: Mapped[str] = mapped_column(
         String(255),
-        nullable=False
+        # nullable=False
+        nullable=True
     )
 
     unit_name: Mapped[str] = mapped_column(
         String(255),
-        nullable=False
+        # nullable=False
+        nullable=True
     )
 
     password_hash: Mapped[str] = mapped_column(
@@ -65,3 +70,11 @@ class User(db.Model):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc)
     )
+    
+    # utk hashing password
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
