@@ -18,9 +18,14 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     # selesai initialze
-    # import models ke Flask application
+    # DB setup
     from app import models
 
+    from app.auth import auth_bp
+    from app.auth import routes
+
+    app.register_blueprint(auth_bp)
+    
     # setup utk akaun admin, selepas model di import
     from app.admin_setup import ensure_default_admin
     with app.app_context():
