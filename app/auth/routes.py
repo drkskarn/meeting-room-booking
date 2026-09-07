@@ -2,11 +2,14 @@ from flask import flash, redirect, render_template, url_for
 
 from app.auth import auth_bp
 from app.auth.forms import LoginForm, RegistrationForm
+from app.auth.tokens import (generate_activation_token, verify_activation_token)
 from app.extensions import db
 from app.models import User
 
 from flask_login import current_user, login_required, login_user, logout_user
 
+
+# ===========Utk Registration======================
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     form = RegistrationForm()
@@ -27,6 +30,16 @@ def register():
         db.session.add(user)
         db.session.commit()
 
+        token = generate_activation_token(user.email)
+
+        activation_url = url_for(
+            "auth.activate_account",
+            token=token,
+            _external=True )
+        
+        # hanya utk tujuan checking dev sahaja
+        print(f"Activation URL: {activation_url}")
+        
         flash(
             "Pendaftaran berjaya. Akaun anda menunggu pengaktifan.",
             "success"
@@ -34,12 +47,15 @@ def register():
 
         return redirect(url_for("auth.register"))
 
+        token = generate_activation_token(user.email)
+        
+        
     return render_template(
         "auth/register.html",
         form=form
     )
 
-
+# ================Utk Login======================
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -90,7 +106,7 @@ def login():
         form=form
     )
 
-
+# ================Utk Logout======================
 @auth_bp.route("/logout")
 @login_required
 def logout():
@@ -105,10 +121,58 @@ def logout():
         url_for("auth.login")
     )
     
-
+# ================Utk Dashboard====================
 @auth_bp.route("/dashboard")
 @login_required
 def dashboard():
     return render_template(
         "auth/dashboard.html"
     )
+
+
+# ============Utk Email Activation=================
+@auth_bp.route("/activate/<token>")
+def activate_account(token):
+    email = verify_activation_token(token)
+
+    if email is None:
+        flash(
+            "Pautan pengaktifan tidak sah atau telah tamat tempoh.",
+            "danger"
+        )
+
+        return redirect(url_for("auth.login"))
+
+    user = db.session.scalar(
+        db.select(User).where(
+            User.email == email
+        )
+    )
+
+    if user is None:
+        flash(
+            "Akaun pengguna tidak ditemui.",
+            "danger"
+        )
+
+        return redirect(url_for("auth.login"))
+
+    if user.is_active:
+        flash(
+            "Akaun anda telah pun diaktifkan. Sila log masuk.",
+            "info"
+        )
+
+        return redirect(url_for("auth.login"))
+
+    user.is_active = True
+
+    db.session.commit()
+
+    flash(
+        "Akaun anda telah berjaya diaktifkan. "
+        "Sila log masuk.",
+        "success"
+    )
+
+    return redirect(url_for("auth.login"))
