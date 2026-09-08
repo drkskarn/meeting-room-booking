@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 
 # load semua extension yg berkaitan
-from app.extensions import db, login_manager, migrate
+from app.extensions import db, login_manager, mail, migrate
 
 # semua config file diletakkan dalam satu file
 from config import Config
@@ -15,6 +15,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
+    mail.init_app(app)
     # selesai initialze
     
     # setup database

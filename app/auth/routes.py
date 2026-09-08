@@ -5,6 +5,7 @@ from app.auth.forms import LoginForm, RegistrationForm
 from app.auth.tokens import (generate_activation_token, verify_activation_token)
 from app.extensions import db
 from app.models import User
+from app.email import send_activation_email
 
 from flask_login import current_user, login_required, login_user, logout_user
 
@@ -35,10 +36,15 @@ def register():
         activation_url = url_for(
             "auth.activate_account",
             token=token,
-            _external=True )
+            _external=True 
+        )
         
         # hanya utk tujuan checking dev sahaja
-        print(f"Activation URL: {activation_url}")
+        # print(f"Activation URL: {activation_url}")
+        send_activation_email(
+            user,
+            activation_url
+        )
         
         flash(
             "Pendaftaran berjaya. Akaun anda menunggu pengaktifan.",
