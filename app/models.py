@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, String
+from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.extensions import db, login_manager
@@ -11,6 +11,7 @@ from flask_login import UserMixin
 # untuk kegunaan password hashing
 from werkzeug.security import generate_password_hash, check_password_hash
 
+#*****************Model utk Users*************************
 class User(UserMixin, db.Model):
     
     __tablename__ = "users"
@@ -86,3 +87,43 @@ class User(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
+
+# *****************Model utk Rooms*************************
+class Room (db.Model):
+    __tablename__ = "rooms"
+    id: Mapped[int] = mapped_column(
+        primary_key=True
+    )
+
+    room_name: Mapped[str] = mapped_column(
+        String(255),
+        unique=True,
+        nullable=False
+    )
+
+    location: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False
+    )
+
+    capacity: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False
+    )
+
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
+    )

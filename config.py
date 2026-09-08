@@ -42,5 +42,5 @@ class Config:
 
     MAIL_DEFAULT_SENDER = os.getenv(
         "MAIL_DEFAULT_SENDER",
-        "mysppdev@ebi.net.my"
+        "noreply@kpkt.gov.my"
     )

@@ -17,7 +17,7 @@ def generate_activation_token(email):
     )
 
 
-def verify_activation_token(token, max_age=60):
+def verify_activation_token(token, max_age=3600):
     serializer = URLSafeTimedSerializer(
         current_app.config["SECRET_KEY"]
     )
@@ -26,7 +26,7 @@ def verify_activation_token(token, max_age=60):
         email = serializer.loads(
             token,
             salt="email-activation",
-            # max_age=86400 seconds ni tarik dari function. utk testing 60 seconds
+            # max_age=86400 seconds (24 hrs) ni tarik dari function. utk testing 3600 seconds (1 hrs)
             max_age=max_age
         )
 
