@@ -21,10 +21,15 @@ def create_app():
     # setup database
     from app import models
     
+    # Auth Blueprint
     from app.auth import auth_bp
-    from app.auth import routes
-
+    from app.auth import routes as auth_routes
     app.register_blueprint(auth_bp)
+    
+    # Admin Blueprint
+    from app.admin import admin_bp
+    from app.admin import routes as admin_routes
+    app.register_blueprint(admin_bp)
     
     # setup utk akaun admin, selepas model di import
     from app.admin_setup import ensure_default_admin

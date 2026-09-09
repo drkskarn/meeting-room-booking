@@ -28,5 +28,14 @@
         </a>
     </p>
 
+    {% if current_user.role == "ADMIN" %}
+
+    <p>
+        <a href="{{ url_for('admin.rooms') }}">
+            Pengurusan Bilik Mesyuarat
+        </a>
+    </p>
+
+    {% endif %}
 </body>
 </html>
