@@ -14,3 +14,14 @@ def admin_required(view_function):
         return view_function(*args, **kwargs)
 
     return wrapped_view
+
+def applicant_required(view_function):
+    @wraps(view_function)
+    def wrapped_view(*args, **kwargs):
+
+        if current_user.role != "APPLICANT":
+            abort(403)
+
+        return view_function(*args, **kwargs)
+
+    return wrapped_view

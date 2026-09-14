@@ -31,6 +31,11 @@ def create_app():
     from app.admin import routes as admin_routes
     app.register_blueprint(admin_bp)
     
+    # Booking Blueprint
+    from app.booking import booking_bp
+    from app.booking import routes as booking_routes
+    app.register_blueprint(booking_bp)
+    
     # setup utk akaun admin, selepas model di import
     from app.admin_setup import ensure_default_admin
     with app.app_context():

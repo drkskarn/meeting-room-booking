@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Tempahan Saya</title>
+</head>
+
+<body>
+
+    <h1>Tempahan Saya</h1>
+
+    {% with messages = get_flashed_messages(
+        with_categories=true
+    ) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <p>
+        <a href="{{ url_for('booking.create_booking') }}">
+            Buat Tempahan Baru
+        </a>
+    </p>
+
+
+    <table border="1" cellpadding="8">
+
+        <thead>
+
+            <tr>
+                <th>ID</th>
+                <th>Bilik</th>
+                <th>Mula</th>
+                <th>Tamat</th>
+                <th>Tujuan</th>
+                <th>Status</th>
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for booking in bookings %}
+
+                <tr>
+
+                    <td>
+                        {{ booking.id }}
+                    </td>
+
+                    <td>
+                        {{ booking.room.room_name }}
+                    </td>
+
+                    <td>
+                        {{ booking.start_datetime }}
+                    </td>
+
+                    <td>
+                        {{ booking.end_datetime }}
+                    </td>
+
+                    <td>
+                        {{ booking.purpose }}
+                    </td>
+
+                    <td>
+                        {{ booking.status }}
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="6">
+                        Anda belum mempunyai tempahan.
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+
+    <p>
+        <a href="{{ url_for('auth.dashboard') }}">
+            Kembali ke Dashboard
+        </a>
+    </p>
+
+</body>
+</html>

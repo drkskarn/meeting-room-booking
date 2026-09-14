@@ -27,12 +27,38 @@
             Log Keluar
         </a>
     </p>
-
+<!-- Menu utk ADMIN -->
     {% if current_user.role == "ADMIN" %}
+    <p>
+        <a href="{{ url_for('booking.create_booking') }}">
+            Tempah Bilik Mesyuarat
+        </a>
+    </p>
 
+    <p>
+        <a href="{{ url_for('booking.my_bookings') }}">
+            Tempahan Saya
+        </a>
+    </p>
     <p>
         <a href="{{ url_for('admin.rooms') }}">
             Pengurusan Bilik Mesyuarat
+        </a>
+    </p>
+
+    {% endif %}
+<!-- Menu utk APPLICANT -->
+    {% if current_user.role == "APPLICANT" %}
+
+    <p>
+        <a href="{{ url_for('booking.create_booking') }}">
+            Tempah Bilik Mesyuarat
+        </a>
+    </p>
+
+    <p>
+        <a href="{{ url_for('booking.my_bookings') }}">
+            Tempahan Saya
         </a>
     </p>
 
