@@ -1,5 +1,5 @@
 from flask import abort, flash, redirect, render_template, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
 from sqlalchemy import func
 
 from app.admin import admin_bp
@@ -8,6 +8,16 @@ from app.decorators import admin_required
 from app.extensions import db
 from app.models import Room
 
+from datetime import datetime, timezone
+
+from app.admin.forms import (
+    BookingActionForm,
+    RoomForm,
+    ToggleRoomForm,
+)
+
+from app.booking.services import has_booking_conflict
+from app.models import Booking, Room
 
 @admin_bp.route("/rooms")
 @login_required
@@ -78,7 +88,6 @@ def add_room():
         form=form,
         title="Tambah Bilik"
     )
-
 
 @admin_bp.route(
     "/rooms/<int:room_id>/edit",
@@ -170,4 +179,102 @@ def toggle_room(room_id):
 
     return redirect(
         url_for("admin.rooms")
+    )
+
+@admin_bp.route("/bookings")
+@login_required
+@admin_required
+def bookings():
+    bookings = db.session.scalars(
+        db.select(Booking)
+        .order_by(
+            Booking.created_at.desc()
+        )
+    ).all()
+
+    action_form = BookingActionForm()
+
+    return render_template(
+        "admin/bookings.html",
+        bookings=bookings,
+        action_form=action_form
+    )
+
+@admin_bp.route(
+    "/bookings/<int:booking_id>/approve",
+    methods=["POST"]
+)
+@login_required
+@admin_required
+def approve_booking(booking_id):
+    booking = db.session.get(
+        Booking,
+        booking_id
+    )
+
+    if booking is None:
+        abort(404)
+
+    form = BookingActionForm()
+
+    if not form.validate_on_submit():
+        abort(400)
+
+    if booking.status != "PENDING":
+        flash(
+            "Hanya permohonan berstatus PENDING "
+            "boleh diluluskan.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("admin.bookings")
+        )
+
+    room = booking.room
+
+    if not room.is_active:
+        flash(
+            "Permohonan tidak boleh diluluskan kerana "
+            "bilik ini tidak aktif.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("admin.bookings")
+        )
+
+    if has_booking_conflict(
+        room_id=booking.room_id,
+        start_datetime=booking.start_datetime,
+        end_datetime=booking.end_datetime,
+        exclude_booking_id=booking.id
+    ):
+        flash(
+            "Permohonan tidak boleh diluluskan kerana "
+            "bilik telah ditempah pada waktu tersebut.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("admin.bookings")
+        )
+
+    booking.status = "APPROVED"
+
+    booking.approved_by_id = current_user.id
+
+    booking.approved_at = datetime.now(
+        timezone.utc
+    )
+
+    db.session.commit()
+
+    flash(
+        "Permohonan tempahan berjaya diluluskan.",
+        "success"
+    )
+
+    return redirect(
+        url_for("admin.bookings")
     )

@@ -10,6 +10,8 @@ from app.models import Booking, Room
 
 from app.decorators import applicant_required
 
+from app.booking.services import has_booking_conflict
+
 @booking_bp.route("/create", methods=["GET", "POST"])
 @login_required
 # @applicant_required
@@ -70,7 +72,19 @@ def create_booking():
                 "booking/create.html",
                 form=form
             )
+            
+        if has_booking_conflict( room_id=room.id, start_datetime=start_datetime, end_datetime=end_datetime):
+            flash(
+                "Bilik ini telah ditempah pada tarikh dan masa "
+                "yang dipilih. Sila pilih waktu atau bilik lain.",
+                "danger"
+            )
 
+            return render_template(
+                "booking/create.html",
+                form=form
+            )
+            
         booking = Booking(
             applicant_id=current_user.id,
             room_id=room.id,

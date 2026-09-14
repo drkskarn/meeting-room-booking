@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Pengurusan Tempahan</title>
+</head>
+
+<body>
+
+    <h1>Pengurusan Tempahan Bilik Mesyuarat</h1>
+
+    {% with messages = get_flashed_messages(
+        with_categories=true
+    ) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <table border="1" cellpadding="8">
+
+        <thead>
+
+            <tr>
+                <th>ID</th>
+                <th>Pemohon</th>
+                <th>Bilik</th>
+                <th>Mula</th>
+                <th>Tamat</th>
+                <th>Tujuan</th>
+                <th>Status</th>
+                <th>Tindakan</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for booking in bookings %}
+
+                <tr>
+
+                    <td>
+                        {{ booking.id }}
+                    </td>
+
+                    <td>
+                        {{ booking.applicant.full_name }}
+                        <br>
+                        {{ booking.applicant.email }}
+                    </td>
+
+                    <td>
+                        {{ booking.room.room_name }}
+                    </td>
+
+                    <td>
+                        {{ booking.start_datetime }}
+                    </td>
+
+                    <td>
+                        {{ booking.end_datetime }}
+                    </td>
+
+                    <td>
+                        {{ booking.purpose }}
+                    </td>
+
+                    <td>
+                        {{ booking.status }}
+                    </td>
+
+                    <td>
+
+                        {% if booking.status == "PENDING" %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'admin.approve_booking',
+                                    booking_id=booking.id
+                                ) }}"
+                            >
+
+                                {{ action_form.hidden_tag() }}
+
+                                <button type="submit">
+                                    Luluskan
+                                </button>
+
+                            </form>
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="8">
+                        Tiada permohonan tempahan.
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+
+    <p>
+        <a href="{{ url_for('auth.dashboard') }}">
+            Kembali ke Dashboard
+        </a>
+    </p>
+
+</body>
+</html>

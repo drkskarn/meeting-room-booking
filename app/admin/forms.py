@@ -36,3 +36,6 @@ class RoomForm(FlaskForm):
 
 class ToggleRoomForm(FlaskForm):
     submit = SubmitField("Kemaskini Status")
+    
+class BookingActionForm(FlaskForm):
+    submit = SubmitField("Sahkan")
