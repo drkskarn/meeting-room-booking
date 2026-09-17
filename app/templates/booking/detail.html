@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Maklumat Tempahan</title>
+</head>
+
+<body>
+
+    <h1>Maklumat Tempahan</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <p>
+                    {{ message }}
+                </p>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+    
+    <p>
+        ID:
+        {{ booking.id }}
+    </p>
+
+    <p>
+        Pemohon:
+        {{ booking.applicant.full_name }}
+    </p>
+
+    <p>
+        Emel:
+        {{ booking.applicant.email }}
+    </p>
+
+    <p>
+        Bilik:
+        {{ booking.room.room_name }}
+    </p>
+
+    <p>
+        Lokasi:
+        {{ booking.room.location }}
+    </p>
+
+    <p>
+        Mula:
+        {{ booking.start_datetime }}
+    </p>
+
+    <p>
+        Tamat:
+        {{ booking.end_datetime }}
+    </p>
+
+    <p>
+        Tujuan:
+        {{ booking.purpose }}
+    </p>
+
+    <p>
+        Status:
+        {{ booking.status }}
+    </p>
+
+
+    {% if booking.status == "APPROVED" %}
+
+        <p>
+            Diluluskan Oleh:
+            {{ booking.approved_by.full_name }}
+        </p>
+
+        <p>
+            Tarikh Kelulusan:
+            {{ booking.approved_at }}
+        </p>
+
+    {% endif %}
+
+
+    {% if booking.status == "REJECTED" %}
+
+        <p>
+            Sebab Penolakan:
+            {{ booking.rejection_reason }}
+        </p>
+
+    {% endif %}
+
+
+    {% if booking.status == "CANCELLED" %}
+
+        <p>
+            Sebab Pembatalan:
+            {{ booking.cancellation_reason }}
+        </p>
+
+    {% endif %}
+
+
+    {% if booking.status in ["PENDING", "APPROVED"] %}
+
+        <p>
+            <a href="{{ url_for(
+                'booking.edit_booking',
+                booking_id=booking.id
+            ) }}">
+                Edit Tempahan
+            </a>
+        </p>
+
+    {% endif %}
+
+    <p>
+        <a href="{{ url_for('booking.my_bookings') }}">
+            Kembali
+        </a>
+    </p>
+
+</body>
+
+</html>

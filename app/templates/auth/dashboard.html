@@ -30,6 +30,11 @@
 <!-- Menu utk ADMIN -->
     {% if current_user.role == "ADMIN" %}
     <p>
+    <a href="{{ url_for('admin.users') }}">
+        Pengurusan Akaun Pengguna
+    </a>
+    </p>
+    <p>
         <a href="{{ url_for('booking.create_booking') }}">
             Tempah Bilik Mesyuarat
         </a>

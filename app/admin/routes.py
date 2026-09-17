@@ -1,5 +1,6 @@
 from flask import abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
+from app.models import Booking, Room, User
 from sqlalchemy import func
 from datetime import datetime, timezone
 from app.admin import admin_bp
@@ -7,15 +8,235 @@ from app.admin import admin_bp
 from app.decorators import admin_required
 from app.extensions import db
 from app.booking.services import has_booking_conflict
-from app.models import Booking, Room
 from app.admin.forms import (
+    AdminEditUserForm,
     BookingActionForm,
     CancelBookingForm,
     RejectBookingForm,
     RoomForm,
     ToggleRoomForm,
+    UserStatusForm,
 )
 
+# =====================Route Bagi User Management====================
+@admin_bp.route("/users")
+@login_required
+@admin_required
+def users():
+    users = db.session.scalars(
+        db.select(User)
+        .order_by(User.full_name)
+    ).all()
+
+    status_form = UserStatusForm()
+
+    return render_template(
+        "admin/users.html",
+        users=users,
+        status_form=status_form
+    )
+
+@admin_bp.route("/users/<int:user_id>")
+@login_required
+@admin_required
+def user_detail(user_id):
+    user = db.session.get(
+        User,
+        user_id
+    )
+
+    if user is None:
+        abort(404)
+
+    return render_template(
+        "admin/user_detail.html",
+        user=user
+    )
+
+@admin_bp.route(
+    "/users/<int:user_id>/edit",
+    methods=["GET", "POST"]
+)
+@login_required
+@admin_required
+def edit_user(user_id):
+    user = db.session.get(
+        User,
+        user_id
+    )
+
+    if user is None:
+        abort(404)
+
+    form = AdminEditUserForm(obj=user)
+
+    if form.validate_on_submit():
+        email = form.email.data.strip().lower()
+
+        existing_email = db.session.scalar(
+            db.select(User).where(
+                func.lower(User.email) == email,
+                User.id != user.id
+            )
+        )
+
+        if existing_email is not None:
+            flash(
+                "Alamat emel ini telah digunakan oleh akaun lain.",
+                "danger"
+            )
+
+            return render_template(
+                "admin/user_form.html",
+                user=user,
+                form=form
+            )
+
+        identification_no = (
+            form.identification_no.data.strip()
+            if form.identification_no.data
+            else None
+        )
+
+        if identification_no:
+            existing_id = db.session.scalar(
+                db.select(User).where(
+                    User.identification_no == identification_no,
+                    User.id != user.id
+                )
+            )
+
+            if existing_id is not None:
+                flash(
+                    "No Pengenalan ini telah digunakan oleh akaun lain.",
+                    "danger"
+                )
+
+                return render_template(
+                    "admin/user_form.html",
+                    user=user,
+                    form=form
+                )
+
+        # Admin tidak boleh menukar role dirinya sendiri
+        if (
+            user.id == current_user.id
+            and form.role.data != "ADMIN"
+        ):
+            flash(
+                "Anda tidak boleh menukar role akaun Pentadbir "
+                "yang sedang digunakan.",
+                "danger"
+            )
+
+            return render_template(
+                "admin/user_form.html",
+                user=user,
+                form=form
+            )
+
+        user.email = email
+        user.full_name = form.full_name.data.strip()
+        user.identification_no = identification_no
+
+        user.division_name = (
+            form.division_name.data.strip()
+            if form.division_name.data
+            else None
+        )
+
+        user.unit_name = (
+            form.unit_name.data.strip()
+            if form.unit_name.data
+            else None
+        )
+
+        user.role = form.role.data
+        
+        password_changed = False
+        
+        if form.new_password.data:
+            user.set_password(form.new_password.data)
+            password_changed = True
+         
+        db.session.commit()
+
+        if password_changed:
+            flash(
+            "Maklumat pengguna dan kata laluan berjaya dikemaskini.",
+            "success"
+            )
+        else:
+            flash(
+                "Maklumat pengguna berjaya dikemaskini.",
+                "success"
+            )
+
+        return redirect(
+            url_for(
+                "admin.user_detail",
+                user_id=user.id
+            )
+        )
+
+    return render_template(
+        "admin/user_form.html",
+        user=user,
+        form=form
+    )
+    
+@admin_bp.route(
+    "/users/<int:user_id>/toggle-status",
+    methods=["POST"]
+)
+@login_required
+@admin_required
+def toggle_user_status(user_id):
+    user = db.session.get(
+        User,
+        user_id
+    )
+
+    if user is None:
+        abort(404)
+
+    form = UserStatusForm()
+
+    if not form.validate_on_submit():
+        abort(400)
+
+    # Pentadbir tidak boleh disable dirinya sendiri
+    if user.id == current_user.id:
+        flash(
+            "Anda tidak boleh menyahaktifkan akaun "
+            "yang sedang digunakan.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("admin.users")
+        )
+
+    user.is_active = not user.is_active
+
+    db.session.commit()
+
+    if user.is_active:
+        message = "Akaun pengguna telah diaktifkan."
+    else:
+        message = "Akaun pengguna telah dinyahaktifkan."
+
+    flash(
+        message,
+        "success"
+    )
+
+    return redirect(
+        url_for("admin.users")
+    )
+    
+    
+# =====================Route Bagi Room===================
 @admin_bp.route("/rooms")
 @login_required
 @admin_required
@@ -25,7 +246,7 @@ def rooms():
     ).all()
 
     toggle_form = ToggleRoomForm()
-
+    
     return render_template(
         "admin/rooms.html",
         rooms=rooms,
@@ -160,6 +381,9 @@ def toggle_room(room_id):
     form = ToggleRoomForm()
 
     if form.validate_on_submit():
+        if not form.validate_on_submit():
+            abort(400)
+            
         room.is_active = not room.is_active
 
         db.session.commit()
@@ -178,6 +402,8 @@ def toggle_room(room_id):
         url_for("admin.rooms")
     )
 
+
+# =====================Route Bagi Booking===================
 @admin_bp.route("/bookings")
 @login_required
 @admin_required

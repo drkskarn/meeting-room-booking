@@ -21,7 +21,11 @@
         {% if messages %}
 
             {% for category, message in messages %}
-                <p>{{ message }}</p>
+
+                <p>
+                    {{ message }}
+                </p>
+
             {% endfor %}
 
         {% endif %}
@@ -86,6 +90,24 @@
 
                         {% if booking.status == "PENDING" %}
 
+                            <a href="{{ url_for(
+                                'booking.booking_detail',
+                                booking_id=booking.id
+                            ) }}">
+                                Lihat
+                            </a>
+
+                            |
+
+                            <a href="{{ url_for(
+                                'booking.edit_booking',
+                                booking_id=booking.id
+                            ) }}">
+                                Edit
+                            </a>
+
+                            |
+
                             <form
                                 method="POST"
                                 action="{{ url_for(
@@ -94,15 +116,14 @@
                                 ) }}"
                                 style="display:inline;"
                             >
-
                                 {{ action_form.hidden_tag() }}
 
                                 <button type="submit">
                                     Luluskan
                                 </button>
-
                             </form>
 
+                            |
 
                             <a href="{{ url_for(
                                 'admin.reject_booking',
@@ -111,6 +132,7 @@
                                 Tolak
                             </a>
 
+                            |
 
                             <a href="{{ url_for(
                                 'admin.cancel_booking',
@@ -118,21 +140,42 @@
                             ) }}">
                                 Batal
                             </a>
-
 
                         {% elif booking.status == "APPROVED" %}
 
                             <a href="{{ url_for(
+                                'booking.booking_detail',
+                                booking_id=booking.id
+                            ) }}">
+                                Lihat
+                            </a>
+
+                            |
+
+                            <a href="{{ url_for(
+                                'booking.edit_booking',
+                                booking_id=booking.id
+                            ) }}">
+                                Edit
+                            </a>
+
+                            |
+
+                            <a href="{{ url_for(
                                 'admin.cancel_booking',
                                 booking_id=booking.id
                             ) }}">
                                 Batal
                             </a>
 
-
                         {% else %}
 
-                            -
+                            <a href="{{ url_for(
+                                'booking.booking_detail',
+                                booking_id=booking.id
+                            ) }}">
+                                Lihat
+                            </a>
 
                         {% endif %}
 

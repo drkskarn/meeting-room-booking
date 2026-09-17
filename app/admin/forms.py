@@ -5,16 +5,24 @@ from flask_wtf import FlaskForm
 from flask_wtf import FlaskForm
 from wtforms import (
     IntegerField,
+    SelectField,
     StringField,
+    PasswordField,
     SubmitField,
     TextAreaField,
 )
 from wtforms.validators import (
     DataRequired,
+    Email,
     Length,
     NumberRange,
+    Optional,
+    Regexp,
+    ValidationError,
+    EqualTo,
 )
 
+# =================================Bagi pengurusan bilik mesyuarat========================
 class RoomForm(FlaskForm):
     room_name = StringField(
         "Nama Bilik",
@@ -74,3 +82,102 @@ class CancelBookingForm(FlaskForm):
     )
 
     submit = SubmitField("Batalkan Tempahan")
+
+# =========================bagi pengurusan akaun pengguna===========================
+class AdminEditUserForm(FlaskForm):
+    email = StringField(
+        "Alamat Emel",
+        validators=[
+            DataRequired(),
+            Email()
+        ]
+    )
+
+    full_name = StringField(
+        "Nama Penuh",
+        validators=[
+            DataRequired(),
+            Length(min=3, max=255)
+        ]
+    )
+
+    identification_no = StringField(
+        "No Pengenalan",
+        validators=[
+            Optional(),
+            Regexp(
+                r"^\d{12}$",
+                message="No Pengenalan mestilah tepat 12 digit nombor."
+            )
+        ]
+    )
+    
+    new_password = PasswordField(
+        "Kata Laluan Baru",
+        validators=[
+            Optional(),
+            Length(
+                min=8,
+                message="Kata laluan mestilah sekurang-kurangnya 8 aksara."
+            )
+        ]
+    )
+
+    confirm_password = PasswordField(
+        "Sahkan Kata Laluan Baru",
+        validators=[
+            Optional(),
+            EqualTo(
+                "new_password",
+                message="Kata laluan baru tidak sepadan."
+            )
+        ]
+    )
+    
+    division_name = StringField(
+        "Nama Bahagian",
+        validators=[
+            Optional(),
+            Length(max=255)
+        ]
+    )
+
+    unit_name = StringField(
+        "Nama Cawangan/Unit",
+        validators=[
+            Optional(),
+            Length(max=255)
+        ]
+    )
+
+    role = SelectField(
+        "Peranan",
+        choices=[
+            ("APPLICANT", "Pemohon"),
+            ("ADMIN", "Pentadbir Sistem"),
+        ],
+        validators=[
+            DataRequired()
+        ]
+    )
+
+    submit = SubmitField("Simpan Perubahan")
+
+    def validate_email(self, field):
+        email = field.data.strip().lower()
+
+        try:
+            domain = email.rsplit("@", 1)[1]
+        except IndexError:
+            raise ValidationError(
+                "Alamat emel tidak sah."
+            )
+
+        if domain != "kpkt.gov.my":
+            raise ValidationError(
+                "Alamat emel mestilah menggunakan domain @kpkt.gov.my."
+            )
+
+
+class UserStatusForm(FlaskForm):
+    submit = SubmitField("Kemaskini Status")

@@ -9,6 +9,22 @@
 
     <h1>Batalkan Tempahan</h1>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <p>
+                    {{ message }}
+                </p>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
     <p>
         Pemohon:
         {{ booking.applicant.full_name }}

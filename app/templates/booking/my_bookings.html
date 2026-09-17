@@ -85,7 +85,25 @@
 
                     <td>
 
-                        {% if booking.status in ["PENDING", "APPROVED"] %}
+                        <a href="{{ url_for(
+                            'booking.booking_detail',
+                            booking_id=booking.id
+                        ) }}">
+                            Lihat
+                        </a>
+
+                        {% if booking.status in ["PENDING"] %}
+
+                            |
+
+                            <a href="{{ url_for(
+                                'booking.edit_booking',
+                                booking_id=booking.id
+                            ) }}">
+                                Edit
+                            </a>
+
+                            |
 
                             <a href="{{ url_for(
                                 'booking.cancel_own_booking',
@@ -94,11 +112,19 @@
                                 Batalkan
                             </a>
 
-                        {% else %}
+                        {% elif  booking.status == "APPROVED" %}
 
-                            -
+                            |
+
+                            <a href="{{ url_for(
+                                'booking.cancel_own_booking',
+                                booking_id=booking.id
+                            ) }}">
+                                Batalkan
+                            </a>
 
                         {% endif %}
+
 
                     </td>
 

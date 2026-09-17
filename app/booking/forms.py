@@ -9,7 +9,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Length, ValidationError
 
-
+# ===============Create Booking=======================
 class BookingForm(FlaskForm):
     room_id = SelectField(
         "Bilik Mesyuarat",
@@ -61,7 +61,8 @@ class BookingForm(FlaskForm):
     submit = SubmitField(
         "Hantar Permohonan"
     )
-
+    
+# ===============Cancel Own Booking==============
 class CancelOwnBookingForm(FlaskForm):
     reason = TextAreaField(
         "Sebab Pembatalan",
@@ -74,3 +75,7 @@ class CancelOwnBookingForm(FlaskForm):
     submit = SubmitField(
         "Batalkan Tempahan"
     )
+    
+# =============Edit Own Booking================  
+class EditBookingForm(BookingForm):
+    submit = SubmitField("Kemaskini Tempahan")
