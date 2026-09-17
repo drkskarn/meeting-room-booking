@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <title>Batalkan Tempahan</title>
+</head>
+
+<body>
+
+    <h1>Batalkan Tempahan</h1>
+
+    <p>
+        Bilik:
+        {{ booking.room.room_name }}
+    </p>
+
+    <p>
+        Masa:
+        {{ booking.start_datetime }}
+        hingga
+        {{ booking.end_datetime }}
+    </p>
+
+    <p>
+        Status:
+        {{ booking.status }}
+    </p>
+
+    <form method="POST">
+
+        {{ form.hidden_tag() }}
+
+        <p>
+            {{ form.reason.label }}<br>
+            {{ form.reason(rows=5, cols=50) }}
+
+            {% for error in form.reason.errors %}
+                <br>
+                <span>{{ error }}</span>
+            {% endfor %}
+        </p>
+
+        {{ form.submit() }}
+
+    </form>
+
+    <p>
+        <a href="{{ url_for('booking.my_bookings') }}">
+            Kembali
+        </a>
+    </p>
+
+</body>
+</html>

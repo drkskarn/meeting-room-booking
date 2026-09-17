@@ -1,7 +1,19 @@
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, StringField, SubmitField
-from wtforms.validators import DataRequired, Length, NumberRange
+# from wtforms import IntegerField, StringField, SubmitField
+# from wtforms.validators import DataRequired, Length, NumberRange
 
+from flask_wtf import FlaskForm
+from wtforms import (
+    IntegerField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+)
+from wtforms.validators import (
+    DataRequired,
+    Length,
+    NumberRange,
+)
 
 class RoomForm(FlaskForm):
     room_name = StringField(
@@ -39,3 +51,26 @@ class ToggleRoomForm(FlaskForm):
     
 class BookingActionForm(FlaskForm):
     submit = SubmitField("Sahkan")
+    
+class RejectBookingForm(FlaskForm):
+    reason = TextAreaField(
+        "Sebab Penolakan",
+        validators=[
+            DataRequired(),
+            Length(max=1000)
+        ]
+    )
+
+    submit = SubmitField("Tolak Permohonan")
+
+
+class CancelBookingForm(FlaskForm):
+    reason = TextAreaField(
+        "Sebab Pembatalan",
+        validators=[
+            DataRequired(),
+            Length(max=1000)
+        ]
+    )
+
+    submit = SubmitField("Batalkan Tempahan")

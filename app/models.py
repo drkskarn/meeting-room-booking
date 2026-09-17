@@ -211,6 +211,25 @@ class Booking(db.Model):
         onupdate=lambda: datetime.now(timezone.utc)
     )
 
+    rejected_by_id: Mapped[int | None] = mapped_column(
+        ForeignKey(
+            "users.id",
+            name="fk_bookings_rejected_by_id_users"
+        ),
+        
+        nullable=True
+    )
+    
+    rejected_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True
+    )
+
+    rejection_reason: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True
+    )
+    
     applicant: Mapped["User"] = relationship(
         foreign_keys=[applicant_id]
     )
@@ -223,4 +242,8 @@ class Booking(db.Model):
 
     cancelled_by: Mapped["User | None"] = relationship(
         foreign_keys=[cancelled_by_id]
+    )
+    
+    rejected_by: Mapped["User | None"] = relationship(
+    foreign_keys=[rejected_by_id]
     )

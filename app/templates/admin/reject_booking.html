@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <title>Tolak Permohonan Tempahan</title>
+</head>
+
+<body>
+
+    <h1>Tolak Permohonan Tempahan</h1>
+
+    <p>
+        Pemohon:
+        {{ booking.applicant.full_name }}
+    </p>
+
+    <p>
+        Bilik:
+        {{ booking.room.room_name }}
+    </p>
+
+    <p>
+        Masa:
+        {{ booking.start_datetime }}
+        hingga
+        {{ booking.end_datetime }}
+    </p>
+
+    <p>
+        Tujuan:
+        {{ booking.purpose }}
+    </p>
+
+    <form method="POST">
+
+        {{ form.hidden_tag() }}
+
+        <p>
+            {{ form.reason.label }}<br>
+            {{ form.reason(rows=5, cols=50) }}
+
+            {% for error in form.reason.errors %}
+                <br>
+                <span>{{ error }}</span>
+            {% endfor %}
+        </p>
+
+        {{ form.submit() }}
+
+    </form>
+
+    <p>
+        <a href="{{ url_for('admin.bookings') }}">
+            Kembali
+        </a>
+    </p>
+
+</body>
+</html>

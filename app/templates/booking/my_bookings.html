@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ms">
+
 <head>
     <meta charset="UTF-8">
 
@@ -15,9 +16,7 @@
 
     <h1>Tempahan Saya</h1>
 
-    {% with messages = get_flashed_messages(
-        with_categories=true
-    ) %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
 
         {% if messages %}
 
@@ -48,6 +47,7 @@
                 <th>Tamat</th>
                 <th>Tujuan</th>
                 <th>Status</th>
+                <th>Tindakan</th>
             </tr>
 
         </thead>
@@ -83,13 +83,33 @@
                         {{ booking.status }}
                     </td>
 
+                    <td>
+
+                        {% if booking.status in ["PENDING", "APPROVED"] %}
+
+                            <a href="{{ url_for(
+                                'booking.cancel_own_booking',
+                                booking_id=booking.id
+                            ) }}">
+                                Batalkan
+                            </a>
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </td>
+
                 </tr>
+
 
             {% else %}
 
                 <tr>
 
-                    <td colspan="6">
+                    <td colspan="7">
                         Anda belum mempunyai tempahan.
                     </td>
 
@@ -109,4 +129,5 @@
     </p>
 
 </body>
+
 </html>

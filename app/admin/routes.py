@@ -1,23 +1,20 @@
 from flask import abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import func
-
+from datetime import datetime, timezone
 from app.admin import admin_bp
-from app.admin.forms import RoomForm, ToggleRoomForm
+# from app.admin.forms import RoomForm, ToggleRoomForm
 from app.decorators import admin_required
 from app.extensions import db
-from app.models import Room
-
-from datetime import datetime, timezone
-
+from app.booking.services import has_booking_conflict
+from app.models import Booking, Room
 from app.admin.forms import (
     BookingActionForm,
+    CancelBookingForm,
+    RejectBookingForm,
     RoomForm,
     ToggleRoomForm,
 )
-
-from app.booking.services import has_booking_conflict
-from app.models import Booking, Room
 
 @admin_bp.route("/rooms")
 @login_required
@@ -277,4 +274,97 @@ def approve_booking(booking_id):
 
     return redirect(
         url_for("admin.bookings")
+    )
+
+@admin_bp.route(
+    "/bookings/<int:booking_id>/reject",
+    methods=["GET", "POST"]
+)
+@login_required
+@admin_required
+def reject_booking(booking_id):
+    booking = db.session.get(
+        Booking,
+        booking_id
+    )
+
+    if booking is None:
+        abort(404)
+
+    if booking.status != "PENDING":
+        flash(
+            "Hanya permohonan berstatus PENDING boleh ditolak.",
+            "warning"
+        )
+        return redirect(url_for("admin.bookings"))
+
+    form = RejectBookingForm()
+
+    if form.validate_on_submit():
+        booking.status = "REJECTED"
+        booking.rejected_by_id = current_user.id
+        booking.rejected_at = datetime.now(timezone.utc)
+        booking.rejection_reason = form.reason.data.strip()
+
+        db.session.commit()
+
+        flash(
+            "Permohonan tempahan telah ditolak.",
+            "success"
+        )
+
+        return redirect(url_for("admin.bookings"))
+
+    return render_template(
+        "admin/reject_booking.html",
+        booking=booking,
+        form=form
+    )
+
+@admin_bp.route(
+    "/bookings/<int:booking_id>/cancel",
+    methods=["GET", "POST"]
+)
+@login_required
+@admin_required
+def cancel_booking(booking_id):
+    booking = db.session.get(
+        Booking,
+        booking_id
+    )
+
+    if booking is None:
+        abort(404)
+
+    if booking.status not in {
+        "PENDING",
+        "APPROVED"
+    }:
+        flash(
+            "Tempahan ini tidak boleh dibatalkan.",
+            "warning"
+        )
+        return redirect(url_for("admin.bookings"))
+
+    form = CancelBookingForm()
+
+    if form.validate_on_submit():
+        booking.status = "CANCELLED"
+        booking.cancelled_by_id = current_user.id
+        booking.cancelled_at = datetime.now(timezone.utc)
+        booking.cancellation_reason = form.reason.data.strip()
+
+        db.session.commit()
+
+        flash(
+            "Tempahan telah dibatalkan.",
+            "success"
+        )
+
+        return redirect(url_for("admin.bookings"))
+
+    return render_template(
+        "admin/cancel_booking.html",
+        booking=booking,
+        form=form
     )

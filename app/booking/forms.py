@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+
 from wtforms import (
     DateField,
     SelectField,
@@ -59,4 +60,17 @@ class BookingForm(FlaskForm):
 
     submit = SubmitField(
         "Hantar Permohonan"
+    )
+
+class CancelOwnBookingForm(FlaskForm):
+    reason = TextAreaField(
+        "Sebab Pembatalan",
+        validators=[
+            DataRequired(),
+            Length(max=1000)
+        ]
+    )
+
+    submit = SubmitField(
+        "Batalkan Tempahan"
     )

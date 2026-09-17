@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ms">
+
 <head>
     <meta charset="UTF-8">
 
@@ -15,9 +16,7 @@
 
     <h1>Pengurusan Tempahan Bilik Mesyuarat</h1>
 
-    {% with messages = get_flashed_messages(
-        with_categories=true
-    ) %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
 
         {% if messages %}
 
@@ -93,6 +92,7 @@
                                     'admin.approve_booking',
                                     booking_id=booking.id
                                 ) }}"
+                                style="display:inline;"
                             >
 
                                 {{ action_form.hidden_tag() }}
@@ -103,6 +103,33 @@
 
                             </form>
 
+
+                            <a href="{{ url_for(
+                                'admin.reject_booking',
+                                booking_id=booking.id
+                            ) }}">
+                                Tolak
+                            </a>
+
+
+                            <a href="{{ url_for(
+                                'admin.cancel_booking',
+                                booking_id=booking.id
+                            ) }}">
+                                Batal
+                            </a>
+
+
+                        {% elif booking.status == "APPROVED" %}
+
+                            <a href="{{ url_for(
+                                'admin.cancel_booking',
+                                booking_id=booking.id
+                            ) }}">
+                                Batal
+                            </a>
+
+
                         {% else %}
 
                             -
@@ -112,6 +139,7 @@
                     </td>
 
                 </tr>
+
 
             {% else %}
 
@@ -137,4 +165,5 @@
     </p>
 
 </body>
+
 </html>
