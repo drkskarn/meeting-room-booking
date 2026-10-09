@@ -1,32 +1,13 @@
-<!DOCTYPE html>
-<html lang="ms">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Edit Pengguna</title>
-</head>
-
-<body>
-
-    <h1>Edit Pengguna</h1>
+{% block title %}
+    Edit Pengguna
+{% endblock %}
 
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
+{% block content %}
 
-        {% if messages %}
-
-            {% for category, message in messages %}
-
-                <p>
-                    {{ message }}
-                </p>
-
-            {% endfor %}
-
-        {% endif %}
-
-    {% endwith %}
-
+<h1>Edit Pengguna</h1>
 
     <form method="POST">
 
@@ -113,18 +94,6 @@
             {{ form.submit() }}
         </p>
 
-    </form>
+</form>
 
-
-    <p>
-        <a href="{{ url_for(
-            'admin.user_detail',
-            user_id=user.id
-        ) }}">
-            Kembali
-        </a>
-    </p>
-
-</body>
-
-</html>
+{% endblock %}

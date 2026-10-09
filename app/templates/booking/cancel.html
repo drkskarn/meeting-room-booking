@@ -1,29 +1,11 @@
-<!DOCTYPE html>
-<html lang="ms">
-<head>
-    <meta charset="UTF-8">
-    <title>Batalkan Tempahan</title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}
+    Batalkan Tempahan
+{% endblock %}
 
-    <h1>Batalkan Tempahan</h1>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-
-        {% if messages %}
-
-            {% for category, message in messages %}
-
-                <p>
-                    {{ message }}
-                </p>
-
-            {% endfor %}
-
-        {% endif %}
-
-    {% endwith %}
+{% block content %}
 
     <p>
         Bilik:
@@ -66,5 +48,4 @@
         </a>
     </p>
 
-</body>
-</html>
+{% endblock %}

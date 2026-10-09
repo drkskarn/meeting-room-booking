@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+            Sistem Tempahan Bilik Mesyuarat
+        {% endblock %}
+    </title>
+</head>
+
+<body>
+
+    <header>
+        <h2>Sistem Tempahan Bilik Mesyuarat</h2>
+
+        {% if current_user.is_authenticated %}
+
+            <nav>
+
+                <a href="{{ url_for('auth.dashboard') }}">
+                    Dashboard
+                </a>
+
+                |
+
+                <a href="{{ url_for('booking.create_booking') }}">
+                    Tempah Bilik
+                </a>
+
+                |
+
+                <a href="{{ url_for('booking.my_bookings') }}">
+                    Tempahan Saya
+                </a>
+
+
+                {% if current_user.role == "ADMIN" %}
+
+                    |
+
+                    <a href="{{ url_for('admin.rooms') }}">
+                        Pengurusan Bilik
+                    </a>
+
+                    |
+
+                    <a href="{{ url_for('admin.bookings') }}">
+                        Pengurusan Tempahan
+                    </a>
+
+                    |
+
+                    <a href="{{ url_for('admin.users') }}">
+                        Pengurusan Pengguna
+                    </a>
+
+                {% endif %}
+
+                |
+
+                <a href="{{ url_for('auth.logout') }}">
+                    Log Keluar
+                </a>
+
+            </nav>
+
+        {% endif %}
+
+        <hr>
+    </header>
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <p>
+                    {{ message }}
+                </p>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <main>
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+</body>
+
+</html>

@@ -1,31 +1,13 @@
-<!DOCTYPE html>
-<html lang="ms">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Pengurusan Pengguna</title>
-</head>
+{% block title %}
+    Pengurusan Pengguna
+{% endblock %}
 
-<body>
 
-    <h1>Pengurusan Akaun Pengguna</h1>
+{% block content %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-
-        {% if messages %}
-
-            {% for category, message in messages %}
-
-                <p>
-                    {{ message }}
-                </p>
-
-            {% endfor %}
-
-        {% endif %}
-
-    {% endwith %}
-
+<h1>Pengurusan Akaun Pengguna</h1>
 
     <table border="1" cellpadding="8">
 
@@ -144,13 +126,4 @@
 
     </table>
 
-
-    <p>
-        <a href="{{ url_for('auth.dashboard') }}">
-            Kembali ke Dashboard
-        </a>
-    </p>
-
-</body>
-
-</html>
+{% endblock %}

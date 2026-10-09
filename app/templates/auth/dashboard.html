@@ -1,77 +1,22 @@
-<!DOCTYPE html>
-<html lang="ms">
-<head>
-    <meta charset="UTF-8">
+{% extends "base.html" %}
 
-    <title>Dashboard</title>
-</head>
+{% block title %}
+    Dashboard
+{% endblock %}
 
-<body>
 
-    <h1>Dashboard</h1>
+{% block content %}
 
-    <p>
-        Selamat datang, {{ current_user.full_name }}
-    </p>
+<h1>Dashboard</h1>
 
-    <p>
-        Emel: {{ current_user.email }}
-    </p>
+<p>
+    Selamat datang,
+    {{ current_user.full_name }}.
+</p>
 
-    <p>
-        Role: {{ current_user.role }}
-    </p>
+<p>
+    Role:
+    {{ current_user.role }}
+</p>
 
-    <p>
-        <a href="{{ url_for('auth.logout') }}">
-            Log Keluar
-        </a>
-    </p>
-<!-- Menu utk ADMIN -->
-    {% if current_user.role == "ADMIN" %}
-    <p>
-    <a href="{{ url_for('admin.users') }}">
-        Pengurusan Akaun Pengguna
-    </a>
-    </p>
-    <p>
-        <a href="{{ url_for('booking.create_booking') }}">
-            Tempah Bilik Mesyuarat
-        </a>
-    </p>
-
-    <p>
-        <a href="{{ url_for('booking.my_bookings') }}">
-            Tempahan Saya
-        </a>
-    </p>
-    <p>
-        <a href="{{ url_for('admin.bookings') }}">
-            Pengurusan Tempahan
-        </a>
-    </p>
-    <p>
-        <a href="{{ url_for('admin.rooms') }}">
-            Pengurusan Bilik Mesyuarat
-        </a>
-    </p>
-
-    {% endif %}
-<!-- Menu utk APPLICANT -->
-    {% if current_user.role == "APPLICANT" %}
-
-    <p>
-        <a href="{{ url_for('booking.create_booking') }}">
-            Tempah Bilik Mesyuarat
-        </a>
-    </p>
-
-    <p>
-        <a href="{{ url_for('booking.my_bookings') }}">
-            Tempahan Saya
-        </a>
-    </p>
-
-    {% endif %}
-</body>
-</html>
+{% endblock %}
