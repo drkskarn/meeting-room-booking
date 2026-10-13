@@ -7,7 +7,12 @@ from app.admin import admin_bp
 # from app.admin.forms import RoomForm, ToggleRoomForm
 from app.decorators import admin_required
 from app.extensions import db
-from app.booking.services import has_booking_conflict
+
+from app.booking.services import (
+    has_booking_conflict,
+    mark_completed_bookings,
+)
+
 from app.admin.forms import (
     AdminEditUserForm,
     BookingActionForm,
@@ -408,6 +413,9 @@ def toggle_room(room_id):
 @login_required
 @admin_required
 def bookings():
+    
+    mark_completed_bookings()
+    
     bookings = db.session.scalars(
         db.select(Booking)
         .order_by(
@@ -417,11 +425,7 @@ def bookings():
 
     action_form = BookingActionForm()
 
-    return render_template(
-        "admin/bookings.html",
-        bookings=bookings,
-        action_form=action_form
-    )
+    return render_template("admin/bookings.html", bookings=bookings, action_form=action_form)
 
 @admin_bp.route(
     "/bookings/<int:booking_id>/approve",
@@ -430,6 +434,9 @@ def bookings():
 @login_required
 @admin_required
 def approve_booking(booking_id):
+    
+    mark_completed_bookings()
+    
     booking = db.session.get(
         Booking,
         booking_id
@@ -554,6 +561,9 @@ def reject_booking(booking_id):
 @login_required
 @admin_required
 def cancel_booking(booking_id):
+    
+    mark_completed_bookings()
+    
     booking = db.session.get(
         Booking,
         booking_id

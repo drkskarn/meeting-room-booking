@@ -19,4 +19,55 @@
     {{ current_user.role }}
 </p>
 
+<h2>Ringkasan Tempahan Saya</h2>
+
+<table border="1" cellpadding="8">
+
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>Jumlah</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td>PENDING</td>
+            <td>{{ pending_count }}</td>
+        </tr>
+
+        <tr>
+            <td>APPROVED</td>
+            <td>{{ approved_count }}</td>
+        </tr>
+
+        <tr>
+            <td>COMPLETED</td>
+            <td>{{ completed_count }}</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+{% if current_user.role == "ADMIN" %}
+
+    <h2>Ringkasan Pentadbiran</h2>
+
+    <p>
+        Permohonan menunggu kelulusan:
+        <strong>
+            {{ admin_pending_count }}
+        </strong>
+    </p>
+
+    <p>
+        <a href="{{ url_for('admin.bookings') }}">
+            Buka Pengurusan Tempahan
+        </a>
+    </p>
+
+{% endif %}
+
 {% endblock %}

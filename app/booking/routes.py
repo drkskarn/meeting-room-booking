@@ -22,7 +22,10 @@ from app.models import Booking, Room
 
 from app.decorators import applicant_required
 
-from app.booking.services import has_booking_conflict
+from app.booking.services import (
+    has_booking_conflict,
+    mark_completed_bookings,
+)
 
 @booking_bp.route("/create", methods=["GET", "POST"])
 @login_required
@@ -129,6 +132,9 @@ def create_booking():
 @login_required
 # @applicant_required
 def my_bookings():
+    
+    mark_completed_bookings()
+    
     bookings = db.session.scalars(
         db.select(Booking)
         .where(
@@ -139,15 +145,15 @@ def my_bookings():
         )
     ).all()
 
-    return render_template(
-        "booking/my_bookings.html",
-        bookings=bookings
-    )
+    return render_template("booking/my_bookings.html", bookings=bookings)
 
 # ========================Edit Own Booking=========================
 @booking_bp.route("/<int:booking_id>")
 @login_required
 def booking_detail(booking_id):
+    
+    mark_completed_bookings()
+    
     booking = db.session.get(
         Booking,
         booking_id
@@ -162,10 +168,7 @@ def booking_detail(booking_id):
     ):
         abort(403)
 
-    return render_template(
-        "booking/detail.html",
-        booking=booking
-    )
+    return render_template("booking/detail.html", booking=booking)
 
 @booking_bp.route(
     "/<int:booking_id>/edit",
@@ -173,6 +176,9 @@ def booking_detail(booking_id):
 )
 @login_required
 def edit_booking(booking_id):
+    
+    mark_completed_bookings()
+    
     booking = db.session.get(
         Booking,
         booking_id
@@ -344,6 +350,9 @@ def edit_booking(booking_id):
 )
 @login_required
 def cancel_own_booking(booking_id):
+    
+    mark_completed_bookings()
+    
     booking = db.session.get(
         Booking,
         booking_id

@@ -1,6 +1,8 @@
 from app.extensions import db
 from app.models import Booking
 
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 def has_booking_conflict(
     room_id,
@@ -25,3 +27,32 @@ def has_booking_conflict(
     )
 
     return conflict is not None
+
+MALAYSIA_TZ = ZoneInfo("Asia/Kuala_Lumpur")
+
+
+def get_malaysia_now():
+    return datetime.now(
+        MALAYSIA_TZ
+    ).replace(tzinfo=None)
+
+
+def mark_completed_bookings():
+    now = get_malaysia_now()
+
+    expired_bookings = db.session.scalars(
+        db.select(Booking).where(
+            Booking.status == "APPROVED",
+            Booking.end_datetime <= now
+        )
+    ).all()
+
+    if not expired_bookings:
+        return 0
+
+    for booking in expired_bookings:
+        booking.status = "COMPLETED"
+
+    db.session.commit()
+
+    return len(expired_bookings)

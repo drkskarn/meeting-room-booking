@@ -2,12 +2,24 @@ from flask import flash, redirect, render_template, url_for
 
 from app.auth import auth_bp
 from app.auth.forms import LoginForm, RegistrationForm
-from app.auth.tokens import (generate_activation_token, verify_activation_token)
+from app.auth.tokens import (
+    generate_activation_token,
+    verify_activation_token
+    )
 from app.extensions import db
-from app.models import User
+from app.models import User, Booking
 from app.email import send_activation_email
 
-from flask_login import current_user, login_required, login_user, logout_user
+from flask_login import (
+    current_user,
+    login_required,
+    login_user,
+    logout_user
+)
+
+from sqlalchemy import func
+
+from app.booking.services import mark_completed_bookings
 
 
 # ===========Utk Registration======================
@@ -131,8 +143,53 @@ def logout():
 @auth_bp.route("/dashboard")
 @login_required
 def dashboard():
+
+    mark_completed_bookings()
+
+    admin_pending_count = None
+
+    if current_user.role == "ADMIN":
+        admin_pending_count = db.session.scalar(
+            db.select(func.count())
+            .select_from(Booking)
+            .where(
+                Booking.status == "PENDING"
+            )
+        ) or 0
+    
+    pending_count = db.session.scalar(
+        db.select(func.count())
+        .select_from(Booking)
+        .where(
+            Booking.applicant_id == current_user.id,
+            Booking.status == "PENDING"
+        )
+    ) or 0
+
+    approved_count = db.session.scalar(
+        db.select(func.count())
+        .select_from(Booking)
+        .where(
+            Booking.applicant_id == current_user.id,
+            Booking.status == "APPROVED"
+        )
+    ) or 0
+
+    completed_count = db.session.scalar(
+        db.select(func.count())
+        .select_from(Booking)
+        .where(
+            Booking.applicant_id == current_user.id,
+            Booking.status == "COMPLETED"
+        )
+    ) or 0
+
     return render_template(
-        "auth/dashboard.html"
+        "auth/dashboard.html",
+        pending_count=pending_count,
+        approved_count=approved_count,
+        completed_count=completed_count,
+        admin_pending_count=admin_pending_count
     )
 
 
