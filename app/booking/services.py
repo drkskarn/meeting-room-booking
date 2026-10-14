@@ -56,3 +56,23 @@ def mark_completed_bookings():
     db.session.commit()
 
     return len(expired_bookings)
+
+def mark_expired_bookings():
+    now = get_malaysia_now()
+
+    expired_bookings = db.session.scalars(
+        db.select(Booking).where(
+            Booking.status == "PENDING",
+            Booking.end_datetime <= now
+        )
+    ).all()
+
+    if not expired_bookings:
+        return 0
+
+    for booking in expired_bookings:
+        booking.status = "EXPIRED"
+
+    db.session.commit()
+
+    return len(expired_bookings)

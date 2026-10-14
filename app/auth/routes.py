@@ -1,4 +1,5 @@
 from flask import flash, redirect, render_template, url_for
+from datetime import timedelta
 
 from app.auth import auth_bp
 from app.auth.forms import LoginForm, RegistrationForm
@@ -7,7 +8,7 @@ from app.auth.tokens import (
     verify_activation_token
     )
 from app.extensions import db
-from app.models import User, Booking
+from app.models import User, Booking, Room
 from app.email import send_activation_email
 
 from flask_login import (
@@ -19,7 +20,11 @@ from flask_login import (
 
 from sqlalchemy import func
 
-from app.booking.services import mark_completed_bookings
+from app.booking.services import (
+    mark_completed_bookings,
+    get_malaysia_now,
+    mark_expired_bookings,
+)
 
 
 # ===========Utk Registration======================
@@ -63,10 +68,7 @@ def register():
             "success"
         )
 
-        return redirect(url_for("auth.register"))
-
-        token = generate_activation_token(user.email)
-        
+        return redirect(url_for("auth.register"))        
         
     return render_template(
         "auth/register.html",
@@ -144,19 +146,19 @@ def logout():
 @login_required
 def dashboard():
 
+     # Pastikan booking yang sudah tamat ditukar
+    # daripada APPROVED kepada COMPLETED.
     mark_completed_bookings()
+    2
+    # Pastikan booking yang pending approval ditukar kepada expired
+    mark_expired_bookings()
 
-    admin_pending_count = None
+    now = get_malaysia_now()
 
-    if current_user.role == "ADMIN":
-        admin_pending_count = db.session.scalar(
-            db.select(func.count())
-            .select_from(Booking)
-            .where(
-                Booking.status == "PENDING"
-            )
-        ) or 0
-    
+    # =====================================================
+    # DASHBOARD PEMOHON / TEMPAHAN SENDIRI
+    # =====================================================
+
     pending_count = db.session.scalar(
         db.select(func.count())
         .select_from(Booking)
@@ -165,6 +167,7 @@ def dashboard():
             Booking.status == "PENDING"
         )
     ) or 0
+
 
     approved_count = db.session.scalar(
         db.select(func.count())
@@ -175,6 +178,7 @@ def dashboard():
         )
     ) or 0
 
+
     completed_count = db.session.scalar(
         db.select(func.count())
         .select_from(Booking)
@@ -184,58 +188,125 @@ def dashboard():
         )
     ) or 0
 
+
+    upcoming_bookings = db.session.scalars(
+        db.select(Booking)
+        .where(
+            Booking.applicant_id == current_user.id,
+            Booking.status.in_(
+                [
+                    "PENDING",
+                    "APPROVED"
+                ]
+            ),
+            Booking.end_datetime > now
+        )
+        .order_by(
+            Booking.start_datetime.asc()
+        )
+        .limit(3)
+    ).all()
+
+
+    # =====================================================
+    # NILAI DEFAULT ADMIN
+    # =====================================================
+
+    admin_pending_count = 0
+    today_booking_count = 0
+    ongoing_booking_count = 0
+    active_room_count = 0
+
+    pending_bookings = []
+
+
+    # =====================================================
+    # DASHBOARD ADMIN
+    # =====================================================
+
+    if current_user.role == "ADMIN":
+
+        start_of_today = now.replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
+
+        start_of_tomorrow = (
+            start_of_today
+            + timedelta(days=1)
+        )
+
+
+        # Semua permohonan PENDING
+        admin_pending_count = db.session.scalar(
+            db.select(func.count())
+            .select_from(Booking)
+            .where(
+                Booking.status == "PENDING"
+            )
+        ) or 0
+
+
+        # Tempahan APPROVED untuk hari ini
+        today_booking_count = db.session.scalar(
+            db.select(func.count())
+            .select_from(Booking)
+            .where(
+                Booking.status == "APPROVED",
+                Booking.start_datetime >= start_of_today,
+                Booking.start_datetime < start_of_tomorrow
+            )
+        ) or 0
+
+
+        # Booking yang sedang berlangsung sekarang
+        ongoing_booking_count = db.session.scalar(
+            db.select(func.count())
+            .select_from(Booking)
+            .where(
+                Booking.status == "APPROVED",
+                Booking.start_datetime <= now,
+                Booking.end_datetime > now
+            )
+        ) or 0
+
+
+        # Jumlah bilik aktif
+        active_room_count = db.session.scalar(
+            db.select(func.count())
+            .select_from(Room)
+            .where(
+                Room.is_active.is_(True)
+            )
+        ) or 0
+
+
+        # Maksimum 5 permohonan untuk tindakan Admin
+        pending_bookings = db.session.scalars(
+            db.select(Booking)
+            .where(
+                Booking.status == "PENDING"
+            )
+            .order_by(
+                Booking.start_datetime.asc()
+            )
+            .limit(5)
+        ).all()
+
+
     return render_template(
         "auth/dashboard.html",
+
         pending_count=pending_count,
         approved_count=approved_count,
         completed_count=completed_count,
-        admin_pending_count=admin_pending_count
+        upcoming_bookings=upcoming_bookings,
+
+        admin_pending_count=admin_pending_count,
+        today_booking_count=today_booking_count,
+        ongoing_booking_count=ongoing_booking_count,
+        active_room_count=active_room_count,
+        pending_bookings=pending_bookings
     )
-
-
-# ============Utk Email Activation=================
-@auth_bp.route("/activate/<token>")
-def activate_account(token):
-    email = verify_activation_token(token)
-
-    if email is None:
-        flash(
-            "Pautan pengaktifan tidak sah atau telah tamat tempoh.",
-            "danger"
-        )
-
-        return redirect(url_for("auth.login"))
-
-    user = db.session.scalar(
-        db.select(User).where(
-            User.email == email
-        )
-    )
-
-    if user is None:
-        flash(
-            "Akaun pengguna tidak ditemui.",
-            "danger"
-        )
-
-        return redirect(url_for("auth.login"))
-
-    if user.is_active:
-        flash(
-            "Akaun anda telah pun diaktifkan. Sila log masuk.",
-            "info"
-        )
-
-        return redirect(url_for("auth.login"))
-
-    user.is_active = True
-
-    db.session.commit()
-
-    flash(
-        "Akaun anda telah berjaya diaktifkan. "
-        "Sila log masuk.",
-        "success"
-    )
-
-    return redirect(url_for("auth.login"))

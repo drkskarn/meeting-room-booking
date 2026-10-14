@@ -1,73 +1,696 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Dashboard
+Dashboard
 {% endblock %}
 
 
 {% block content %}
 
-<h1>Dashboard</h1>
-
-<p>
-    Selamat datang,
-    {{ current_user.full_name }}.
-</p>
-
-<p>
-    Role:
-    {{ current_user.role }}
-</p>
-
-<h2>Ringkasan Tempahan Saya</h2>
-
-<table border="1" cellpadding="8">
-
-    <thead>
-        <tr>
-            <th>Status</th>
-            <th>Jumlah</th>
-        </tr>
-    </thead>
-
-    <tbody>
-
-        <tr>
-            <td>PENDING</td>
-            <td>{{ pending_count }}</td>
-        </tr>
-
-        <tr>
-            <td>APPROVED</td>
-            <td>{{ approved_count }}</td>
-        </tr>
-
-        <tr>
-            <td>COMPLETED</td>
-            <td>{{ completed_count }}</td>
-        </tr>
-
-    </tbody>
-
-</table>
 
 {% if current_user.role == "ADMIN" %}
 
-    <h2>Ringkasan Pentadbiran</h2>
+    <!-- =================================================
+         ADMIN DASHBOARD
+         ================================================= -->
 
-    <p>
-        Permohonan menunggu kelulusan:
-        <strong>
-            {{ admin_pending_count }}
-        </strong>
-    </p>
+    <div class="page-header">
 
-    <p>
-        <a href="{{ url_for('admin.bookings') }}">
-            Buka Pengurusan Tempahan
+        <h1>
+            Pengurusan Hari Ini
+        </h1>
+
+        <p>
+            Pantau dan urus tempahan bilik mesyuarat.
+        </p>
+
+    </div>
+
+
+    <!-- STAT CARDS -->
+
+    <div class="dashboard-grid">
+
+
+        <div class="stat-card stat-warning">
+
+            <div class="stat-icon">
+                ⏱
+            </div>
+
+            <div class="stat-card-title">
+                Menunggu Kelulusan
+            </div>
+
+            <div class="stat-card-value">
+                {{ admin_pending_count }}
+            </div>
+
+        </div>
+
+
+        <div class="stat-card stat-blue">
+
+            <div class="stat-icon">
+                ▣
+            </div>
+
+            <div class="stat-card-title">
+                Tempahan Hari Ini
+            </div>
+
+            <div class="stat-card-value">
+                {{ today_booking_count }}
+            </div>
+
+        </div>
+
+
+        <div class="stat-card stat-green">
+
+            <div class="stat-icon">
+                ▶
+            </div>
+
+            <div class="stat-card-title">
+                Sedang Berlangsung
+            </div>
+
+            <div class="stat-card-value">
+                {{ ongoing_booking_count }}
+            </div>
+
+        </div>
+
+
+        <div class="stat-card stat-purple">
+
+            <div class="stat-icon">
+                ▦
+            </div>
+
+            <div class="stat-card-title">
+                Bilik Aktif
+            </div>
+
+            <div class="stat-card-value">
+                {{ active_room_count }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PENDING APPLICATION -->
+
+    <div class="dashboard-section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+                    Permohonan Memerlukan Tindakan
+                </h2>
+
+                <p>
+                    Permohonan yang sedang menunggu kelulusan.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('admin.bookings') }}"
+                class="btn btn-primary"
+            >
+                Lihat Semua Permohonan
+            </a>
+
+        </div>
+
+
+        {% if pending_bookings %}
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Pemohon</th>
+                            <th>Bilik</th>
+                            <th>Tarikh / Masa</th>
+                            <th>Tujuan</th>
+                            <th>Status</th>
+                            <th>Tindakan</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for booking in pending_bookings %}
+
+                            <tr>
+
+                                <td>
+                                    #{{ booking.id }}
+                                </td>
+
+
+                                <td>
+
+                                    <strong>
+                                        {{ booking.applicant.full_name }}
+                                    </strong>
+
+                                    <br>
+
+                                    <span class="text-muted">
+                                        {{ booking.applicant.email }}
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+                                    {{ booking.room.room_name }}
+                                </td>
+
+
+                                <td>
+
+                                    {{ booking.start_datetime.strftime(
+                                        "%d/%m/%Y"
+                                    ) }}
+
+                                    <br>
+
+                                    <span class="text-muted">
+
+                                        {{ booking.start_datetime.strftime(
+                                            "%H:%M"
+                                        ) }}
+
+                                        -
+
+                                        {{ booking.end_datetime.strftime(
+                                            "%H:%M"
+                                        ) }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+                                    {{ booking.purpose }}
+                                </td>
+
+
+                                <td>
+
+                                    <span
+                                        class="status-badge status-pending"
+                                    >
+                                        Pending
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <a
+                                        href="{{ url_for(
+                                            'booking.booking_detail',
+                                            booking_id=booking.id
+                                        ) }}"
+                                        class="btn btn-secondary btn-sm"
+                                    >
+                                        Lihat
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <h3>
+                    Tiada permohonan menunggu kelulusan
+                </h3>
+
+                <p>
+                    Semua permohonan telah diproses.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+
+{% else %}
+
+
+    <!-- =================================================
+         APPLICANT DASHBOARD
+         ================================================= -->
+
+    <div class="page-header">
+
+        <h1>
+            Selamat Datang,
+            {{ current_user.full_name }}
+        </h1>
+
+        <p>
+            Urus tempahan bilik mesyuarat anda
+            dengan mudah dan pantas.
+        </p>
+
+    </div>
+
+
+    <!-- STAT CARDS -->
+
+    <div class="dashboard-grid">
+
+
+        <div class="stat-card stat-warning">
+
+            <div class="stat-icon">
+                ⏱
+            </div>
+
+            <div class="stat-card-title">
+                Menunggu Kelulusan
+            </div>
+
+            <div class="stat-card-value">
+                {{ pending_count }}
+            </div>
+
+        </div>
+
+
+        <div class="stat-card stat-green">
+
+            <div class="stat-icon">
+                ✓
+            </div>
+
+            <div class="stat-card-title">
+                Diluluskan
+            </div>
+
+            <div class="stat-card-value">
+                {{ approved_count }}
+            </div>
+
+        </div>
+
+
+        <div class="stat-card stat-blue">
+
+            <div class="stat-icon">
+                ✓
+            </div>
+
+            <div class="stat-card-title">
+                Selesai
+            </div>
+
+            <div class="stat-card-value">
+                {{ completed_count }}
+            </div>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('booking.create_booking') }}"
+            class="stat-card booking-action-card"
+        >
+
+            <div class="booking-action-icon">
+                +
+            </div>
+
+            <strong>
+                Tempah Bilik
+            </strong>
+
+            <span>
+                Buat tempahan baharu
+            </span>
+
         </a>
-    </p>
+
+    </div>
+
+
+    <!-- UPCOMING -->
+
+    <div class="dashboard-section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+                    Tempahan Akan Datang
+                </h2>
+
+                <p>
+                    Tempahan terdekat anda.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('booking.my_bookings') }}"
+                class="section-link"
+            >
+                Lihat Semua
+            </a>
+
+        </div>
+
+
+        {% if upcoming_bookings %}
+
+            <div class="booking-card-grid">
+
+    {% for booking in upcoming_bookings %}
+
+        <button
+            type="button"
+            class="booking-card booking-card-clickable"
+            data-modal-target="booking-modal-{{ booking.id }}"
+        >
+
+            <div class="booking-card-header">
+
+                <div class="booking-room">
+                    {{ booking.room.room_name }}
+                </div>
+
+
+                {% if booking.status == "PENDING" %}
+
+                    <span class="status-badge status-pending">
+                        Menunggu
+                    </span>
+
+                {% elif booking.status == "APPROVED" %}
+
+                    <span class="status-badge status-approved">
+                        Diluluskan
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="booking-info">
+
+                <div>
+                    <span class="booking-info-label">
+                        Tarikh
+                    </span>
+
+                    {{ booking.start_datetime.strftime(
+                        "%d/%m/%Y"
+                    ) }}
+                </div>
+
+
+                <div>
+                    <span class="booking-info-label">
+                        Masa
+                    </span>
+
+                    {{ booking.start_datetime.strftime(
+                        "%H:%M"
+                    ) }}
+
+                    -
+
+                    {{ booking.end_datetime.strftime(
+                        "%H:%M"
+                    ) }}
+                </div>
+
+
+                <div>
+                    <span class="booking-info-label">
+                        Tujuan
+                    </span>
+
+                    {{ booking.purpose }}
+                </div>
+
+            </div>
+
+        </button>
+
+
+        <!-- MODAL -->
+
+        <div
+            class="booking-modal"
+            id="booking-modal-{{ booking.id }}"
+            aria-hidden="true"
+        >
+
+            <div class="booking-modal-overlay"></div>
+
+
+            <div
+                class="booking-modal-content"
+                role="dialog"
+                aria-modal="true"
+            >
+
+                <div class="booking-modal-header">
+
+                    <div>
+
+                        <span class="modal-small-title">
+                            Maklumat Tempahan
+                        </span>
+
+                        <h2>
+                            {{ booking.room.room_name }}
+                        </h2>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="modal-close"
+                        aria-label="Tutup"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <div class="booking-modal-body">
+
+                    <div class="modal-detail-grid">
+
+
+                        <div class="modal-detail">
+
+                            <span>
+                                ID Tempahan
+                            </span>
+
+                            <strong>
+                                #{{ booking.id }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="modal-detail">
+
+                            <span>
+                                Status
+                            </span>
+
+                            <div>
+
+                                {% if booking.status == "PENDING" %}
+
+                                    <span
+                                        class="status-badge status-pending"
+                                    >
+                                        Menunggu Kelulusan
+                                    </span>
+
+                                {% elif booking.status == "APPROVED" %}
+
+                                    <span
+                                        class="status-badge status-approved"
+                                    >
+                                        Diluluskan
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="modal-detail">
+
+                            <span>
+                                Tarikh
+                            </span>
+
+                            <strong>
+                                {{ booking.start_datetime.strftime(
+                                    "%d/%m/%Y"
+                                ) }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="modal-detail">
+
+                            <span>
+                                Masa
+                            </span>
+
+                            <strong>
+
+                                {{ booking.start_datetime.strftime(
+                                    "%H:%M"
+                                ) }}
+
+                                -
+
+                                {{ booking.end_datetime.strftime(
+                                    "%H:%M"
+                                ) }}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal-purpose">
+
+                        <span>
+                            Tujuan Tempahan
+                        </span>
+
+                        <p>
+                            {{ booking.purpose }}
+                        </p>
+
+                    </div>
+
+
+                    {% if booking.room.location %}
+
+                        <div class="modal-purpose">
+
+                            <span>
+                                Lokasi
+                            </span>
+
+                            <p>
+                                {{ booking.room.location }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="booking-modal-footer">
+                    
+                    <button
+                        type="button"
+                        class="btn btn-primary modal-close-button"
+                    >
+                        Tutup
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <h3>
+                    Tiada tempahan akan datang
+                </h3>
+
+                <p>
+                    Anda belum mempunyai tempahan
+                    yang akan datang.
+                </p>
+
+
+                <a
+                    href="{{ url_for(
+                        'booking.create_booking'
+                    ) }}"
+                    class="btn btn-primary mt-2"
+                >
+                    Tempah Bilik
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
 
 {% endif %}
+
 
 {% endblock %}

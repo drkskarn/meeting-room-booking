@@ -25,6 +25,7 @@ from app.decorators import applicant_required
 from app.booking.services import (
     has_booking_conflict,
     mark_completed_bookings,
+    mark_expired_bookings,
 )
 
 @booking_bp.route("/create", methods=["GET", "POST"])
@@ -134,6 +135,7 @@ def create_booking():
 def my_bookings():
     
     mark_completed_bookings()
+    mark_expired_bookings()
     
     bookings = db.session.scalars(
         db.select(Booking)
@@ -153,6 +155,7 @@ def my_bookings():
 def booking_detail(booking_id):
     
     mark_completed_bookings()
+    mark_expired_bookings()
     
     booking = db.session.get(
         Booking,
@@ -178,6 +181,7 @@ def booking_detail(booking_id):
 def edit_booking(booking_id):
     
     mark_completed_bookings()
+    mark_expired_bookings()
     
     booking = db.session.get(
         Booking,
@@ -194,6 +198,21 @@ def edit_booking(booking_id):
         and booking.applicant_id != current_user.id
     ):
         abort(403)
+    
+    #EXPIRED akan paparkan mesej yang jelas
+    if booking.status == "EXPIRED":
+    
+        flash(
+            "Tempahan ini telah tamat tempoh dan tidak boleh dikemaskini.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "booking.booking_detail",
+                booking_id=booking.id
+            )
+        )
 
     # REJECTED / CANCELLED / COMPLETED tidak boleh diedit
     if booking.status not in {
@@ -204,7 +223,7 @@ def edit_booking(booking_id):
             "Tempahan ini tidak boleh dikemaskini.",
             "warning"
         )
-
+    
         return redirect(
             url_for(
                 "booking.booking_detail",
@@ -352,6 +371,7 @@ def edit_booking(booking_id):
 def cancel_own_booking(booking_id):
     
     mark_completed_bookings()
+    mark_expired_bookings()
     
     booking = db.session.get(
         Booking,
@@ -364,6 +384,16 @@ def cancel_own_booking(booking_id):
     if booking.applicant_id != current_user.id:
         abort(403)
 
+    if booking.status == "EXPIRED":
+        flash(
+            "Tempahan ini telah tamat tempoh dan tidak boleh dibatalkan.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("booking.my_bookings")
+        )
+    
     if booking.status not in {
         "PENDING",
         "APPROVED"

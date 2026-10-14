@@ -7,171 +7,345 @@
 
 {% block content %}
 
-    <table border="1" cellpadding="8">
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
 
-        <thead>
+    <div class="page-header">
 
-            <tr>
-                <th>ID</th>
-                <th>Pemohon</th>
-                <th>Bilik</th>
-                <th>Mula</th>
-                <th>Tamat</th>
-                <th>Tujuan</th>
-                <th>Status</th>
-                <th>Tindakan</th>
-            </tr>
+        <h1>
+            Pengurusan Tempahan
+        </h1>
 
-        </thead>
+        <p>
+            Semak dan urus semua permohonan tempahan bilik mesyuarat.
+        </p>
 
-        <tbody>
-
-            {% for booking in bookings %}
-
-                <tr>
-
-                    <td>
-                        {{ booking.id }}
-                    </td>
-
-                    <td>
-                        {{ booking.applicant.full_name }}
-                        <br>
-                        {{ booking.applicant.email }}
-                    </td>
-
-                    <td>
-                        {{ booking.room.room_name }}
-                    </td>
-
-                    <td>
-                        {{ booking.start_datetime }}
-                    </td>
-
-                    <td>
-                        {{ booking.end_datetime }}
-                    </td>
-
-                    <td>
-                        {{ booking.purpose }}
-                    </td>
-
-                    <td>
-                        {{ booking.status }}
-                    </td>
-
-                    <td>
-
-                        {% if booking.status == "PENDING" %}
-
-                            <a href="{{ url_for(
-                                'booking.booking_detail',
-                                booking_id=booking.id
-                            ) }}">
-                                Lihat
-                            </a>
-
-                            |
-
-                            <a href="{{ url_for(
-                                'booking.edit_booking',
-                                booking_id=booking.id
-                            ) }}">
-                                Edit
-                            </a>
-
-                            |
-
-                            <form
-                                method="POST"
-                                action="{{ url_for(
-                                    'admin.approve_booking',
-                                    booking_id=booking.id
-                                ) }}"
-                                style="display:inline;"
-                            >
-                                {{ action_form.hidden_tag() }}
-
-                                <button type="submit">
-                                    Luluskan
-                                </button>
-                            </form>
-
-                            |
-
-                            <a href="{{ url_for(
-                                'admin.reject_booking',
-                                booking_id=booking.id
-                            ) }}">
-                                Tolak
-                            </a>
-
-                            |
-
-                            <a href="{{ url_for(
-                                'admin.cancel_booking',
-                                booking_id=booking.id
-                            ) }}">
-                                Batal
-                            </a>
-
-                        {% elif booking.status == "APPROVED" %}
-
-                            <a href="{{ url_for(
-                                'booking.booking_detail',
-                                booking_id=booking.id
-                            ) }}">
-                                Lihat
-                            </a>
-
-                            |
-
-                            <a href="{{ url_for(
-                                'booking.edit_booking',
-                                booking_id=booking.id
-                            ) }}">
-                                Edit
-                            </a>
-
-                            |
-
-                            <a href="{{ url_for(
-                                'admin.cancel_booking',
-                                booking_id=booking.id
-                            ) }}">
-                                Batal
-                            </a>
-
-                        {% else %}
-
-                            <a href="{{ url_for(
-                                'booking.booking_detail',
-                                booking_id=booking.id
-                            ) }}">
-                                Lihat
-                            </a>
-
-                        {% endif %}
-
-                    </td>
-
-                </tr>
+    </div>
 
 
-            {% else %}
+    <!-- =====================================================
+         BOOKING LIST
+         ===================================================== -->
 
-                <tr>
+    {% if bookings %}
 
-                    <td colspan="8">
-                        Tiada permohonan tempahan.
-                    </td>
+        <div class="table-container">
 
-                </tr>
+            <table>
 
-            {% endfor %}
+                <thead>
 
-        </tbody>
+                    <tr>
+                        <th>ID</th>
+                        <th>Pemohon</th>
+                        <th>Bilik</th>
+                        <th>Tarikh / Masa</th>
+                        <th>Tujuan</th>
+                        <th>Status</th>
+                        <th>Tindakan</th>
+                    </tr>
 
-    </table>
+                </thead>
+
+
+                <tbody>
+
+                    {% for booking in bookings %}
+
+                        <tr>
+
+                            <!-- ID -->
+
+                            <td>
+                                #{{ booking.id }}
+                            </td>
+
+
+                            <!-- PEMOHON -->
+
+                            <td>
+
+                                <strong>
+                                    {{ booking.applicant.full_name }}
+                                </strong>
+
+                                <br>
+
+                                <span class="text-muted">
+                                    {{ booking.applicant.email }}
+                                </span>
+
+                            </td>
+
+
+                            <!-- BILIK -->
+
+                            <td>
+
+                                <strong>
+                                    {{ booking.room.room_name }}
+                                </strong>
+
+                                {% if booking.room.location %}
+
+                                    <br>
+
+                                    <span class="text-muted">
+                                        {{ booking.room.location }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- TARIKH / MASA -->
+
+                            <td>
+
+                                {{ booking.start_datetime.strftime(
+                                    "%d/%m/%Y"
+                                ) }}
+
+                                <br>
+
+                                <span class="text-muted">
+
+                                    {{ booking.start_datetime.strftime(
+                                        "%H:%M"
+                                    ) }}
+
+                                    -
+
+                                    {{ booking.end_datetime.strftime(
+                                        "%H:%M"
+                                    ) }}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- TUJUAN -->
+
+                            <td>
+                                {{ booking.purpose }}
+                            </td>
+
+
+                            <!-- STATUS -->
+
+                            <td>
+
+                                {% if booking.status == "PENDING" %}
+
+                                    <span
+                                        class="status-badge status-pending"
+                                    >
+                                        Menunggu
+                                    </span>
+
+
+                                {% elif booking.status == "APPROVED" %}
+
+                                    <span
+                                        class="status-badge status-approved"
+                                    >
+                                        Diluluskan
+                                    </span>
+
+
+                                {% elif booking.status == "REJECTED" %}
+
+                                    <span
+                                        class="status-badge status-rejected"
+                                    >
+                                        Ditolak
+                                    </span>
+
+
+                                {% elif booking.status == "CANCELLED" %}
+
+                                    <span
+                                        class="status-badge status-cancelled"
+                                    >
+                                        Dibatalkan
+                                    </span>
+
+
+                                {% elif booking.status == "COMPLETED" %}
+
+                                    <span
+                                        class="status-badge status-completed"
+                                    >
+                                        Selesai
+                                    </span>
+
+
+                                {% elif booking.status == "EXPIRED" %}
+
+                                    <span
+                                        class="status-badge status-expired"
+                                    >
+                                        Tamat Tempoh
+                                    </span>
+
+
+                                {% else %}
+
+                                    <span class="status-badge">
+                                        {{ booking.status }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- TINDAKAN -->
+
+                            <td>
+
+                                <div class="action-group">
+
+
+                                    <!-- LIHAT SENTIASA ADA -->
+
+                                    <a
+                                        href="{{ url_for(
+                                            'booking.booking_detail',
+                                            booking_id=booking.id
+                                        ) }}"
+                                        class="btn btn-secondary btn-sm"
+                                    >
+                                        Lihat
+                                    </a>
+
+
+                                    <!-- =================================
+                                         PENDING
+                                         ================================= -->
+
+                                    {% if booking.status == "PENDING" %}
+
+                                        <a
+                                            href="{{ url_for(
+                                                'booking.edit_booking',
+                                                booking_id=booking.id
+                                            ) }}"
+                                            class="btn btn-primary btn-sm"
+                                        >
+                                            Edit
+                                        </a>
+
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for(
+                                                'admin.approve_booking',
+                                                booking_id=booking.id
+                                            ) }}"
+                                            class="inline-action-form"
+                                        >
+
+                                            {{ action_form.hidden_tag() }}
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-success btn-sm"
+                                            >
+                                                Luluskan
+                                            </button>
+
+                                        </form>
+
+
+                                        <a
+                                            href="{{ url_for(
+                                                'admin.reject_booking',
+                                                booking_id=booking.id
+                                            ) }}"
+                                            class="btn btn-warning btn-sm"
+                                        >
+                                            Tolak
+                                        </a>
+
+
+                                        <a
+                                            href="{{ url_for(
+                                                'admin.cancel_booking',
+                                                booking_id=booking.id
+                                            ) }}"
+                                            class="btn btn-danger btn-sm"
+                                        >
+                                            Batal
+                                        </a>
+
+
+                                    <!-- =================================
+                                         APPROVED
+                                         ================================= -->
+
+                                    {% elif booking.status == "APPROVED" %}
+
+                                        <a
+                                            href="{{ url_for(
+                                                'booking.edit_booking',
+                                                booking_id=booking.id
+                                            ) }}"
+                                            class="btn btn-primary btn-sm"
+                                        >
+                                            Edit
+                                        </a>
+
+
+                                        <a
+                                            href="{{ url_for(
+                                                'admin.cancel_booking',
+                                                booking_id=booking.id
+                                            ) }}"
+                                            class="btn btn-danger btn-sm"
+                                        >
+                                            Batal
+                                        </a>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    {% else %}
+
+        <div class="card">
+
+            <div class="empty-state">
+
+                <h3>
+                    Tiada tempahan
+                </h3>
+
+                <p>
+                    Tiada permohonan tempahan bilik mesyuarat
+                    untuk dipaparkan.
+                </p>
+
+            </div>
+
+        </div>
+
+    {% endif %}
 
 {% endblock %}

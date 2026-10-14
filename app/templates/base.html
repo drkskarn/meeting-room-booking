@@ -14,93 +14,571 @@
             Sistem Tempahan Bilik Mesyuarat
         {% endblock %}
     </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    {% block head %}
+    {% endblock %}
 </head>
 
 <body>
 
-    <header>
-        <h2>Sistem Tempahan Bilik Mesyuarat</h2>
+    {% if current_user.is_authenticated %}
 
-        {% if current_user.is_authenticated %}
+        <div class="app-layout">
 
-            <nav>
+            <!-- =====================================================
+                 SIDEBAR
+                 ===================================================== -->
 
-                <a href="{{ url_for('auth.dashboard') }}">
-                    Dashboard
-                </a>
+            <aside
+                class="sidebar"
+                id="appSidebar"
+                aria-label="Navigasi utama"
+            >
 
-                |
+                <div class="sidebar-brand">
 
-                <a href="{{ url_for('booking.create_booking') }}">
-                    Tempah Bilik
-                </a>
+                    <div
+                        class="brand-icon"
+                        aria-hidden="true"
+                    >
+                        🏢
+                    </div>
 
-                |
+                    <div>
+                        <h2>Sistem Tempahan</h2>
+                        <p>Bilik Mesyuarat</p>
+                    </div>
 
-                <a href="{{ url_for('booking.my_bookings') }}">
-                    Tempahan Saya
-                </a>
+                </div>
 
 
-                {% if current_user.role == "ADMIN" %}
+                <nav class="sidebar-nav">
 
-                    |
-
-                    <a href="{{ url_for('admin.rooms') }}">
-                        Pengurusan Bilik
+                    <a
+                        href="{{ url_for('auth.dashboard') }}"
+                        class="nav-item{% if request.endpoint == 'auth.dashboard' %} active{% endif %}"
+                        {% if request.endpoint == 'auth.dashboard' %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        <span class="nav-icon" aria-hidden="true">⌂</span>
+                        Dashboard
                     </a>
 
-                    |
 
-                    <a href="{{ url_for('admin.bookings') }}">
-                        Pengurusan Tempahan
+                    <a
+                        href="{{ url_for('booking.create_booking') }}"
+                        class="nav-item{% if request.endpoint == 'booking.create_booking' %} active{% endif %}"
+                        {% if request.endpoint == 'booking.create_booking' %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        <span class="nav-icon" aria-hidden="true">＋</span>
+                        Tempah Bilik
                     </a>
 
-                    |
 
-                    <a href="{{ url_for('admin.users') }}">
-                        Pengurusan Pengguna
+                    <a
+                        href="{{ url_for('booking.my_bookings') }}"
+                        class="nav-item{% if request.endpoint == 'booking.my_bookings' %} active{% endif %}"
+                        {% if request.endpoint == 'booking.my_bookings' %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        <span class="nav-icon" aria-hidden="true">▤</span>
+                        Tempahan Saya
                     </a>
 
-                {% endif %}
 
-                |
+                    {% if current_user.role == "ADMIN" %}
 
-                <a href="{{ url_for('auth.logout') }}">
-                    Log Keluar
-                </a>
-
-            </nav>
-
-        {% endif %}
-
-        <hr>
-    </header>
+                        <div class="nav-section-title">
+                            Pentadbiran
+                        </div>
 
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
+                        <a
+                            href="{{ url_for('admin.bookings') }}"
+                            class="nav-item{% if request.endpoint == 'admin.bookings' %} active{% endif %}"
+                            {% if request.endpoint == 'admin.bookings' %}
+                                aria-current="page"
+                            {% endif %}
+                        >
+                            <span class="nav-icon" aria-hidden="true">▣</span>
+                            Pengurusan Tempahan
+                        </a>
 
-        {% if messages %}
 
-            {% for category, message in messages %}
+                        <a
+                            href="{{ url_for('admin.rooms') }}"
+                            class="nav-item{% if request.endpoint in ['admin.rooms', 'admin.add_room', 'admin.edit_room'] %} active{% endif %}"
+                            {% if request.endpoint in ['admin.rooms', 'admin.add_room', 'admin.edit_room'] %}
+                                aria-current="page"
+                            {% endif %}
+                        >
+                            <span class="nav-icon" aria-hidden="true">▦</span>
+                            Pengurusan Bilik
+                        </a>
+
+
+                        <a
+                            href="{{ url_for('admin.users') }}"
+                            class="nav-item{% if request.endpoint in ['admin.users', 'admin.user_detail', 'admin.edit_user'] %} active{% endif %}"
+                            {% if request.endpoint in ['admin.users', 'admin.user_detail', 'admin.edit_user'] %}
+                                aria-current="page"
+                            {% endif %}
+                        >
+                            <span class="nav-icon" aria-hidden="true">♙</span>
+                            Pengurusan Pengguna
+                        </a>
+
+                    {% endif %}
+
+                </nav>
+
+
+                <div class="sidebar-footer">
+
+                    <div class="user-profile">
+
+                        <div class="user-avatar" aria-hidden="true">
+                            {{ current_user.full_name[0] | upper }}
+                        </div>
+
+
+                        <div class="user-info">
+
+                            <strong>
+                                {{ current_user.full_name }}
+                            </strong>
+
+                            <span>
+                                {% if current_user.role == "ADMIN" %}
+                                    Administrator
+                                {% else %}
+                                    Pemohon
+                                {% endif %}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('auth.logout') }}"
+                        class="logout-link"
+                    >
+                        Log Keluar
+                    </a>
+
+                </div>
+
+            </aside>
+
+
+            <!-- =====================================================
+                 MAIN WRAPPER
+                 ===================================================== -->
+
+            <div class="main-wrapper">
+
+                <header class="topbar">
+
+                    <button
+                        type="button"
+                        class="menu-button"
+                        id="menuButton"
+                        aria-label="Buka atau tutup menu"
+                        aria-controls="appSidebar"
+                        aria-expanded="false"
+                    >
+                        ☰
+                    </button>
+
+
+                    <div class="topbar-title">
+
+                        <strong>
+                            Sistem Tempahan Bilik Mesyuarat
+                        </strong>
+
+                        <span>
+                            Mudah • Teratur • Efisien
+                        </span>
+
+                    </div>
+
+                </header>
+
+
+                <!-- FLASH MESSAGES -->
+
+                <div
+                    class="flash-container"
+                    aria-live="polite"
+                    aria-atomic="true"
+                >
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+
+                        {% if messages %}
+
+                            {% for category, message in messages %}
+
+                                <div
+                                    class="flash-message flash-{{ category }}"
+                                    role="status"
+                                >
+                                    {{ message }}
+                                </div>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+                    {% endwith %}
+
+                </div>
+
+
+                <main
+                    class="main-content"
+                    id="mainContent"
+                >
+                    {% block content %}
+                    {% endblock %}
+                </main>
+
+            </div>
+
+        </div>
+
+
+    {% else %}
+
+        <!-- =========================================================
+             PUBLIC LAYOUT - LOGIN / REGISTER
+             ========================================================= -->
+
+        <div class="public-layout">
+
+            <header class="public-header">
+
+                <h2>
+                    Sistem Tempahan Bilik Mesyuarat
+                </h2>
 
                 <p>
-                    {{ message }}
+                    Pengurusan tempahan yang mudah dan teratur
                 </p>
 
-            {% endfor %}
-
-        {% endif %}
-
-    {% endwith %}
+            </header>
 
 
-    <main>
+            <div
+                class="flash-container"
+                aria-live="polite"
+                aria-atomic="true"
+            >
 
-        {% block content %}
-        {% endblock %}
+                {% with messages = get_flashed_messages(with_categories=true) %}
 
-    </main>
+                    {% if messages %}
+
+                        {% for category, message in messages %}
+
+                            <div
+                                class="flash-message flash-{{ category }}"
+                                role="status"
+                            >
+                                {{ message }}
+                            </div>
+
+                        {% endfor %}
+
+                    {% endif %}
+
+                {% endwith %}
+
+            </div>
+
+
+            <main class="public-content">
+
+                {% block public_content %}
+                {% endblock %}
+
+            </main>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =========================================================
+         GLOBAL JAVASCRIPT
+         ========================================================= -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                /* MOBILE SIDEBAR */
+
+                const menuButton =
+                    document.getElementById("menuButton");
+
+                const sidebar =
+                    document.querySelector(".sidebar");
+
+
+                function closeSidebar() {
+
+                    if (!sidebar || !menuButton) {
+                        return;
+                    }
+
+                    sidebar.classList.remove("sidebar-open");
+
+                    menuButton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                }
+
+
+                if (menuButton && sidebar) {
+
+                    menuButton.addEventListener(
+                        "click",
+                        function () {
+
+                            const isOpen =
+                                sidebar.classList.toggle(
+                                    "sidebar-open"
+                                );
+
+                            menuButton.setAttribute(
+                                "aria-expanded",
+                                isOpen ? "true" : "false"
+                            );
+
+                        }
+                    );
+
+
+                    sidebar
+                        .querySelectorAll(".nav-item")
+                        .forEach(
+                            function (navItem) {
+
+                                navItem.addEventListener(
+                                    "click",
+                                    function () {
+
+                                        if (window.innerWidth <= 900) {
+                                            closeSidebar();
+                                        }
+
+                                    }
+                                );
+
+                            }
+                        );
+
+                }
+
+
+                /* BOOKING MODAL */
+
+                const bookingCards =
+                    document.querySelectorAll(
+                        "[data-modal-target]"
+                    );
+
+
+                function closeBookingModal(modal) {
+
+                    if (!modal) {
+                        return;
+                    }
+
+                    modal.classList.remove("modal-open");
+
+                    modal.setAttribute(
+                        "aria-hidden",
+                        "true"
+                    );
+
+                    document.body.classList.remove(
+                        "modal-active"
+                    );
+
+                }
+
+
+                function openBookingModal(modal) {
+
+                    if (!modal) {
+                        return;
+                    }
+
+                    modal.classList.add("modal-open");
+
+                    modal.setAttribute(
+                        "aria-hidden",
+                        "false"
+                    );
+
+                    document.body.classList.add(
+                        "modal-active"
+                    );
+
+                    const closeButton =
+                        modal.querySelector(".modal-close");
+
+                    if (closeButton) {
+                        closeButton.focus();
+                    }
+
+                }
+
+
+                bookingCards.forEach(
+                    function (card) {
+
+                        card.addEventListener(
+                            "click",
+                            function () {
+
+                                const modalId =
+                                    card.dataset.modalTarget;
+
+                                const modal =
+                                    document.getElementById(
+                                        modalId
+                                    );
+
+                                openBookingModal(modal);
+
+                            }
+                        );
+
+                    }
+                );
+
+
+                document
+                    .querySelectorAll(".booking-modal")
+                    .forEach(
+                        function (modal) {
+
+                            const overlay =
+                                modal.querySelector(
+                                    ".booking-modal-overlay"
+                                );
+
+                            const closeButton =
+                                modal.querySelector(
+                                    ".modal-close"
+                                );
+
+                            const footerCloseButton =
+                                modal.querySelector(
+                                    ".modal-close-button"
+                                );
+
+
+                            if (overlay) {
+
+                                overlay.addEventListener(
+                                    "click",
+                                    function () {
+                                        closeBookingModal(modal);
+                                    }
+                                );
+
+                            }
+
+
+                            if (closeButton) {
+
+                                closeButton.addEventListener(
+                                    "click",
+                                    function () {
+                                        closeBookingModal(modal);
+                                    }
+                                );
+
+                            }
+
+
+                            if (footerCloseButton) {
+
+                                footerCloseButton.addEventListener(
+                                    "click",
+                                    function () {
+                                        closeBookingModal(modal);
+                                    }
+                                );
+
+                            }
+
+                        }
+                    );
+
+
+                /* ESCAPE KEY */
+
+                document.addEventListener(
+                    "keydown",
+                    function (event) {
+
+                        if (event.key !== "Escape") {
+                            return;
+                        }
+
+                        const openModal =
+                            document.querySelector(
+                                ".booking-modal.modal-open"
+                            );
+
+                        if (openModal) {
+
+                            closeBookingModal(openModal);
+
+                            return;
+                        }
+
+                        if (
+                            sidebar &&
+                            sidebar.classList.contains(
+                                "sidebar-open"
+                            )
+                        ) {
+                            closeSidebar();
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+    </script>
+
+
+    {% block scripts %}
+    {% endblock %}
 
 </body>
 

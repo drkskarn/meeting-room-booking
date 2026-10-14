@@ -1,48 +1,87 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Log Masuk
+Log Masuk
 {% endblock %}
 
 
-{% block content %}
+{% block public_content %}
+
+<div class="auth-card">
+
+    <div class="auth-card-header">
+
+        <h1>Log Masuk</h1>
+
+        <p>
+            Log masuk menggunakan akaun anda.
+        </p>
+
+    </div>
+
 
     <form method="POST">
 
         {{ form.hidden_tag() }}
 
-        <p>
-            {{ form.email.label }}<br>
-            {{ form.email() }}
+
+        <div class="form-group">
+
+            {{ form.email.label }}
+
+            {{ form.email(
+                placeholder="contoh@kpkt.gov.my"
+            ) }}
 
             {% for error in form.email.errors %}
-                <br>
-                <span>{{ error }}</span>
-            {% endfor %}
-        </p>
 
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password() }}
+                <span class="form-error">
+                    {{ error }}
+                </span>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="form-group">
+
+            {{ form.password.label }}
+
+            {{ form.password(
+                placeholder="Masukkan kata laluan"
+            ) }}
 
             {% for error in form.password.errors %}
-                <br>
-                <span>{{ error }}</span>
-            {% endfor %}
-        </p>
 
-        <p>
+                <span class="form-error">
+                    {{ error }}
+                </span>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="auth-submit">
+
             {{ form.submit() }}
-        </p>
+
+        </div>
 
     </form>
 
-    <p>
+
+    <div class="auth-footer">
+
         Belum mempunyai akaun?
 
         <a href="{{ url_for('auth.register') }}">
-            Daftar
+            Daftar Akaun
         </a>
-    </p>
+
+    </div>
+
+</div>
 
 {% endblock %}

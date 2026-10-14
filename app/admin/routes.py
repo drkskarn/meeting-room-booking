@@ -11,6 +11,7 @@ from app.extensions import db
 from app.booking.services import (
     has_booking_conflict,
     mark_completed_bookings,
+    mark_expired_bookings,
 )
 
 from app.admin.forms import (
@@ -385,23 +386,19 @@ def toggle_room(room_id):
 
     form = ToggleRoomForm()
 
-    if form.validate_on_submit():
-        if not form.validate_on_submit():
-            abort(400)
+    if not form.validate_on_submit():
+        abort(400)
             
-        room.is_active = not room.is_active
+    room.is_active = not room.is_active
 
-        db.session.commit()
+    db.session.commit()
 
-        if room.is_active:
-            message = "Bilik telah diaktifkan semula."
-        else:
-            message = "Bilik telah dinyahaktifkan."
+    if room.is_active:
+        message = "Bilik telah diaktifkan semula."
+    else:
+        message = "Bilik telah dinyahaktifkan."
 
-        flash(
-            message,
-            "success"
-        )
+    flash(message,"success")
 
     return redirect(
         url_for("admin.rooms")
@@ -415,6 +412,7 @@ def toggle_room(room_id):
 def bookings():
     
     mark_completed_bookings()
+    mark_expired_bookings()
     
     bookings = db.session.scalars(
         db.select(Booking)
@@ -436,6 +434,7 @@ def bookings():
 def approve_booking(booking_id):
     
     mark_completed_bookings()
+    mark_expired_bookings()
     
     booking = db.session.get(
         Booking,
@@ -454,6 +453,16 @@ def approve_booking(booking_id):
         flash(
             "Hanya permohonan berstatus PENDING "
             "boleh diluluskan.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("admin.bookings")
+        )
+    
+    if booking.status == "EXPIRED":
+        flash(
+            "Permohonan ini telah tamat tempoh dan tidak boleh diluluskan.",
             "warning"
         )
 
@@ -516,6 +525,10 @@ def approve_booking(booking_id):
 @login_required
 @admin_required
 def reject_booking(booking_id):
+    
+    mark_completed_bookings()
+    mark_expired_bookings()
+    
     booking = db.session.get(
         Booking,
         booking_id
@@ -524,6 +537,16 @@ def reject_booking(booking_id):
     if booking is None:
         abort(404)
 
+    if booking.status == "EXPIRED":
+        flash(
+            "Permohonan ini telah tamat tempoh dan tidak boleh ditolak.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("admin.bookings")
+        )
+    
     if booking.status != "PENDING":
         flash(
             "Hanya permohonan berstatus PENDING boleh ditolak.",
@@ -563,6 +586,7 @@ def reject_booking(booking_id):
 def cancel_booking(booking_id):
     
     mark_completed_bookings()
+    mark_expired_bookings()
     
     booking = db.session.get(
         Booking,
@@ -572,6 +596,14 @@ def cancel_booking(booking_id):
     if booking is None:
         abort(404)
 
+    if booking.status == "EXPIRED":
+        flash(
+            "Permohonan ini telah tamat tempoh dan tidak boleh ditolak.",
+            "warning"
+        )
+
+        return redirect(url_for("admin.bookings"))
+    
     if booking.status not in {
         "PENDING",
         "APPROVED"
