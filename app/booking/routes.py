@@ -6,6 +6,7 @@ from flask import (
     redirect,
     render_template,
     url_for,
+    request,
 )
 from flask_login import current_user, login_required
 
@@ -26,6 +27,8 @@ from app.booking.services import (
     has_booking_conflict,
     mark_completed_bookings,
     mark_expired_bookings,
+    get_room_statuses,
+    get_malaysia_now,
 )
 
 @booking_bp.route("/create", methods=["GET", "POST"])
@@ -430,4 +433,64 @@ def cancel_own_booking(booking_id):
         "booking/cancel.html",
         booking=booking,
         form=form
+    )
+    
+# ===================================================
+# AVAILABILITY
+# ===================================================
+@booking_bp.route("/availability")
+@login_required
+def room_availability():
+
+    mark_completed_bookings()
+    mark_expired_bookings()
+
+    now = get_malaysia_now()
+
+    room_statuses = get_room_statuses(now)
+
+    selected_status = (
+        request.args.get("status", "ALL")
+        .strip()
+        .upper()
+    )
+
+    search_query = (
+        request.args.get("q", "")
+        .strip()
+        .lower()
+    )
+
+    if selected_status in {
+        "AVAILABLE",
+        "IN_USE",
+        "UPCOMING"
+    }:
+        room_statuses = [
+            item
+            for item in room_statuses
+            if item["status"] == selected_status
+        ]
+
+    if search_query:
+        room_statuses = [
+            item
+            for item in room_statuses
+            if (
+                search_query
+                in item["room"].room_name.lower()
+                or
+                (
+                    item["room"].location
+                    and search_query
+                    in item["room"].location.lower()
+                )
+            )
+        ]
+
+    return render_template(
+        "booking/availability.html",
+        room_statuses=room_statuses,
+        selected_status=selected_status,
+        search_query=request.args.get("q", "").strip()
     )

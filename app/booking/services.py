@@ -1,7 +1,7 @@
 from app.extensions import db
-from app.models import Booking
+from app.models import Booking, Room
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 def has_booking_conflict(
@@ -57,6 +57,7 @@ def mark_completed_bookings():
 
     return len(expired_bookings)
 
+
 def mark_expired_bookings():
     now = get_malaysia_now()
 
@@ -76,3 +77,107 @@ def mark_expired_bookings():
     db.session.commit()
 
     return len(expired_bookings)
+
+
+def get_room_statuses(now=None):
+    
+    if now is None:
+        now = get_malaysia_now()
+
+    start_of_today = now.replace(
+        hour=0,
+        minute=0,
+        second=0,
+        microsecond=0
+    )
+
+    start_of_tomorrow = (
+        start_of_today
+        + timedelta(days=1)
+    )
+
+    active_rooms = db.session.scalars(
+        db.select(Room)
+        .where(
+            Room.is_active.is_(True)
+        )
+        .order_by(
+            Room.room_name.asc()
+        )
+    ).all()
+
+    today_approved_bookings = db.session.scalars(
+        db.select(Booking)
+        .where(
+            Booking.status == "APPROVED",
+            Booking.start_datetime < start_of_tomorrow,
+            Booking.end_datetime > start_of_today
+        )
+        .order_by(
+            Booking.start_datetime.asc()
+        )
+    ).all()
+
+    room_statuses = []
+
+    for room in active_rooms:
+
+        room_bookings = [
+            booking
+            for booking in today_approved_bookings
+            if booking.room_id == room.id
+        ]
+
+        current_booking = next(
+            (
+                booking
+                for booking in room_bookings
+                if (
+                    booking.start_datetime <= now
+                    and booking.end_datetime > now
+                )
+            ),
+            None
+        )
+
+        next_booking = next(
+            (
+                booking
+                for booking in room_bookings
+                if booking.start_datetime > now
+            ),
+            None
+        )
+
+        if current_booking is not None:
+            room_status = "IN_USE"
+
+        elif next_booking is not None:
+            room_status = "UPCOMING"
+
+        else:
+            room_status = "AVAILABLE"
+
+        room_statuses.append(
+            {
+                "room": room,
+                "status": room_status,
+                "current_booking": current_booking,
+                "next_booking": next_booking
+            }
+        )
+
+    status_priority = {
+        "IN_USE": 0,
+        "UPCOMING": 1,
+        "AVAILABLE": 2
+    }
+
+    room_statuses.sort(
+        key=lambda item: (
+            status_priority[item["status"]],
+            item["room"].room_name.lower()
+        )
+    )
+
+    return room_statuses

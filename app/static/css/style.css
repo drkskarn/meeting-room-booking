@@ -1659,3 +1659,285 @@ body.modal-active {
 .inline-action-form button {
     width: auto !important;
 }
+
+/* =========================================================
+   23. ROOM STATUS
+   ======================================================== */
+
+.room-status-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(260px, 1fr)
+    );
+    gap: 16px;
+}
+
+.room-status-card {
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid #e7ebf0;
+    border-radius: 12px;
+}
+
+.room-status-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.room-status-header h3 {
+    margin: 0 0 4px;
+    color: #27364f;
+    font-size: 16px;
+}
+
+.room-status-badge {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.room-status-available {
+    background: #ecfdf3;
+    color: #067647;
+}
+
+.room-status-upcoming {
+    background: #fff7e8;
+    color: #b54708;
+}
+
+.room-status-busy {
+    background: #fef3f2;
+    color: #b42318;
+}
+
+.room-status-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.room-status-info span {
+    color: #7a8798;
+    font-size: 12px;
+}
+
+.room-status-info strong {
+    color: #27364f;
+    font-size: 14px;
+}
+
+.room-status-purpose {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #edf0f4;
+    color: #667085;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+@media (max-width: 600px) {
+
+    .room-status-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .room-status-header {
+        flex-direction: column;
+    }
+
+}
+
+.room-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 14px 0 22px;
+}
+
+.room-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.room-summary-item div {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.room-summary-item strong {
+    color: #27364f;
+    font-size: 18px;
+}
+
+.room-summary-item span {
+    color: #667085;
+    font-size: 13px;
+}
+
+.room-summary-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.room-summary-dot.available {
+    background: #12b76a;
+}
+
+.room-summary-dot.busy {
+    background: #f04438;
+}
+
+.room-summary-dot.upcoming {
+    background: #f79009;
+}
+
+/* =========================================================
+   ROOM SUMMARY
+   ========================================================= */
+
+.room-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 14px 0 22px;
+}
+
+.room-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.room-summary-item > div {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.room-summary-item strong {
+    color: #27364f;
+    font-size: 18px;
+}
+
+.room-summary-item span {
+    color: #667085;
+    font-size: 13px;
+}
+
+.room-summary-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.room-summary-dot.available {
+    background: #12b76a;
+}
+
+.room-summary-dot.busy {
+    background: #f04438;
+}
+
+.room-summary-dot.upcoming {
+    background: #f79009;
+}
+
+
+/* =========================================================
+   AVAILABILITY FILTER
+   ========================================================= */
+
+.availability-filter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+
+    width: 100%;
+    margin-bottom: 22px;
+    padding: 16px;
+
+    background: #ffffff;
+    border: 1px solid #e7ebf0;
+    border-radius: 12px;
+}
+
+.availability-search {
+    flex: 1;
+    min-width: 240px;
+}
+
+.availability-search input {
+    width: 100%;
+    margin: 0;
+}
+
+.availability-filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.filter-button {
+    padding: 8px 13px;
+    border: 1px solid #d7dde6;
+    border-radius: 8px;
+
+    background: #ffffff;
+    color: #475467;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.filter-button:hover {
+    background: #f8fafc;
+}
+
+.filter-button.active {
+    background: #1769e0;
+    border-color: #1769e0;
+    color: #ffffff;
+}
+
+.availability-grid {
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(280px, 1fr)
+    );
+}
+
+
+@media (max-width: 700px) {
+
+    .availability-filter {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .availability-search {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .availability-filter-buttons {
+        width: 100%;
+    }
+
+}

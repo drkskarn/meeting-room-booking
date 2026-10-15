@@ -3,12 +3,17 @@ from datetime import timedelta
 
 from app.auth import auth_bp
 from app.auth.forms import LoginForm, RegistrationForm
+
 from app.auth.tokens import (
     generate_activation_token,
     verify_activation_token
     )
 from app.extensions import db
-from app.models import User, Booking, Room
+
+from app.models import (
+    User,
+    Booking,
+)
 from app.email import send_activation_email
 
 from flask_login import (
@@ -24,8 +29,12 @@ from app.booking.services import (
     mark_completed_bookings,
     get_malaysia_now,
     mark_expired_bookings,
+    get_room_statuses,
 )
 
+# ==========================================================
+# Utk Login/Registration
+# ==========================================================
 
 # ===========Utk Registration======================
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -140,8 +149,12 @@ def logout():
     return redirect(
         url_for("auth.login")
     )
-    
-# ================Utk Dashboard====================
+
+
+# ==========================================================
+# Utk Dashboard
+# ==========================================================
+
 @auth_bp.route("/dashboard")
 @login_required
 def dashboard():
@@ -149,12 +162,56 @@ def dashboard():
      # Pastikan booking yang sudah tamat ditukar
     # daripada APPROVED kepada COMPLETED.
     mark_completed_bookings()
-    2
+    
     # Pastikan booking yang pending approval ditukar kepada expired
     mark_expired_bookings()
 
     now = get_malaysia_now()
 
+    # =====================================================
+    # JULAT MASA HARI INI
+    # =====================================================
+
+    start_of_today = now.replace(
+        hour=0,
+        minute=0,
+        second=0,
+        microsecond=0
+    )
+
+    start_of_tomorrow = (
+        start_of_today
+        + timedelta(days=1)
+    )
+
+
+    # =====================================================
+    # STATUS BILIK HARI INI
+    # =====================================================
+    room_statuses = get_room_statuses(now)
+
+
+    available_room_count = sum(
+        1
+        for item in room_statuses
+        if item["status"] == "AVAILABLE"
+    )
+
+    in_use_room_count = sum(
+        1
+        for item in room_statuses
+        if item["status"] == "IN_USE"
+    )
+
+    upcoming_room_count = sum(
+        1
+        for item in room_statuses
+        if item["status"] == "UPCOMING"
+    )
+
+
+    room_status_preview = room_statuses[:6]
+    
     # =====================================================
     # DASHBOARD PEMOHON / TEMPAHAN SENDIRI
     # =====================================================
@@ -226,19 +283,6 @@ def dashboard():
 
     if current_user.role == "ADMIN":
 
-        start_of_today = now.replace(
-            hour=0,
-            minute=0,
-            second=0,
-            microsecond=0
-        )
-
-        start_of_tomorrow = (
-            start_of_today
-            + timedelta(days=1)
-        )
-
-
         # Semua permohonan PENDING
         admin_pending_count = db.session.scalar(
             db.select(func.count())
@@ -255,8 +299,8 @@ def dashboard():
             .select_from(Booking)
             .where(
                 Booking.status == "APPROVED",
-                Booking.start_datetime >= start_of_today,
-                Booking.start_datetime < start_of_tomorrow
+                Booking.start_datetime < start_of_tomorrow,
+                Booking.end_datetime > start_of_today
             )
         ) or 0
 
@@ -274,13 +318,7 @@ def dashboard():
 
 
         # Jumlah bilik aktif
-        active_room_count = db.session.scalar(
-            db.select(func.count())
-            .select_from(Room)
-            .where(
-                Room.is_active.is_(True)
-            )
-        ) or 0
+        active_room_count = len(room_statuses)
 
 
         # Maksimum 5 permohonan untuk tindakan Admin
@@ -295,18 +333,22 @@ def dashboard():
             .limit(5)
         ).all()
 
-
     return render_template(
-        "auth/dashboard.html",
+    "auth/dashboard.html",
 
-        pending_count=pending_count,
-        approved_count=approved_count,
-        completed_count=completed_count,
-        upcoming_bookings=upcoming_bookings,
+    pending_count=pending_count,
+    approved_count=approved_count,
+    completed_count=completed_count,
+    upcoming_bookings=upcoming_bookings,
 
-        admin_pending_count=admin_pending_count,
-        today_booking_count=today_booking_count,
-        ongoing_booking_count=ongoing_booking_count,
-        active_room_count=active_room_count,
-        pending_bookings=pending_bookings
+    room_status_preview=room_status_preview,
+    available_room_count=available_room_count,
+    in_use_room_count=in_use_room_count,
+    upcoming_room_count=upcoming_room_count,
+
+    admin_pending_count=admin_pending_count,
+    today_booking_count=today_booking_count,
+    ongoing_booking_count=ongoing_booking_count,
+    active_room_count=active_room_count,
+    pending_bookings=pending_bookings
     )
