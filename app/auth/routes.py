@@ -206,7 +206,7 @@ def dashboard():
     upcoming_room_count = sum(
         1
         for item in room_statuses
-        if item["status"] == "UPCOMING"
+        if item["next_booking"] is not None
     )
 
 

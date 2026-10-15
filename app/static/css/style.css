@@ -1,7 +1,7 @@
 /* =========================================================
    SISTEM TEMPAHAN BILIK MESYUARAT
    Clean Global Stylesheet
-   UI Phase 1 + UI Phase 2
+   UI Phase 1 + UI Phase 2 + UI Phase 3
    ========================================================= */
 
 /* =========================================================
@@ -1616,10 +1616,6 @@ body.modal-active {
     border-top: 1px solid #edf0f4;
 }
 
-.status-expired {
-    background: #f3f4f6;
-    color: #6b7280;
-}
 
 
 @media (max-width: 600px) {
@@ -1742,6 +1738,7 @@ body.modal-active {
     color: #667085;
     font-size: 13px;
     line-height: 1.5;
+    font-style: italic;
 }
 
 
@@ -1804,87 +1801,53 @@ body.modal-active {
     background: #f79009;
 }
 
-/* =========================================================
-   ROOM SUMMARY
-   ========================================================= */
-
-.room-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin: 14px 0 22px;
-}
-
-.room-summary-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.room-summary-item > div {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-}
-
-.room-summary-item strong {
-    color: #27364f;
-    font-size: 18px;
-}
-
-.room-summary-item span {
-    color: #667085;
-    font-size: 13px;
-}
-
-.room-summary-dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-}
-
-.room-summary-dot.available {
-    background: #12b76a;
-}
-
-.room-summary-dot.busy {
-    background: #f04438;
-}
-
-.room-summary-dot.upcoming {
-    background: #f79009;
-}
-
 
 /* =========================================================
-   AVAILABILITY FILTER
+   AVAILABILITY PAGE
    ========================================================= */
 
-.availability-filter {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 14px;
-
-    width: 100%;
-    margin-bottom: 22px;
-    padding: 16px;
+.availability-summary {
+    margin-bottom: 20px;
+    padding: 16px 20px;
 
     background: #ffffff;
     border: 1px solid #e7ebf0;
     border-radius: 12px;
 }
 
+
+.availability-filter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 14px;
+
+    width: 100%;
+
+    margin-bottom: 22px;
+    padding: 16px;
+
+    background: #ffffff;
+
+    border: 1px solid #e7ebf0;
+    border-radius: 12px;
+}
+
+
 .availability-search {
     flex: 1;
-    min-width: 240px;
+    min-width: 260px;
 }
+
 
 .availability-search input {
     width: 100%;
     margin: 0;
 }
+
 
 .availability-filter-buttons {
     display: flex;
@@ -1892,8 +1855,10 @@ body.modal-active {
     gap: 8px;
 }
 
+
 .filter-button {
     padding: 8px 13px;
+
     border: 1px solid #d7dde6;
     border-radius: 8px;
 
@@ -1906,22 +1871,26 @@ body.modal-active {
     cursor: pointer;
 }
 
+
 .filter-button:hover {
     background: #f8fafc;
 }
 
+
 .filter-button.active {
     background: #1769e0;
     border-color: #1769e0;
+
     color: #ffffff;
 }
 
+
 .availability-grid {
-    grid-template-columns: repeat(
-        auto-fit,
-        minmax(280px, 1fr)
-    );
+    grid-template-columns:
+        repeat(auto-fit, minmax(300px, 1fr));
 }
+
+
 
 
 @media (max-width: 700px) {
@@ -1940,4 +1909,45 @@ body.modal-active {
         width: 100%;
     }
 
+    .filter-button {
+        flex: 1;
+    }
+
+}
+
+/* =========================================================
+   24. UPCOMING BOOKING LAYOUT
+   ========================================================= */
+
+.upcoming-booking-list {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.upcoming-booking-item {
+    min-width: 0;
+}
+
+.room-next-booking-block {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #edf0f4;
+}
+
+.room-next-booking-block .room-status-purpose {
+    margin-top: 8px;
+    padding-top: 0;
+    border-top: none;
+}
+
+.current-booking-purpose,
+.next-booking-purpose {
+    font-style: italic;
+}
+
+@media (max-width: 700px) {
+    .room-status-info strong {
+        overflow-wrap: anywhere;
+    }
 }

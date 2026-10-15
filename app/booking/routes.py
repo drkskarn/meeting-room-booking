@@ -5,8 +5,8 @@ from flask import (
     flash,
     redirect,
     render_template,
-    url_for,
     request,
+    url_for
 )
 from flask_login import current_user, login_required
 
@@ -21,21 +21,20 @@ from app.extensions import db
 
 from app.models import Booking, Room
 
-from app.decorators import applicant_required
 
 from app.booking.services import (
+    get_malaysia_now,
+    get_room_statuses,
     has_booking_conflict,
     mark_completed_bookings,
     mark_expired_bookings,
-    get_room_statuses,
-    get_malaysia_now,
 )
 
+# ========================
+# Create Tempahan
+# ========================
 @booking_bp.route("/create", methods=["GET", "POST"])
 @login_required
-# @applicant_required
-
-# ================Create Tempahan==========================
 def create_booking():
     form = BookingForm()
 
@@ -92,7 +91,11 @@ def create_booking():
                 form=form
             )
             
-        if has_booking_conflict( room_id=room.id, start_datetime=start_datetime, end_datetime=end_datetime):
+        if has_booking_conflict(
+            room_id=room.id,
+            start_datetime=start_datetime,
+            end_datetime=end_datetime
+        ):
             flash(
                 "Bilik ini telah ditempah pada tarikh dan masa "
                 "yang dipilih. Sila pilih waktu atau bilik lain.",
@@ -131,10 +134,11 @@ def create_booking():
         form=form
     )
 
-# ====================Manage Own Booking==================
+# ========================
+# Manage Own Booking
+# ========================
 @booking_bp.route("/my")
 @login_required
-# @applicant_required
 def my_bookings():
     
     mark_completed_bookings()
@@ -152,7 +156,9 @@ def my_bookings():
 
     return render_template("booking/my_bookings.html", bookings=bookings)
 
-# ========================Edit Own Booking=========================
+# ========================
+# Booking Detail
+# ========================
 @booking_bp.route("/<int:booking_id>")
 @login_required
 def booking_detail(booking_id):
@@ -176,6 +182,10 @@ def booking_detail(booking_id):
 
     return render_template("booking/detail.html", booking=booking)
 
+
+# ========================
+# Edit Booking
+# ========================
 @booking_bp.route(
     "/<int:booking_id>/edit",
     methods=["GET", "POST"]
@@ -365,7 +375,9 @@ def edit_booking(booking_id):
         form=form
     )
     
-# ====================Cancel Own Booking====================
+# ========================
+# Cancel Own Booking
+# ========================
 @booking_bp.route(
     "/<int:booking_id>/cancel",
     methods=["GET", "POST"]
@@ -435,13 +447,15 @@ def cancel_own_booking(booking_id):
         form=form
     )
     
-# ===================================================
-# AVAILABILITY
-# ===================================================
+# ========================
+# KETERSEDIAAN BILIK
+# ========================
+
 @booking_bp.route("/availability")
 @login_required
 def room_availability():
 
+    # Pastikan lifecycle booking dikemaskini dahulu
     mark_completed_bookings()
     mark_expired_bookings()
 
@@ -449,48 +463,118 @@ def room_availability():
 
     room_statuses = get_room_statuses(now)
 
+    # ========================
+    # FILTER STATUS
+    # ========================
+
     selected_status = (
-        request.args.get("status", "ALL")
+        request.args.get(
+            "status",
+            "ALL"
+        )
         .strip()
         .upper()
     )
 
-    search_query = (
-        request.args.get("q", "")
-        .strip()
-        .lower()
-    )
-
-    if selected_status in {
+    valid_statuses = {
+        "ALL",
         "AVAILABLE",
         "IN_USE",
         "UPCOMING"
-    }:
-        room_statuses = [
+    }
+
+    if selected_status not in valid_statuses:
+        selected_status = "ALL"
+
+
+    # ========================
+    # SEARCH
+    # ========================
+
+    search_query = (
+        request.args.get(
+            "q",
+            ""
+        )
+        .strip()
+    )
+
+    search_text = search_query.lower()
+
+
+    # ========================
+    # FILTER DATA
+    # ========================
+
+    filtered_rooms = room_statuses
+
+    if selected_status == "AVAILABLE":
+        filtered_rooms = [
             item
-            for item in room_statuses
-            if item["status"] == selected_status
+            for item in filtered_rooms
+            if item["status"] == "AVAILABLE"
         ]
 
-    if search_query:
-        room_statuses = [
+    elif selected_status == "IN_USE":
+        filtered_rooms = [
             item
-            for item in room_statuses
+            for item in filtered_rooms
+            if item["status"] == "IN_USE"
+        ]
+
+    elif selected_status == "UPCOMING":
+        filtered_rooms = [
+            item
+            for item in filtered_rooms
+            if item["upcoming_bookings"]
+        ]
+
+    if search_text:
+        filtered_rooms = [
+            item
+            for item in filtered_rooms
             if (
-                search_query
-                in item["room"].room_name.lower()
-                or
-                (
+                search_text in item["room"].room_name.lower()
+                or (
                     item["room"].location
-                    and search_query
-                    in item["room"].location.lower()
+                    and search_text in item["room"].location.lower()
                 )
             )
         ]
 
+
+    # ========================
+    # SUMMARY
+    # ========================
+
+    available_room_count = sum(
+        1
+        for item in room_statuses
+        if item["status"] == "AVAILABLE"
+    )
+
+    in_use_room_count = sum(
+        1
+        for item in room_statuses
+        if item["status"] == "IN_USE"
+    )
+
+    upcoming_room_count = sum(
+        1
+        for item in room_statuses
+        if item["upcoming_bookings"]
+    )
+
+
     return render_template(
         "booking/availability.html",
-        room_statuses=room_statuses,
+
+        room_statuses=filtered_rooms,
+
         selected_status=selected_status,
-        search_query=request.args.get("q", "").strip()
+        search_query=search_query,
+
+        available_room_count=available_room_count,
+        in_use_room_count=in_use_room_count,
+        upcoming_room_count=upcoming_room_count
     )

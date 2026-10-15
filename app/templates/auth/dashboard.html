@@ -102,13 +102,13 @@ Dashboard
     </div>
 
     <!-- =================================================
-     STATUS BILIK HARI INI
+     STATUS BILIK HARI INI - ADMIN
      ================================================= -->
 
     <div class="dashboard-section">
 
         <div class="section-header">
-
+            
             <div>
 
                 <h2>
@@ -153,7 +153,10 @@ Dashboard
 
                 </div>
             </div>
-
+        
+            <a href="{{ url_for('booking.room_availability') }}" class="section-link">
+                Lihat Semua
+            </a>
         </div>
 
 
@@ -215,11 +218,23 @@ Dashboard
                                     Sedang berlangsung
                                 </span>
 
-                                <strong>
+                                {% if item.current_booking.start_datetime.date() == item.current_booking.end_datetime.date() %}
+
+                                    <strong>
                                     {{ item.current_booking.start_datetime.strftime("%H:%M") }}
-                                    -
+                                    hingga
                                     {{ item.current_booking.end_datetime.strftime("%H:%M") }}
-                                </strong>
+                                    </strong>
+
+                                {% else %}
+
+                                    <strong>
+                                        {{ item.current_booking.start_datetime.strftime("%d/%m %H:%M") }}
+                                        hingga
+                                        {{ item.current_booking.end_datetime.strftime("%d/%m %H:%M") }}
+                                    </strong>
+
+                                {% endif %}
 
                             </div>
 
@@ -929,7 +944,9 @@ Dashboard
                 </div>
 
             </div>
-
+            <a href="{{ url_for('booking.room_availability') }}" class="section-link">
+                Lihat Semua
+            </a>
         </div>
 
         {% if room_status_preview %}

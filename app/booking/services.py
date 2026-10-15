@@ -1,9 +1,13 @@
-from app.extensions import db
-from app.models import Booking, Room
-
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
+from app.extensions import db
+from app.models import Booking, Room
+
+
+# ========================
+# Booking Conflict
+# ========================
 def has_booking_conflict(
     room_id,
     start_datetime,
@@ -28,6 +32,10 @@ def has_booking_conflict(
 
     return conflict is not None
 
+
+# ========================
+# Malaysia Time
+# ========================
 MALAYSIA_TZ = ZoneInfo("Asia/Kuala_Lumpur")
 
 
@@ -37,27 +45,33 @@ def get_malaysia_now():
     ).replace(tzinfo=None)
 
 
+# ========================
+# Mark Completed Bookings
+# ========================
 def mark_completed_bookings():
     now = get_malaysia_now()
 
-    expired_bookings = db.session.scalars(
+    completed_bookings = db.session.scalars(
         db.select(Booking).where(
             Booking.status == "APPROVED",
             Booking.end_datetime <= now
         )
     ).all()
 
-    if not expired_bookings:
+    if not completed_bookings:
         return 0
 
-    for booking in expired_bookings:
+    for booking in completed_bookings:
         booking.status = "COMPLETED"
 
     db.session.commit()
 
-    return len(expired_bookings)
+    return len(completed_bookings)
 
 
+# ========================
+# Mark Expired Bookings
+# ========================
 def mark_expired_bookings():
     now = get_malaysia_now()
 
@@ -79,8 +93,10 @@ def mark_expired_bookings():
     return len(expired_bookings)
 
 
+# ========================
+# Room Status Today
+# ========================
 def get_room_statuses(now=None):
-    
     if now is None:
         now = get_malaysia_now()
 
@@ -106,6 +122,7 @@ def get_room_statuses(now=None):
         )
     ).all()
 
+    # Hanya tempahan APPROVED yang bertindih dengan hari semasa.
     today_approved_bookings = db.session.scalars(
         db.select(Booking)
         .where(
@@ -121,7 +138,6 @@ def get_room_statuses(now=None):
     room_statuses = []
 
     for room in active_rooms:
-
         room_bookings = [
             booking
             for booking in today_approved_bookings
@@ -140,13 +156,23 @@ def get_room_statuses(now=None):
             None
         )
 
-        next_booking = next(
-            (
-                booking
-                for booking in room_bookings
-                if booking.start_datetime > now
-            ),
-            None
+        # ========================
+        # Upcoming Bookings Hari Ini
+        # ========================
+
+        upcoming_bookings = [
+            booking
+            for booking in room_bookings
+            if (
+                booking.start_datetime > now
+                and booking.start_datetime < start_of_tomorrow
+            )
+        ]
+
+        next_booking = (
+            upcoming_bookings[0]
+            if upcoming_bookings
+            else None
         )
 
         if current_booking is not None:
@@ -163,7 +189,8 @@ def get_room_statuses(now=None):
                 "room": room,
                 "status": room_status,
                 "current_booking": current_booking,
-                "next_booking": next_booking
+                "next_booking": next_booking,
+                "upcoming_bookings": upcoming_bookings
             }
         )
 
