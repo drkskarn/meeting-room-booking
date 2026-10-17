@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Maklumat Tempahan
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>Maklumat Tempahan</h1>
+
+    <p>
+        Maklumat lengkap bagi tempahan #{{ booking.id }}.
+    </p>
+
+</div>
+
+
+<div class="card booking-detail-card">
+
+    <!-- HEADER -->
+
+    <div class="booking-detail-header">
+
+        <div>
+
+            <span class="booking-detail-label">
+                Bilik Mesyuarat
+            </span>
+
+            <h2>
+                {{ booking.room.room_name }}
+            </h2>
+
+            {% if booking.room.location %}
+
+                <p class="text-muted">
+                    {{ booking.room.location }}
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <div>
+
+            {% if booking.status == "PENDING" %}
+
+                <span class="status-badge status-pending">
+                    Menunggu Kelulusan
+                </span>
+
+            {% elif booking.status == "APPROVED" %}
+
+                <span class="status-badge status-approved">
+                    Diluluskan
+                </span>
+
+            {% elif booking.status == "REJECTED" %}
+
+                <span class="status-badge status-rejected">
+                    Ditolak
+                </span>
+
+            {% elif booking.status == "CANCELLED" %}
+
+                <span class="status-badge status-cancelled">
+                    Dibatalkan
+                </span>
+
+            {% elif booking.status == "COMPLETED" %}
+
+                <span class="status-badge status-completed">
+                    Selesai
+                </span>
+
+            {% elif booking.status == "EXPIRED" %}
+
+                <span class="status-badge status-expired">
+                    Tamat Tempoh
+                </span>
+
+            {% else %}
+
+                <span class="status-badge">
+                    {{ booking.status }}
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- DETAIL GRID -->
+
+    <div class="booking-detail-grid">
+
+        <div class="booking-detail-item">
+
+            <span>
+                ID Tempahan
+            </span>
+
+            <strong>
+                #{{ booking.id }}
+            </strong>
+
+        </div>
+
+
+        <div class="booking-detail-item">
+
+            <span>
+                Pemohon
+            </span>
+
+            <strong>
+                {{ booking.applicant.full_name }}
+            </strong>
+
+            <small>
+                {{ booking.applicant.email }}
+            </small>
+
+        </div>
+
+
+        <div class="booking-detail-item">
+
+            <span>
+                Tarikh
+            </span>
+
+            <strong>
+                {{ booking.start_datetime.strftime("%d/%m/%Y") }}
+            </strong>
+
+        </div>
+
+
+        <div class="booking-detail-item">
+
+            <span>
+                Masa
+            </span>
+
+            <strong>
+                {{ booking.start_datetime.strftime("%H:%M") }}
+                -
+                {{ booking.end_datetime.strftime("%H:%M") }}
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- PURPOSE -->
+
+    <div class="booking-detail-section">
+
+        <span class="booking-detail-label">
+            Tujuan Tempahan
+        </span>
+
+        <p>
+            {{ booking.purpose }}
+        </p>
+
+    </div>
+
+
+    <!-- REJECTION INFO -->
+
+    {% if booking.status == "REJECTED" %}
+
+        <div class="booking-detail-section detail-alert detail-alert-danger">
+
+            <span class="booking-detail-label">
+                Sebab Penolakan
+            </span>
+
+            <p>
+                {{ booking.rejection_reason or "-" }}
+            </p>
+
+            {% if booking.rejected_by %}
+
+                <small>
+                    Ditolak oleh:
+                    {{ booking.rejected_by.full_name }}
+                </small>
+
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- CANCELLATION INFO -->
+
+    {% if booking.status == "CANCELLED" %}
+
+        <div class="booking-detail-section detail-alert detail-alert-warning">
+
+            <span class="booking-detail-label">
+                Sebab Pembatalan
+            </span>
+
+            <p>
+                {{ booking.cancellation_reason or "-" }}
+            </p>
+
+            {% if booking.cancelled_by %}
+
+                <small>
+                    Dibatalkan oleh:
+                    {{ booking.cancelled_by.full_name }}
+                </small>
+
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- EXPIRED INFO -->
+
+    {% if booking.status == "EXPIRED" %}
+
+        <div class="booking-detail-section detail-alert detail-alert-neutral">
+
+            <span class="booking-detail-label">
+                Status Tempahan
+            </span>
+
+            <p>
+                Permohonan ini telah tamat tempoh kerana tempoh
+                tempahan telah berakhir sebelum mendapat kelulusan.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- ACTIONS -->
+
+    <div class="booking-detail-actions">
+
+        <div class="action-group">
+
+            {% if current_user.role == "ADMIN" %}
+
+                {% if booking.status in ["PENDING", "APPROVED"] %}
+
+                    <a
+                        href="{{ url_for(
+                            'booking.edit_booking',
+                            booking_id=booking.id
+                        ) }}"
+                        class="btn btn-primary"
+                    >
+                        Edit
+                    </a>
+
+                    <a
+                        href="{{ url_for(
+                            'admin.cancel_booking',
+                            booking_id=booking.id
+                        ) }}"
+                        class="btn btn-danger"
+                    >
+                        Batal
+                    </a>
+
+                {% endif %}
+
+
+            {% else %}
+
+                {% if booking.status == "PENDING" %}
+
+                    <a
+                        href="{{ url_for(
+                            'booking.edit_booking',
+                            booking_id=booking.id
+                        ) }}"
+                        class="btn btn-primary"
+                    >
+                        Edit
+                    </a>
+
+                {% endif %}
+
+
+                {% if booking.status in ["PENDING", "APPROVED"] %}
+
+                    <a
+                        href="{{ url_for(
+                            'booking.cancel_own_booking',
+                            booking_id=booking.id
+                        ) }}"
+                        class="btn btn-danger"
+                    >
+                        Batal
+                    </a>
+
+                {% endif %}
+
+            {% endif %}
+
+        </div>
+
+
+        {% if current_user.role == "ADMIN" %}
+
+            <a
+                href="{{ url_for('admin.bookings') }}"
+                class="btn btn-secondary"
+            >
+                Kembali
+            </a>
+
+        {% else %}
+
+            <a
+                href="{{ url_for('booking.my_bookings') }}"
+                class="btn btn-secondary"
+            >
+                Kembali
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

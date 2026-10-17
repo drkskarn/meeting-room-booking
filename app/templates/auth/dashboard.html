@@ -238,6 +238,13 @@ Dashboard
 
                             </div>
 
+                            <div class="room-status-info">
+                                <span>Pengerusi Mesyuarat</span>
+                                <strong>
+                                    {{ item.current_booking.chairperson_name or "-" }}
+                                </strong>
+                            </div>
+
                             <div class="room-status-purpose">
                                 {{ item.current_booking.purpose }}
                             </div>
@@ -251,12 +258,31 @@ Dashboard
                                     Tempahan seterusnya
                                 </span>
 
-                                <strong>
-                                    {{ item.next_booking.start_datetime.strftime("%H:%M") }}
-                                    -
-                                    {{ item.next_booking.end_datetime.strftime("%H:%M") }}
-                                </strong>
+                                {% if item.next_booking.start_datetime.date() == item.next_booking.end_datetime.date() %}
 
+                                    <strong>
+                                        {{ item.next_booking.start_datetime.strftime("%H:%M") }}
+                                        hingga
+                                        {{ item.next_booking.end_datetime.strftime("%H:%M") }}
+                                    </strong>
+
+                                {% else %}
+
+                                    <strong>
+                                        {{ item.next_booking.start_datetime.strftime("%d/%m %H:%M") }}
+                                        hingga
+                                        {{ item.next_booking.end_datetime.strftime("%d/%m %H:%M") }}
+                                    </strong>
+
+                                {% endif %}
+
+                            </div>
+
+                            <div class="room-status-info">
+                                <span>Pengerusi Mesyuarat</span>
+                                <strong>
+                                    {{ item.next_booking.chairperson_name or "-" }}
+                                </strong>
                             </div>
 
                             <div class="room-status-purpose">
@@ -347,6 +373,7 @@ Dashboard
                             <th>Pemohon</th>
                             <th>Bilik</th>
                             <th>Tarikh / Masa</th>
+                            <th>Pengerusi</th>
                             <th>Tujuan</th>
                             <th>Status</th>
                             <th>Tindakan</th>
@@ -388,26 +415,47 @@ Dashboard
 
                                 <td>
 
-                                    {{ booking.start_datetime.strftime(
-                                        "%d/%m/%Y"
-                                    ) }}
-
-                                    <br>
-
-                                    <span class="text-muted">
+                                    {% if booking.start_datetime.date()
+                                          == booking.end_datetime.date() %}
 
                                         {{ booking.start_datetime.strftime(
-                                            "%H:%M"
+                                            "%d/%m/%Y"
                                         ) }}
 
-                                        -
+                                        <br>
 
-                                        {{ booking.end_datetime.strftime(
-                                            "%H:%M"
+                                        <span class="text-muted">
+                                            {{ booking.start_datetime.strftime(
+                                                "%H:%M"
+                                            ) }}
+                                            -
+                                            {{ booking.end_datetime.strftime(
+                                                "%H:%M"
+                                            ) }}
+                                        </span>
+
+                                    {% else %}
+
+                                        {{ booking.start_datetime.strftime(
+                                            "%d/%m/%Y %H:%M"
                                         ) }}
 
-                                    </span>
+                                        <br>
 
+                                        <span class="text-muted">
+                                            hingga
+                                            {{ booking.end_datetime.strftime(
+                                                "%d/%m/%Y %H:%M"
+                                            ) }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+                                    {{ booking.chairperson_name or "-" }}
                                 </td>
 
 
@@ -644,9 +692,24 @@ Dashboard
                         Tarikh
                     </span>
 
-                    {{ booking.start_datetime.strftime(
-                        "%d/%m/%Y"
-                    ) }}
+                    {% if booking.start_datetime.date()
+                          == booking.end_datetime.date() %}
+
+                        {{ booking.start_datetime.strftime(
+                            "%d/%m/%Y"
+                        ) }}
+
+                    {% else %}
+
+                        {{ booking.start_datetime.strftime(
+                            "%d/%m/%Y"
+                        ) }}
+                        hingga
+                        {{ booking.end_datetime.strftime(
+                            "%d/%m/%Y"
+                        ) }}
+
+                    {% endif %}
                 </div>
 
 
@@ -664,6 +727,15 @@ Dashboard
                     {{ booking.end_datetime.strftime(
                         "%H:%M"
                     ) }}
+                </div>
+
+
+                <div>
+                    <span class="booking-info-label">
+                        Pengerusi Mesyuarat
+                    </span>
+
+                    {{ booking.chairperson_name or "-" }}
                 </div>
 
 
@@ -779,9 +851,24 @@ Dashboard
                             </span>
 
                             <strong>
-                                {{ booking.start_datetime.strftime(
-                                    "%d/%m/%Y"
-                                ) }}
+                                {% if booking.start_datetime.date()
+                                      == booking.end_datetime.date() %}
+
+                                    {{ booking.start_datetime.strftime(
+                                        "%d/%m/%Y"
+                                    ) }}
+
+                                {% else %}
+
+                                    {{ booking.start_datetime.strftime(
+                                        "%d/%m/%Y"
+                                    ) }}
+                                    hingga
+                                    {{ booking.end_datetime.strftime(
+                                        "%d/%m/%Y"
+                                    ) }}
+
+                                {% endif %}
                             </strong>
 
                         </div>
@@ -805,6 +892,19 @@ Dashboard
                                     "%H:%M"
                                 ) }}
 
+                            </strong>
+
+                        </div>
+
+
+                        <div class="modal-detail">
+
+                            <span>
+                                Pengerusi Mesyuarat
+                            </span>
+
+                            <strong>
+                                {{ booking.chairperson_name or "-" }}
                             </strong>
 
                         </div>
@@ -993,10 +1093,30 @@ Dashboard
 
                             <div class="room-status-info">
                                 <span>Sedang berlangsung</span>
+
+                                {% if item.current_booking.start_datetime.date() == item.current_booking.end_datetime.date() %}
+
+                                    <strong>
+                                        {{ item.current_booking.start_datetime.strftime("%H:%M") }}
+                                        hingga
+                                        {{ item.current_booking.end_datetime.strftime("%H:%M") }}
+                                    </strong>
+
+                                {% else %}
+
+                                    <strong>
+                                        {{ item.current_booking.start_datetime.strftime("%d/%m %H:%M") }}
+                                        hingga
+                                        {{ item.current_booking.end_datetime.strftime("%d/%m %H:%M") }}
+                                    </strong>
+
+                                {% endif %}
+                            </div>
+
+                            <div class="room-status-info">
+                                <span>Pengerusi Mesyuarat</span>
                                 <strong>
-                                    {{ item.current_booking.start_datetime.strftime("%H:%M") }}
-                                    -
-                                    {{ item.current_booking.end_datetime.strftime("%H:%M") }}
+                                    {{ item.current_booking.chairperson_name or "-" }}
                                 </strong>
                             </div>
 
@@ -1008,10 +1128,30 @@ Dashboard
 
                             <div class="room-status-info">
                                 <span>Tempahan seterusnya</span>
+
+                                {% if item.next_booking.start_datetime.date() == item.next_booking.end_datetime.date() %}
+
+                                    <strong>
+                                        {{ item.next_booking.start_datetime.strftime("%H:%M") }}
+                                        hingga
+                                        {{ item.next_booking.end_datetime.strftime("%H:%M") }}
+                                    </strong>
+
+                                {% else %}
+
+                                    <strong>
+                                        {{ item.next_booking.start_datetime.strftime("%d/%m %H:%M") }}
+                                        hingga
+                                        {{ item.next_booking.end_datetime.strftime("%d/%m %H:%M") }}
+                                    </strong>
+
+                                {% endif %}
+                            </div>
+
+                            <div class="room-status-info">
+                                <span>Pengerusi Mesyuarat</span>
                                 <strong>
-                                    {{ item.next_booking.start_datetime.strftime("%H:%M") }}
-                                    -
-                                    {{ item.next_booking.end_datetime.strftime("%H:%M") }}
+                                    {{ item.next_booking.chairperson_name or "-" }}
                                 </strong>
                             </div>
 

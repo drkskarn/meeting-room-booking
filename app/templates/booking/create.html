@@ -68,6 +68,17 @@
 
 
         <p>
+            {{ form.chairperson_name.label }}<br>
+            {{ form.chairperson_name() }}
+
+            {% for error in form.chairperson_name.errors %}
+                <br>
+                <span>{{ error }}</span>
+            {% endfor %}
+        </p>
+
+
+        <p>
             {{ form.purpose.label }}<br>
             {{ form.purpose(rows=5, cols=50) }}
 

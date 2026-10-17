@@ -113,6 +113,9 @@ def create_booking():
             start_datetime=start_datetime,
             end_datetime=end_datetime,
             purpose=form.purpose.data.strip(),
+            chairperson_name=(
+                form.chairperson_name.data or ""
+            ).strip() or None,
             status="PENDING"
         )
 
@@ -345,6 +348,9 @@ def edit_booking(booking_id):
         booking.start_datetime = start_datetime
         booking.end_datetime = end_datetime
         booking.purpose = form.purpose.data.strip()
+        booking.chairperson_name = (
+            form.chairperson_name.data or ""
+        ).strip() or None
 
         db.session.commit()
 
@@ -368,6 +374,7 @@ def edit_booking(booking_id):
         form.end_date.data = booking.end_datetime.date()
         form.end_time.data = booking.end_datetime.time()
         form.purpose.data = booking.purpose
+        form.chairperson_name.data = booking.chairperson_name
 
     return render_template(
         "booking/edit.html",

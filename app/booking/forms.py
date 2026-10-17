@@ -3,11 +3,12 @@ from flask_wtf import FlaskForm
 from wtforms import (
     DateField,
     SelectField,
+    StringField,
     SubmitField,
     TextAreaField,
     TimeField,
 )
-from wtforms.validators import DataRequired, Length, ValidationError
+from wtforms.validators import DataRequired, Length, Optional, ValidationError
 
 # ===============Create Booking=======================
 class BookingForm(FlaskForm):
@@ -47,8 +48,16 @@ class BookingForm(FlaskForm):
         ]
     )
 
+    chairperson_name = StringField(
+        "Dipengerusikan Oleh (Jika Berkenaan)",
+        validators=[
+            Optional(),
+            Length(max=150)
+        ]
+    )
+
     purpose = TextAreaField(
-        "Tujuan Penggunaan",
+        "Nama Mesyuarat",
         validators=[
             DataRequired(),
             Length(

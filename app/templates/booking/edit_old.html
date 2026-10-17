@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Edit Tempahan
+{% endblock %}
+
+
+{% block content %}
+
+    <form method="POST">
+
+        {{ form.hidden_tag() }}
+
+        <p>
+            {{ form.room_id.label }}<br>
+            {{ form.room_id() }}
+        </p>
+
+        <p>
+            {{ form.start_date.label }}<br>
+            {{ form.start_date() }}
+        </p>
+
+        <p>
+            {{ form.start_time.label }}<br>
+            {{ form.start_time() }}
+        </p>
+
+        <p>
+            {{ form.end_date.label }}<br>
+            {{ form.end_date() }}
+        </p>
+
+        <p>
+            {{ form.end_time.label }}<br>
+            {{ form.end_time() }}
+        </p>
+
+        <p>
+            {{ form.purpose.label }}<br>
+            {{ form.purpose(rows=5, cols=50) }}
+        </p>
+
+        {{ form.submit() }}
+
+    </form>
+
+    <p>
+        <a href="{{ url_for(
+            'booking.booking_detail',
+            booking_id=booking.id
+        ) }}">
+            Kembali
+        </a>
+    </p>
+
+{% endblock %}
