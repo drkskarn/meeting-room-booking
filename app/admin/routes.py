@@ -1,7 +1,7 @@
-from flask import abort, flash, redirect, render_template, url_for
+from flask import abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from app.models import Booking, Room, User
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from datetime import datetime, timezone
 from app.admin import admin_bp
 # from app.admin.forms import RoomForm, ToggleRoomForm
@@ -24,7 +24,9 @@ from app.admin.forms import (
     UserStatusForm,
 )
 
-# =====================Route Bagi User Management====================
+# ========================
+# User Management
+# ========================
 @admin_bp.route("/users")
 @login_required
 @admin_required
@@ -242,21 +244,104 @@ def toggle_user_status(user_id):
     )
     
     
-# =====================Route Bagi Room===================
+# ========================
+# Room Management
+# ========================
 @admin_bp.route("/rooms")
 @login_required
 @admin_required
 def rooms():
+
+    # ========================
+    # Filter Status
+    # ========================
+    selected_status = (
+        request.args.get("status", "ALL")
+        .strip()
+        .upper()
+    )
+
+    valid_statuses = {
+        "ALL",
+        "ACTIVE",
+        "INACTIVE",
+    }
+
+    if selected_status not in valid_statuses:
+        selected_status = "ALL"
+
+    # ========================
+    # Search
+    # ========================
+    search_query = request.args.get("q", "").strip()
+    search_text = search_query.lower()
+
+    statement = db.select(Room)
+
+    if selected_status == "ACTIVE":
+        statement = statement.where(
+            Room.is_active.is_(True)
+        )
+
+    elif selected_status == "INACTIVE":
+        statement = statement.where(
+            Room.is_active.is_(False)
+        )
+
+    if search_text:
+        search_pattern = f"%{search_text}%"
+
+        search_conditions = [
+            func.lower(Room.room_name).like(search_pattern),
+            func.lower(Room.location).like(search_pattern),
+        ]
+
+        if search_query.isdigit():
+            search_number = int(search_query)
+
+            search_conditions.extend([
+                Room.id == search_number,
+                Room.capacity == search_number,
+            ])
+
+        statement = statement.where(
+            or_(*search_conditions)
+        )
+
     rooms = db.session.scalars(
-        db.select(Room).order_by(Room.room_name)
+        statement.order_by(Room.room_name)
     ).all()
 
+    # ========================
+    # Status Counts
+    # ========================
+    active_room_count = db.session.scalar(
+        db.select(func.count(Room.id)).where(
+            Room.is_active.is_(True)
+        )
+    ) or 0
+
+    inactive_room_count = db.session.scalar(
+        db.select(func.count(Room.id)).where(
+            Room.is_active.is_(False)
+        )
+    ) or 0
+
+    room_counts = {
+        "ALL": active_room_count + inactive_room_count,
+        "ACTIVE": active_room_count,
+        "INACTIVE": inactive_room_count,
+    }
+
     toggle_form = ToggleRoomForm()
-    
+
     return render_template(
         "admin/rooms.html",
         rooms=rooms,
-        toggle_form=toggle_form
+        toggle_form=toggle_form,
+        selected_status=selected_status,
+        search_query=search_query,
+        room_counts=room_counts,
     )
 
 
@@ -405,26 +490,126 @@ def toggle_room(room_id):
     )
 
 
-# =====================Route Bagi Booking===================
+# ========================
+# Booking Management
+# ========================
 @admin_bp.route("/bookings")
 @login_required
 @admin_required
 def bookings():
-    
     mark_completed_bookings()
     mark_expired_bookings()
-    
+
+    # ========================
+    # Filter Status
+    # ========================
+    selected_status = (
+        request.args.get("status", "ALL")
+        .strip()
+        .upper()
+    )
+
+    valid_statuses = {
+        "ALL",
+        "PENDING",
+        "APPROVED",
+        "COMPLETED",
+        "REJECTED",
+        "CANCELLED",
+        "EXPIRED",
+    }
+
+    if selected_status not in valid_statuses:
+        selected_status = "ALL"
+
+    # ========================
+    # Search
+    # ========================
+    search_query = request.args.get("q", "").strip()
+    search_text = search_query.lower()
+
+    statement = db.select(Booking)
+
+    if selected_status != "ALL":
+        statement = statement.where(
+            Booking.status == selected_status
+        )
+
+    if search_text:
+        search_pattern = f"%{search_text}%"
+
+        search_conditions = [
+            func.lower(Booking.purpose).like(search_pattern),
+            Booking.applicant.has(
+                func.lower(User.full_name).like(search_pattern)
+            ),
+            Booking.applicant.has(
+                func.lower(User.email).like(search_pattern)
+            ),
+            Booking.room.has(
+                func.lower(Room.room_name).like(search_pattern)
+            ),
+            Booking.room.has(
+                func.lower(Room.location).like(search_pattern)
+            ),
+        ]
+
+        if search_query.isdigit():
+            search_conditions.append(
+                Booking.id == int(search_query)
+            )
+
+        statement = statement.where(
+            or_(*search_conditions)
+        )
+
     bookings = db.session.scalars(
-        db.select(Booking)
-        .order_by(
+        statement.order_by(
             Booking.created_at.desc()
         )
     ).all()
 
+    # ========================
+    # Status Counts
+    # ========================
+    status_rows = db.session.execute(
+        db.select(
+            Booking.status,
+            func.count(Booking.id)
+        )
+        .group_by(Booking.status)
+    ).all()
+
+    status_counts = {
+        status: count
+        for status, count in status_rows
+    }
+
+    booking_counts = {
+        "ALL": sum(status_counts.values()),
+        "PENDING": status_counts.get("PENDING", 0),
+        "APPROVED": status_counts.get("APPROVED", 0),
+        "COMPLETED": status_counts.get("COMPLETED", 0),
+        "REJECTED": status_counts.get("REJECTED", 0),
+        "CANCELLED": status_counts.get("CANCELLED", 0),
+        "EXPIRED": status_counts.get("EXPIRED", 0),
+    }
+
     action_form = BookingActionForm()
 
-    return render_template("admin/bookings.html", bookings=bookings, action_form=action_form)
+    return render_template(
+        "admin/bookings.html",
+        bookings=bookings,
+        action_form=action_form,
+        selected_status=selected_status,
+        search_query=search_query,
+        booking_counts=booking_counts,
+    )
 
+
+# ========================
+# Approve Booking
+# ========================
 @admin_bp.route(
     "/bookings/<int:booking_id>/approve",
     methods=["POST"]
@@ -432,10 +617,9 @@ def bookings():
 @login_required
 @admin_required
 def approve_booking(booking_id):
-    
     mark_completed_bookings()
     mark_expired_bookings()
-    
+
     booking = db.session.get(
         Booking,
         booking_id
@@ -449,20 +633,20 @@ def approve_booking(booking_id):
     if not form.validate_on_submit():
         abort(400)
 
-    if booking.status != "PENDING":
+    if booking.status == "EXPIRED":
         flash(
-            "Hanya permohonan berstatus PENDING "
-            "boleh diluluskan.",
+            "Permohonan ini telah tamat tempoh dan tidak boleh diluluskan.",
             "warning"
         )
 
         return redirect(
             url_for("admin.bookings")
         )
-    
-    if booking.status == "EXPIRED":
+
+    if booking.status != "PENDING":
         flash(
-            "Permohonan ini telah tamat tempoh dan tidak boleh diluluskan.",
+            "Hanya permohonan berstatus PENDING "
+            "boleh diluluskan.",
             "warning"
         )
 
@@ -500,12 +684,8 @@ def approve_booking(booking_id):
         )
 
     booking.status = "APPROVED"
-
     booking.approved_by_id = current_user.id
-
-    booking.approved_at = datetime.now(
-        timezone.utc
-    )
+    booking.approved_at = datetime.now(timezone.utc)
 
     db.session.commit()
 
@@ -518,6 +698,10 @@ def approve_booking(booking_id):
         url_for("admin.bookings")
     )
 
+
+# ========================
+# Reject Booking
+# ========================
 @admin_bp.route(
     "/bookings/<int:booking_id>/reject",
     methods=["GET", "POST"]
@@ -525,10 +709,9 @@ def approve_booking(booking_id):
 @login_required
 @admin_required
 def reject_booking(booking_id):
-    
     mark_completed_bookings()
     mark_expired_bookings()
-    
+
     booking = db.session.get(
         Booking,
         booking_id
@@ -546,13 +729,16 @@ def reject_booking(booking_id):
         return redirect(
             url_for("admin.bookings")
         )
-    
+
     if booking.status != "PENDING":
         flash(
             "Hanya permohonan berstatus PENDING boleh ditolak.",
             "warning"
         )
-        return redirect(url_for("admin.bookings"))
+
+        return redirect(
+            url_for("admin.bookings")
+        )
 
     form = RejectBookingForm()
 
@@ -569,7 +755,9 @@ def reject_booking(booking_id):
             "success"
         )
 
-        return redirect(url_for("admin.bookings"))
+        return redirect(
+            url_for("admin.bookings")
+        )
 
     return render_template(
         "admin/reject_booking.html",
@@ -577,6 +765,10 @@ def reject_booking(booking_id):
         form=form
     )
 
+
+# ========================
+# Cancel Booking
+# ========================
 @admin_bp.route(
     "/bookings/<int:booking_id>/cancel",
     methods=["GET", "POST"]
@@ -584,10 +776,9 @@ def reject_booking(booking_id):
 @login_required
 @admin_required
 def cancel_booking(booking_id):
-    
     mark_completed_bookings()
     mark_expired_bookings()
-    
+
     booking = db.session.get(
         Booking,
         booking_id
@@ -598,12 +789,14 @@ def cancel_booking(booking_id):
 
     if booking.status == "EXPIRED":
         flash(
-            "Permohonan ini telah tamat tempoh dan tidak boleh ditolak.",
+            "Tempahan ini telah tamat tempoh dan tidak boleh dibatalkan.",
             "warning"
         )
 
-        return redirect(url_for("admin.bookings"))
-    
+        return redirect(
+            url_for("admin.bookings")
+        )
+
     if booking.status not in {
         "PENDING",
         "APPROVED"
@@ -612,7 +805,10 @@ def cancel_booking(booking_id):
             "Tempahan ini tidak boleh dibatalkan.",
             "warning"
         )
-        return redirect(url_for("admin.bookings"))
+
+        return redirect(
+            url_for("admin.bookings")
+        )
 
     form = CancelBookingForm()
 
@@ -629,7 +825,9 @@ def cancel_booking(booking_id):
             "success"
         )
 
-        return redirect(url_for("admin.bookings"))
+        return redirect(
+            url_for("admin.bookings")
+        )
 
     return render_template(
         "admin/cancel_booking.html",

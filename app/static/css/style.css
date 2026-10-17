@@ -1,7 +1,7 @@
 /* =========================================================
    SISTEM TEMPAHAN BILIK MESYUARAT
    Clean Global Stylesheet
-   UI Phase 1 + UI Phase 2 + UI Phase 3
+   UI Phase 1 + UI Phase 2 + UI Phase 3 + UI Phase 4 + UI Phase 4
    ========================================================= */
 
 /* =========================================================
@@ -1950,4 +1950,551 @@ body.modal-active {
     .room-status-info strong {
         overflow-wrap: anywhere;
     }
+}
+
+/* =========================================================
+   25. ADMIN BOOKINGS - RESPONSIVE TABLE / CARD
+   ========================================================= */
+
+.admin-bookings-table-container {
+    overflow-x: auto;
+}
+
+.admin-bookings-table {
+    min-width: 980px;
+}
+
+.admin-bookings-table .booking-col-purpose {
+    min-width: 260px;
+    overflow-wrap: anywhere;
+}
+
+.admin-bookings-table .booking-col-actions {
+    min-width: 150px;
+}
+
+.admin-bookings-table .booking-col-actions .action-group {
+    align-items: center;
+}
+
+/* ========================
+   Tablet / Mobile Card View
+   ======================== */
+@media (max-width: 900px) {
+
+    .admin-booking-filter {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-booking-filter .availability-search {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .admin-booking-filter-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+    }
+
+    .admin-booking-filter-buttons .filter-button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .admin-bookings-table-container {
+        overflow: visible;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .admin-bookings-table {
+        min-width: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .admin-bookings-table thead {
+        display: none;
+    }
+
+    .admin-bookings-table,
+    .admin-bookings-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .admin-bookings-table tbody {
+        display: grid;
+        gap: 16px;
+    }
+
+    .admin-bookings-table .admin-booking-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "id status"
+            "applicant applicant"
+            "room room"
+            "datetime datetime"
+            "purpose purpose"
+            "actions actions";
+        gap: 0;
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #e3e8ef;
+        border-radius: 12px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.045);
+    }
+
+    .admin-bookings-table .admin-booking-row:hover {
+        background: #ffffff;
+    }
+
+    .admin-bookings-table .admin-booking-row td {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        padding: 14px 16px;
+        border-bottom: 1px solid #edf0f4;
+        font-size: 14px;
+    }
+
+    .admin-bookings-table .admin-booking-row td::before {
+        display: block;
+        margin-bottom: 5px;
+        color: #8995a7;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.45px;
+        text-transform: uppercase;
+        content: attr(data-label);
+    }
+
+    .admin-bookings-table .booking-col-id {
+        grid-area: id;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .admin-bookings-table .booking-col-id::before,
+    .admin-bookings-table .booking-col-status::before {
+        display: none;
+    }
+
+    .admin-bookings-table .booking-col-id strong {
+        color: #0f2d5c;
+        font-size: 16px;
+    }
+
+    .admin-bookings-table .booking-col-status {
+        grid-area: status;
+        width: auto;
+        padding-bottom: 12px;
+        text-align: right;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .admin-bookings-table .booking-col-applicant {
+        grid-area: applicant;
+    }
+
+    .admin-bookings-table .booking-col-room {
+        grid-area: room;
+    }
+
+    .admin-bookings-table .booking-col-datetime {
+        grid-area: datetime;
+    }
+
+    .admin-bookings-table .booking-col-purpose {
+        grid-area: purpose;
+        min-width: 0;
+    }
+
+    .admin-bookings-table .booking-col-actions {
+        grid-area: actions;
+        min-width: 0;
+        border-bottom: none;
+        background: #fafbfd;
+    }
+
+    .admin-bookings-table .booking-col-actions .action-group {
+        width: 100%;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .admin-bookings-table .booking-col-actions .btn,
+    .admin-bookings-table .booking-col-actions .inline-action-form {
+        flex: 1 1 120px;
+    }
+
+    .admin-bookings-table .booking-col-actions .inline-action-form {
+        width: auto;
+    }
+
+    .admin-bookings-table .booking-col-actions .inline-action-form button {
+        width: 100% !important;
+    }
+}
+
+/* ========================
+   Small Mobile
+   ======================== */
+@media (max-width: 600px) {
+
+    .admin-booking-filter-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-booking-filter-buttons .filter-button {
+        min-height: 42px;
+        padding: 9px 8px;
+        font-size: 12px;
+    }
+
+    .admin-bookings-table tbody {
+        gap: 12px;
+    }
+
+    .admin-bookings-table .admin-booking-row td {
+        padding: 13px 14px;
+    }
+
+    .admin-bookings-table .booking-col-actions .action-group {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-bookings-table .booking-col-actions .btn,
+    .admin-bookings-table .booking-col-actions .inline-action-form {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .admin-bookings-table .booking-col-actions .btn {
+        min-height: 38px;
+    }
+}
+
+/* ========================
+   Very Small Mobile
+   ======================== */
+@media (max-width: 420px) {
+
+    .admin-booking-filter-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-bookings-table .admin-booking-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .admin-bookings-table .booking-col-actions .action-group {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   26. ADMIN ROOM MANAGEMENT - PHASE 4C
+   ========================================================= */
+
+.admin-room-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.admin-room-page-header .btn {
+    flex-shrink: 0;
+}
+
+.admin-room-filter .availability-search {
+    min-width: 320px;
+}
+
+.admin-room-filter-buttons {
+    flex-shrink: 0;
+}
+
+.admin-rooms-table {
+    min-width: 820px;
+}
+
+.admin-rooms-table .room-col-id {
+    width: 80px;
+}
+
+.admin-rooms-table .room-col-capacity,
+.admin-rooms-table .room-col-status {
+    white-space: nowrap;
+}
+
+.admin-rooms-table .room-col-actions {
+    min-width: 220px;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* ========================
+   Tablet / Mobile Cards
+   ======================== */
+@media (max-width: 900px) {
+
+    .admin-room-page-header {
+        align-items: stretch;
+    }
+
+    .admin-room-filter {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-room-filter .availability-search {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .admin-room-filter-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+    }
+
+    .admin-room-filter-buttons .filter-button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .admin-rooms-table-container {
+        overflow: visible;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .admin-rooms-table {
+        min-width: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .admin-rooms-table thead {
+        display: none;
+    }
+
+    .admin-rooms-table,
+    .admin-rooms-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .admin-rooms-table tbody {
+        display: grid;
+        gap: 16px;
+    }
+
+    .admin-rooms-table .admin-room-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "id status"
+            "name name"
+            "location location"
+            "capacity capacity"
+            "actions actions";
+        gap: 0;
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #e3e8ef;
+        border-radius: 12px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.045);
+    }
+
+    .admin-rooms-table .admin-room-row:hover {
+        background: #ffffff;
+    }
+
+    .admin-rooms-table .admin-room-row td {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        padding: 14px 16px;
+        border-bottom: 1px solid #edf0f4;
+        font-size: 14px;
+    }
+
+    .admin-rooms-table .admin-room-row td::before {
+        display: block;
+        margin-bottom: 5px;
+        color: #8995a7;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.45px;
+        text-transform: uppercase;
+        content: attr(data-label);
+    }
+
+    .admin-rooms-table .room-col-id {
+        grid-area: id;
+        padding-bottom: 12px;
+    }
+
+    .admin-rooms-table .room-col-id::before,
+    .admin-rooms-table .room-col-status::before {
+        display: none;
+    }
+
+    .admin-rooms-table .room-col-id strong {
+        color: #0f2d5c;
+        font-size: 16px;
+    }
+
+    .admin-rooms-table .room-col-status {
+        grid-area: status;
+        width: auto;
+        padding-bottom: 12px;
+        text-align: right;
+    }
+
+    .admin-rooms-table .room-col-name {
+        grid-area: name;
+    }
+
+    .admin-rooms-table .room-col-location {
+        grid-area: location;
+    }
+
+    .admin-rooms-table .room-col-capacity {
+        grid-area: capacity;
+    }
+
+    .admin-rooms-table .room-col-actions {
+        grid-area: actions;
+        min-width: 0;
+        border-bottom: none;
+        background: #fafbfd;
+    }
+
+    .admin-rooms-table .room-col-actions .action-group {
+        width: 100%;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .admin-rooms-table .room-col-actions .btn,
+    .admin-rooms-table .room-col-actions .inline-action-form {
+        flex: 1 1 160px;
+    }
+
+    .admin-rooms-table .room-col-actions .inline-action-form {
+        width: auto;
+    }
+
+    .admin-rooms-table .room-col-actions .inline-action-form button {
+        width: 100% !important;
+    }
+}
+
+/* ========================
+   Small Mobile
+   ======================== */
+@media (max-width: 600px) {
+
+    .admin-room-page-header {
+        flex-direction: column;
+    }
+
+    .admin-room-page-header .btn {
+        width: 100%;
+    }
+
+    .admin-room-filter-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-room-filter-buttons .filter-button {
+        min-height: 42px;
+        padding: 9px 10px;
+        font-size: 12px;
+    }
+
+    .admin-rooms-table tbody {
+        gap: 12px;
+    }
+
+    .admin-rooms-table .admin-room-row td {
+        padding: 13px 14px;
+    }
+
+    .admin-rooms-table .room-col-actions .action-group {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-rooms-table .room-col-actions .btn,
+    .admin-rooms-table .room-col-actions .inline-action-form {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .admin-rooms-table .room-col-actions .btn {
+        min-height: 38px;
+    }
+}
+
+/* ========================
+   Very Small Mobile
+   ======================== */
+@media (max-width: 420px) {
+
+    .admin-rooms-table .room-col-actions .action-group {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ========================
+   Filter Button Override
+   ======================== */
+.availability-filter button.filter-button {
+    min-height: 40px;
+    padding: 8px 13px;
+    border: 1px solid #d7dde6;
+    background: #ffffff;
+    color: #475467;
+    box-shadow: none;
+}
+
+.availability-filter button.filter-button:hover {
+    background: #f8fafc;
+    border-color: #c7d0dc;
+    color: #344054;
+    box-shadow: none;
+}
+
+.availability-filter button.filter-button.active {
+    background: #1769e0;
+    border-color: #1769e0;
+    color: #ffffff;
+}
+
+.availability-filter button.filter-button.active:hover {
+    background: #1258bd;
+    border-color: #1258bd;
+    color: #ffffff;
 }

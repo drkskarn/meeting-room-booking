@@ -1,117 +1,321 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Pengurusan Bilik
+Pengurusan Bilik
 {% endblock %}
 
 
 {% block content %}
 
-    <p>
-        <a href="{{ url_for('admin.add_room') }}">
-            Tambah Bilik
-        </a>
-    </p>
+<!-- ========================
+     PAGE HEADER
+     ======================== -->
+<div class="page-header admin-room-page-header">
 
-    <table border="1" cellpadding="8">
+    <div>
+        <h1>
+            Pengurusan Bilik
+        </h1>
 
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nama Bilik</th>
-                <th>Lokasi</th>
-                <th>Kapasiti</th>
-                <th>Status</th>
-                <th>Tindakan</th>
-            </tr>
-        </thead>
+        <p>
+            Urus maklumat, kapasiti dan status bilik mesyuarat.
+        </p>
+    </div>
 
-        <tbody>
+    <a
+        href="{{ url_for('admin.add_room') }}"
+        class="btn btn-primary"
+    >
+        + Tambah Bilik
+    </a>
 
-            {% for room in rooms %}
+</div>
+
+
+<!-- ========================
+     SEARCH DAN FILTER
+     ======================== -->
+<form
+    method="GET"
+    action="{{ url_for('admin.rooms') }}"
+    class="availability-filter admin-room-filter"
+>
+
+    <div class="availability-search">
+
+        <input
+            type="text"
+            name="q"
+            value="{{ search_query }}"
+            placeholder="Cari ID, nama bilik, lokasi atau kapasiti..."
+        >
+
+    </div>
+
+
+    <div class="availability-filter-buttons admin-room-filter-buttons">
+
+        <button
+            type="submit"
+            name="status"
+            value="ALL"
+            class="filter-button {% if selected_status == 'ALL' %}active{% endif %}"
+        >
+            Semua ({{ room_counts["ALL"] }})
+        </button>
+
+        <button
+            type="submit"
+            name="status"
+            value="ACTIVE"
+            class="filter-button {% if selected_status == 'ACTIVE' %}active{% endif %}"
+        >
+            Aktif ({{ room_counts["ACTIVE"] }})
+        </button>
+
+        <button
+            type="submit"
+            name="status"
+            value="INACTIVE"
+            class="filter-button {% if selected_status == 'INACTIVE' %}active{% endif %}"
+        >
+            Tidak Aktif ({{ room_counts["INACTIVE"] }})
+        </button>
+
+    </div>
+
+</form>
+
+
+<!-- ========================
+     ROOM LIST
+     ======================== -->
+{% if rooms %}
+
+    <div class="table-container admin-rooms-table-container">
+
+        <table class="admin-rooms-table">
+
+            <thead>
 
                 <tr>
+                    <th>ID</th>
+                    <th>Nama Bilik</th>
+                    <th>Lokasi</th>
+                    <th>Kapasiti</th>
+                    <th>Status</th>
+                    <th>Tindakan</th>
+                </tr>
 
-                    <td>
-                        {{ room.id }}
-                    </td>
+            </thead>
 
-                    <td>
-                        {{ room.room_name }}
-                    </td>
 
-                    <td>
-                        {{ room.location }}
-                    </td>
+            <tbody>
 
-                    <td>
-                        {{ room.capacity }}
-                    </td>
+                {% for room in rooms %}
 
-                    <td>
+                    <tr class="admin-room-row">
 
-                        {% if room.is_active %}
-                            Aktif
-                        {% else %}
-                            Tidak Aktif
-                        {% endif %}
+                        <!-- ========================
+                             ID
+                             ======================== -->
+                        <td
+                            class="room-col-id"
+                            data-label="ID"
+                        >
+                            <strong>#{{ room.id }}</strong>
+                        </td>
 
-                    </td>
 
-                    <td>
+                        <!-- ========================
+                             NAMA BILIK
+                             ======================== -->
+                        <td
+                            class="room-col-name"
+                            data-label="Nama Bilik"
+                        >
+                            <strong>
+                                {{ room.room_name }}
+                            </strong>
+                        </td>
 
-                        <a href="{{ url_for(
-                            'admin.edit_room',
-                            room_id=room.id
-                        ) }}">
-                            Edit
-                        </a>
 
-                        <form
-                            method="POST"
-                            action="{{ url_for(
-                                'admin.toggle_room',
-                                room_id=room.id
-                            ) }}"
-                            style="display:inline;"
+                        <!-- ========================
+                             LOKASI
+                             ======================== -->
+                        <td
+                            class="room-col-location"
+                            data-label="Lokasi"
+                        >
+                            {% if room.location %}
+                                {{ room.location }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+
+                        <!-- ========================
+                             KAPASITI
+                             ======================== -->
+                        <td
+                            class="room-col-capacity"
+                            data-label="Kapasiti"
+                        >
+                            <strong>
+                                {{ room.capacity }}
+                            </strong>
+                            <span class="text-muted">
+                                orang
+                            </span>
+                        </td>
+
+
+                        <!-- ========================
+                             STATUS
+                             ======================== -->
+                        <td
+                            class="room-col-status"
+                            data-label="Status"
                         >
 
-                            {{ toggle_form.hidden_tag() }}
-
                             {% if room.is_active %}
-                                <button type="submit">
-                                    Nyahaktif
-                                </button>
+
+                                <span class="status-badge status-active">
+                                    Aktif
+                                </span>
+
                             {% else %}
-                                <button type="submit">
-                                    Aktifkan
-                                </button>
+
+                                <span class="status-badge status-inactive">
+                                    Tidak Aktif
+                                </span>
+
                             {% endif %}
 
-                        </form>
+                        </td>
 
-                    </td>
 
-                </tr>
+                        <!-- ========================
+                             TINDAKAN
+                             ======================== -->
+                        <td
+                            class="room-col-actions"
+                            data-label="Tindakan"
+                        >
+
+                            <div class="action-group">
+
+                                <a
+                                    href="{{ url_for(
+                                        'admin.edit_room',
+                                        room_id=room.id
+                                    ) }}"
+                                    class="btn btn-primary btn-sm"
+                                >
+                                    Edit
+                                </a>
+
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'admin.toggle_room',
+                                        room_id=room.id
+                                    ) }}"
+                                    class="inline-action-form"
+                                >
+
+                                    {{ toggle_form.hidden_tag() }}
+
+                                    {% if room.is_active %}
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-danger btn-sm"
+                                        >
+                                            Nyahaktifkan
+                                        </button>
+
+                                    {% else %}
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-success btn-sm"
+                                        >
+                                            Aktifkan
+                                        </button>
+
+                                    {% endif %}
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+<!-- ========================
+     EMPTY STATE
+     ======================== -->
+{% else %}
+
+    <div class="card">
+
+        <div class="empty-state">
+
+            {% if room_counts["ALL"] > 0 %}
+
+                <h3>
+                    Tiada bilik dijumpai
+                </h3>
+
+                <p>
+                    Tiada rekod bilik yang sepadan dengan carian
+                    atau filter yang dipilih.
+                </p>
+
+                <a
+                    href="{{ url_for('admin.rooms') }}"
+                    class="btn btn-secondary mt-2"
+                >
+                    Reset Carian
+                </a>
 
             {% else %}
 
-                <tr>
-                    <td colspan="6">
-                        Tiada bilik mesyuarat didaftarkan.
-                    </td>
-                </tr>
+                <h3>
+                    Tiada bilik mesyuarat
+                </h3>
 
-            {% endfor %}
+                <p>
+                    Belum ada bilik mesyuarat yang didaftarkan.
+                </p>
 
-        </tbody>
+                <a
+                    href="{{ url_for('admin.add_room') }}"
+                    class="btn btn-primary mt-2"
+                >
+                    + Tambah Bilik
+                </a>
 
-    </table>
+            {% endif %}
 
-    <p>
-        <a href="{{ url_for('auth.dashboard') }}">
-            Kembali ke Dashboard
-        </a>
-    </p>
+        </div>
+
+    </div>
+
+{% endif %}
+
 
 {% endblock %}
