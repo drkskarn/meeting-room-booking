@@ -1,66 +1,192 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Maklumat Pengguna
+Maklumat Pengguna
 {% endblock %}
 
 
 {% block content %}
 
-<h1>Maklumat Pengguna</h1>
+<!-- ========================
+     PAGE HEADER
+     ======================== -->
+<div class="page-header">
 
-<p>
-    ID:
-    {{ user.id }}
-</p>
+    <h1>
+        Maklumat Pengguna
+    </h1>
 
-<p>
-    Nama:
-    {{ user.full_name }}
-</p>
+    <p>
+        Semak maklumat akaun dan status akses pengguna.
+    </p>
 
-<p>
-    Emel:
-    {{ user.email }}
-</p>
+</div>
 
-<p>
-    No Pengenalan:
-    {{ user.identification_no or "-" }}
-</p>
 
-<p>
-    Bahagian:
-    {{ user.division_name or "-" }}
-</p>
+<!-- ========================
+     USER DETAIL
+     ======================== -->
+<div class="card booking-detail-card user-detail-card">
 
-<p>
-    Cawangan/Unit:
-    {{ user.unit_name or "-" }}
-</p>
+    <div class="booking-detail-header">
 
-<p>
-    Role:
-    {{ user.role }}
-</p>
+        <div>
 
-<p>
-    Status:
+            <span class="booking-detail-label">
+                Akaun Pengguna
+            </span>
 
-    {% if user.is_active %}
-        Aktif
-    {% else %}
-        Tidak Aktif
-    {% endif %}
-</p>
+            <h2>
+                {{ user.full_name }}
+            </h2>
 
-<p>
-    <a href="{{ url_for(
-        'admin.edit_user',
-        user_id=user.id
-    ) }}">
-        Edit
-    </a>
-</p>
+            <p class="text-muted">
+                {{ user.email }}
+            </p>
+
+        </div>
+
+        <div class="user-detail-header-badges">
+
+            {% if user.role == "ADMIN" %}
+
+                <span class="role-badge role-admin">
+                    Admin
+                </span>
+
+            {% else %}
+
+                <span class="role-badge role-applicant">
+                    Pemohon
+                </span>
+
+            {% endif %}
+
+            {% if user.is_active %}
+
+                <span class="status-badge status-active">
+                    Aktif
+                </span>
+
+            {% else %}
+
+                <span class="status-badge status-inactive">
+                    Tidak Aktif
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <div class="booking-detail-grid">
+
+        <div class="booking-detail-item">
+            <span>ID Pengguna</span>
+            <strong>#{{ user.id }}</strong>
+        </div>
+
+        <div class="booking-detail-item">
+            <span>No. Pengenalan</span>
+            <strong>{{ user.identification_no or "-" }}</strong>
+        </div>
+
+        <div class="booking-detail-item">
+            <span>Bahagian</span>
+            <strong>{{ user.division_name or "-" }}</strong>
+        </div>
+
+        <div class="booking-detail-item">
+            <span>Cawangan / Unit</span>
+            <strong>{{ user.unit_name or "-" }}</strong>
+        </div>
+
+        <div class="booking-detail-item">
+            <span>Role</span>
+            <strong>
+                {% if user.role == "ADMIN" %}
+                    Admin
+                {% else %}
+                    Pemohon
+                {% endif %}
+            </strong>
+        </div>
+
+        <div class="booking-detail-item">
+            <span>Status Akaun</span>
+            <strong>
+                {% if user.is_active %}
+                    Aktif
+                {% else %}
+                    Tidak Aktif
+                {% endif %}
+            </strong>
+        </div>
+
+    </div>
+
+
+    <!-- ========================
+         ACTIONS
+         ======================== -->
+    <div class="booking-detail-actions user-detail-actions">
+
+        <a
+            href="{{ url_for('admin.users') }}"
+            class="btn btn-secondary"
+        >
+            Kembali
+        </a>
+
+        <div class="action-group">
+
+            <a
+                href="{{ url_for('admin.edit_user', user_id=user.id) }}"
+                class="btn btn-primary"
+            >
+                Edit Pengguna
+            </a>
+
+            {% if user.id != current_user.id %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('admin.toggle_user_status', user_id=user.id) }}"
+                    class="inline-action-form"
+                >
+
+                    {{ status_form.hidden_tag() }}
+
+                    {% if user.is_active %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger"
+                        >
+                            Nyahaktifkan
+                        </button>
+
+                    {% else %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-success"
+                        >
+                            Aktifkan
+                        </button>
+
+                    {% endif %}
+
+                </form>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
 
 {% endblock %}

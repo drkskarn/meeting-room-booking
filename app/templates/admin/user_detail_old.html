@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Maklumat Pengguna
+{% endblock %}
+
+
+{% block content %}
+
+<h1>Maklumat Pengguna</h1>
+
+<p>
+    ID:
+    {{ user.id }}
+</p>
+
+<p>
+    Nama:
+    {{ user.full_name }}
+</p>
+
+<p>
+    Emel:
+    {{ user.email }}
+</p>
+
+<p>
+    No Pengenalan:
+    {{ user.identification_no or "-" }}
+</p>
+
+<p>
+    Bahagian:
+    {{ user.division_name or "-" }}
+</p>
+
+<p>
+    Cawangan/Unit:
+    {{ user.unit_name or "-" }}
+</p>
+
+<p>
+    Role:
+    {{ user.role }}
+</p>
+
+<p>
+    Status:
+
+    {% if user.is_active %}
+        Aktif
+    {% else %}
+        Tidak Aktif
+    {% endif %}
+</p>
+
+<p>
+    <a href="{{ url_for(
+        'admin.edit_user',
+        user_id=user.id
+    ) }}">
+        Edit
+    </a>
+</p>
+
+{% endblock %}

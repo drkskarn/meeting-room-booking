@@ -31,19 +31,152 @@ from app.admin.forms import (
 @login_required
 @admin_required
 def users():
+
+    # ========================
+    # Filter Status
+    # ========================
+    selected_status = (
+        request.args.get("status", "ALL")
+        .strip()
+        .upper()
+    )
+
+    valid_statuses = {
+        "ALL",
+        "ACTIVE",
+        "INACTIVE",
+    }
+
+    if selected_status not in valid_statuses:
+        selected_status = "ALL"
+
+    # ========================
+    # Filter Role
+    # ========================
+    selected_role = (
+        request.args.get("role", "ALL")
+        .strip()
+        .upper()
+    )
+
+    valid_roles = {
+        "ALL",
+        "ADMIN",
+        "APPLICANT",
+    }
+
+    if selected_role not in valid_roles:
+        selected_role = "ALL"
+
+    # ========================
+    # Search
+    # ========================
+    search_query = request.args.get("q", "").strip()
+    search_text = search_query.lower()
+
+    statement = db.select(User)
+
+    if selected_status == "ACTIVE":
+        statement = statement.where(
+            User.is_active.is_(True)
+        )
+
+    elif selected_status == "INACTIVE":
+        statement = statement.where(
+            User.is_active.is_(False)
+        )
+
+    if selected_role != "ALL":
+        statement = statement.where(
+            User.role == selected_role
+        )
+
+    if search_text:
+        search_pattern = f"%{search_text}%"
+
+        search_conditions = [
+            func.lower(User.full_name).like(search_pattern),
+            func.lower(User.email).like(search_pattern),
+            func.lower(User.division_name).like(search_pattern),
+            func.lower(User.unit_name).like(search_pattern),
+            User.identification_no.like(search_pattern),
+        ]
+
+        if search_query.isdigit():
+            search_conditions.append(
+                User.id == int(search_query)
+            )
+
+        statement = statement.where(
+            or_(*search_conditions)
+        )
+
     users = db.session.scalars(
-        db.select(User)
-        .order_by(User.full_name)
+        statement.order_by(
+            User.full_name.asc()
+        )
     ).all()
+
+    # ========================
+    # Status Counts
+    # ========================
+    active_user_count = db.session.scalar(
+        db.select(func.count(User.id)).where(
+            User.is_active.is_(True)
+        )
+    ) or 0
+
+    inactive_user_count = db.session.scalar(
+        db.select(func.count(User.id)).where(
+            User.is_active.is_(False)
+        )
+    ) or 0
+
+    user_counts = {
+        "ALL": active_user_count + inactive_user_count,
+        "ACTIVE": active_user_count,
+        "INACTIVE": inactive_user_count,
+    }
+
+    # ========================
+    # Role Counts
+    # ========================
+    role_rows = db.session.execute(
+        db.select(
+            User.role,
+            func.count(User.id)
+        )
+        .group_by(User.role)
+    ).all()
+
+    raw_role_counts = {
+        role: count
+        for role, count in role_rows
+    }
+
+    role_counts = {
+        "ALL": sum(raw_role_counts.values()),
+        "ADMIN": raw_role_counts.get("ADMIN", 0),
+        "APPLICANT": raw_role_counts.get("APPLICANT", 0),
+    }
 
     status_form = UserStatusForm()
 
     return render_template(
         "admin/users.html",
         users=users,
-        status_form=status_form
+        status_form=status_form,
+        selected_status=selected_status,
+        selected_role=selected_role,
+        search_query=search_query,
+        user_counts=user_counts,
+        role_counts=role_counts,
     )
 
+
+# ========================
+# User Detail
+# ========================
 @admin_bp.route("/users/<int:user_id>")
 @login_required
 @admin_required
@@ -56,11 +189,18 @@ def user_detail(user_id):
     if user is None:
         abort(404)
 
+    status_form = UserStatusForm()
+
     return render_template(
         "admin/user_detail.html",
-        user=user
+        user=user,
+        status_form=status_form
     )
 
+
+# ========================
+# Edit User
+# ========================
 @admin_bp.route(
     "/users/<int:user_id>/edit",
     methods=["GET", "POST"]
@@ -160,19 +300,19 @@ def edit_user(user_id):
         )
 
         user.role = form.role.data
-        
+
         password_changed = False
-        
+
         if form.new_password.data:
             user.set_password(form.new_password.data)
             password_changed = True
-         
+
         db.session.commit()
 
         if password_changed:
             flash(
-            "Maklumat pengguna dan kata laluan berjaya dikemaskini.",
-            "success"
+                "Maklumat pengguna dan kata laluan berjaya dikemaskini.",
+                "success"
             )
         else:
             flash(
@@ -192,7 +332,11 @@ def edit_user(user_id):
         user=user,
         form=form
     )
-    
+
+
+# ========================
+# Toggle User Status
+# ========================
 @admin_bp.route(
     "/users/<int:user_id>/toggle-status",
     methods=["POST"]
@@ -242,8 +386,8 @@ def toggle_user_status(user_id):
     return redirect(
         url_for("admin.users")
     )
-    
-    
+
+
 # ========================
 # Room Management
 # ========================

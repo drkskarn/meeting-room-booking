@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Edit Pengguna
+{% endblock %}
+
+
+{% block content %}
+
+<h1>Edit Pengguna</h1>
+
+    <form method="POST">
+
+        {{ form.hidden_tag() }}
+
+
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email() }}
+
+            {% for error in form.email.errors %}
+                <br>
+                <span>{{ error }}</span>
+            {% endfor %}
+        </p>
+
+
+        <p>
+            {{ form.full_name.label }}<br>
+            {{ form.full_name() }}
+        </p>
+
+
+        <p>
+            {{ form.identification_no.label }}<br>
+            {{ form.identification_no() }}
+
+            {% for error in form.identification_no.errors %}
+                <br>
+                <span>{{ error }}</span>
+            {% endfor %}
+        </p>
+
+
+        <p>
+            {{ form.division_name.label }}<br>
+            {{ form.division_name() }}
+        </p>
+
+
+        <p>
+            {{ form.unit_name.label }}<br>
+            {{ form.unit_name() }}
+        </p>
+
+
+        <p>
+            {{ form.role.label }}<br>
+            {{ form.role() }}
+        </p>
+
+        <hr>
+
+        <h3>Tukar Kata Laluan</h3>
+
+        <p>
+            Biarkan kosong jika tidak mahu menukar kata laluan pengguna.
+        </p>
+
+
+        <p>
+            {{ form.new_password.label }}<br>
+            {{ form.new_password() }}
+
+            {% for error in form.new_password.errors %}
+                <br>
+                <span>{{ error }}</span>
+            {% endfor %}
+        </p>
+
+
+        <p>
+            {{ form.confirm_password.label }}<br>
+            {{ form.confirm_password() }}
+
+            {% for error in form.confirm_password.errors %}
+                <br>
+                <span>{{ error }}</span>
+            {% endfor %}
+        </p>
+
+
+        <p>
+            {{ form.submit() }}
+        </p>
+
+</form>
+
+{% endblock %}

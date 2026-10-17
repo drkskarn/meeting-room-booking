@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Pengurusan Pengguna
+{% endblock %}
+
+
+{% block content %}
+
+<h1>Pengurusan Akaun Pengguna</h1>
+
+    <table border="1" cellpadding="8">
+
+        <thead>
+
+            <tr>
+                <th>ID</th>
+                <th>Nama</th>
+                <th>Emel</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Tindakan</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for user in users %}
+
+                <tr>
+
+                    <td>
+                        {{ user.id }}
+                    </td>
+
+                    <td>
+                        {{ user.full_name }}
+                    </td>
+
+                    <td>
+                        {{ user.email }}
+                    </td>
+
+                    <td>
+                        {{ user.role }}
+                    </td>
+
+                    <td>
+
+                        {% if user.is_active %}
+                            Aktif
+                        {% else %}
+                            Tidak Aktif
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <a href="{{ url_for(
+                            'admin.user_detail',
+                            user_id=user.id
+                        ) }}">
+                            Lihat
+                        </a>
+
+                        |
+
+                        <a href="{{ url_for(
+                            'admin.edit_user',
+                            user_id=user.id
+                        ) }}">
+                            Edit
+                        </a>
+
+
+                        {% if user.id != current_user.id %}
+
+                            |
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'admin.toggle_user_status',
+                                    user_id=user.id
+                                ) }}"
+                                style="display:inline;"
+                            >
+
+                                {{ status_form.hidden_tag() }}
+
+                                {% if user.is_active %}
+
+                                    <button type="submit">
+                                        Nyahaktif
+                                    </button>
+
+                                {% else %}
+
+                                    <button type="submit">
+                                        Aktifkan
+                                    </button>
+
+                                {% endif %}
+
+                            </form>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+                    <td colspan="6">
+                        Tiada pengguna.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+{% endblock %}

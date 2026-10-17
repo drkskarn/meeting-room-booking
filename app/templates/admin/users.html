@@ -1,129 +1,385 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Pengurusan Pengguna
+Pengurusan Pengguna
 {% endblock %}
 
 
 {% block content %}
 
-<h1>Pengurusan Akaun Pengguna</h1>
+<!-- ========================
+     PAGE HEADER
+     ======================== -->
+<div class="page-header">
 
-    <table border="1" cellpadding="8">
+    <h1>
+        Pengurusan Akaun Pengguna
+    </h1>
 
-        <thead>
+    <p>
+        Cari, semak dan urus akaun pengguna sistem.
+    </p>
 
-            <tr>
-                <th>ID</th>
-                <th>Nama</th>
-                <th>Emel</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Tindakan</th>
-            </tr>
+</div>
 
-        </thead>
 
-        <tbody>
+<!-- ========================
+     SEARCH
+     ======================== -->
+<form
+    method="GET"
+    action="{{ url_for('admin.users') }}"
+    class="availability-filter admin-user-search"
+>
 
-            {% for user in users %}
+    <input
+        type="hidden"
+        name="status"
+        value="{{ selected_status }}"
+    >
+
+    <input
+        type="hidden"
+        name="role"
+        value="{{ selected_role }}"
+    >
+
+    <div class="availability-search">
+
+        <input
+            type="text"
+            name="q"
+            value="{{ search_query }}"
+            placeholder="Cari ID, nama, emel, No Pengenalan, bahagian atau unit..."
+        >
+
+    </div>
+
+    <div class="admin-user-search-actions">
+
+        <button
+            type="submit"
+            class="btn btn-primary"
+        >
+            Cari
+        </button>
+
+        <a
+            href="{{ url_for('admin.users') }}"
+            class="btn btn-secondary"
+        >
+            Reset
+        </a>
+
+    </div>
+
+</form>
+
+
+<!-- ========================
+     FILTER PANEL
+     ======================== -->
+<div class="admin-user-filter-panel">
+
+    <div class="admin-user-filter-row">
+
+        <span class="admin-user-filter-label">
+            Status Akaun
+        </span>
+
+        <div class="admin-user-filter-buttons">
+
+            <a
+                href="{{ url_for('admin.users', status='ALL', role=selected_role, q=search_query) }}"
+                class="filter-button {% if selected_status == 'ALL' %}active{% endif %}"
+            >
+                Semua ({{ user_counts["ALL"] }})
+            </a>
+
+            <a
+                href="{{ url_for('admin.users', status='ACTIVE', role=selected_role, q=search_query) }}"
+                class="filter-button {% if selected_status == 'ACTIVE' %}active{% endif %}"
+            >
+                Aktif ({{ user_counts["ACTIVE"] }})
+            </a>
+
+            <a
+                href="{{ url_for('admin.users', status='INACTIVE', role=selected_role, q=search_query) }}"
+                class="filter-button {% if selected_status == 'INACTIVE' %}active{% endif %}"
+            >
+                Tidak Aktif ({{ user_counts["INACTIVE"] }})
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="admin-user-filter-row">
+
+        <span class="admin-user-filter-label">
+            Role
+        </span>
+
+        <div class="admin-user-filter-buttons">
+
+            <a
+                href="{{ url_for('admin.users', status=selected_status, role='ALL', q=search_query) }}"
+                class="filter-button {% if selected_role == 'ALL' %}active{% endif %}"
+            >
+                Semua ({{ role_counts["ALL"] }})
+            </a>
+
+            <a
+                href="{{ url_for('admin.users', status=selected_status, role='ADMIN', q=search_query) }}"
+                class="filter-button {% if selected_role == 'ADMIN' %}active{% endif %}"
+            >
+                Admin ({{ role_counts["ADMIN"] }})
+            </a>
+
+            <a
+                href="{{ url_for('admin.users', status=selected_status, role='APPLICANT', q=search_query) }}"
+                class="filter-button {% if selected_role == 'APPLICANT' %}active{% endif %}"
+            >
+                Pemohon ({{ role_counts["APPLICANT"] }})
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================
+     USER LIST
+     ======================== -->
+{% if users %}
+
+    <div class="table-container admin-users-table-container">
+
+        <table class="admin-users-table">
+
+            <thead>
 
                 <tr>
+                    <th>ID</th>
+                    <th>Pengguna</th>
+                    <th>Bahagian / Unit</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Tindakan</th>
+                </tr>
 
-                    <td>
-                        {{ user.id }}
-                    </td>
+            </thead>
 
-                    <td>
-                        {{ user.full_name }}
-                    </td>
+            <tbody>
 
-                    <td>
-                        {{ user.email }}
-                    </td>
+                {% for user in users %}
 
-                    <td>
-                        {{ user.role }}
-                    </td>
+                    <tr class="admin-user-row {% if user.id == current_user.id %}is-current-user{% endif %}">
 
-                    <td>
-
-                        {% if user.is_active %}
-                            Aktif
-                        {% else %}
-                            Tidak Aktif
-                        {% endif %}
-
-                    </td>
-
-                    <td>
-
-                        <a href="{{ url_for(
-                            'admin.user_detail',
-                            user_id=user.id
-                        ) }}">
-                            Lihat
-                        </a>
-
-                        |
-
-                        <a href="{{ url_for(
-                            'admin.edit_user',
-                            user_id=user.id
-                        ) }}">
-                            Edit
-                        </a>
+                        <td class="user-col-id">
+                            <strong>#{{ user.id }}</strong>
+                        </td>
 
 
-                        {% if user.id != current_user.id %}
+                        <td class="user-col-name">
 
-                            |
+                            <strong>
+                                {{ user.full_name }}
+                            </strong>
 
-                            <form
-                                method="POST"
-                                action="{{ url_for(
-                                    'admin.toggle_user_status',
-                                    user_id=user.id
-                                ) }}"
-                                style="display:inline;"
-                            >
+                            {% if user.id == current_user.id %}
+                                <span class="current-user-label">
+                                    Anda
+                                </span>
+                            {% endif %}
 
-                                {{ status_form.hidden_tag() }}
+                            <br>
 
-                                {% if user.is_active %}
+                            <span class="text-muted">
+                                {{ user.email }}
+                            </span>
 
-                                    <button type="submit">
-                                        Nyahaktif
-                                    </button>
+                            {% if user.identification_no %}
+
+                                <br>
+
+                                <span class="text-muted">
+                                    No. Pengenalan: {{ user.identification_no }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="user-col-organization">
+
+                            <strong>
+                                {{ user.division_name or "-" }}
+                            </strong>
+
+                            <br>
+
+                            <span class="text-muted">
+                                {{ user.unit_name or "-" }}
+                            </span>
+
+                        </td>
+
+
+                        <td class="user-col-role">
+
+                            {% if user.role == "ADMIN" %}
+
+                                <span class="role-badge role-admin">
+                                    Admin
+                                </span>
+
+                            {% else %}
+
+                                <span class="role-badge role-applicant">
+                                    Pemohon
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="user-col-status">
+
+                            {% if user.is_active %}
+
+                                <span class="status-badge status-active">
+                                    Aktif
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-badge status-inactive">
+                                    Tidak Aktif
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="user-col-actions">
+
+                            <div class="action-group">
+
+                                <a
+                                    href="{{ url_for('admin.user_detail', user_id=user.id) }}"
+                                    class="btn btn-secondary btn-sm"
+                                >
+                                    Lihat
+                                </a>
+
+                                <a
+                                    href="{{ url_for('admin.edit_user', user_id=user.id) }}"
+                                    class="btn btn-primary btn-sm"
+                                >
+                                    Edit
+                                </a>
+
+                                {% if user.id != current_user.id %}
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('admin.toggle_user_status', user_id=user.id) }}"
+                                        class="inline-action-form"
+                                    >
+
+                                        {{ status_form.hidden_tag() }}
+
+                                        {% if user.is_active %}
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-danger btn-sm"
+                                            >
+                                                Nyahaktifkan
+                                            </button>
+
+                                        {% else %}
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-success btn-sm"
+                                            >
+                                                Aktifkan
+                                            </button>
+
+                                        {% endif %}
+
+                                    </form>
 
                                 {% else %}
 
-                                    <button type="submit">
-                                        Aktifkan
-                                    </button>
+                                    <span class="current-account-note">
+                                        Akaun semasa
+                                    </span>
 
                                 {% endif %}
 
-                            </form>
+                            </div>
 
-                        {% endif %}
+                        </td>
 
-                    </td>
+                    </tr>
 
-                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+{% else %}
+
+    <div class="card">
+
+        <div class="empty-state">
+
+            {% if user_counts["ALL"] > 0 %}
+
+                <h3>
+                    Tiada pengguna dijumpai
+                </h3>
+
+                <p>
+                    Tiada akaun yang sepadan dengan carian atau filter yang dipilih.
+                </p>
+
+                <a
+                    href="{{ url_for('admin.users') }}"
+                    class="btn btn-secondary mt-2"
+                >
+                    Reset Carian
+                </a>
 
             {% else %}
 
-                <tr>
-                    <td colspan="6">
-                        Tiada pengguna.
-                    </td>
-                </tr>
+                <h3>
+                    Tiada pengguna
+                </h3>
 
-            {% endfor %}
+                <p>
+                    Tiada akaun pengguna untuk dipaparkan.
+                </p>
 
-        </tbody>
+            {% endif %}
 
-    </table>
+        </div>
+
+    </div>
+
+{% endif %}
 
 {% endblock %}
