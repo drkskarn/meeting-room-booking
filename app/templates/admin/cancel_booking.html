@@ -1,54 +1,113 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Pembatalan Tempahan
+Pembatalan Tempahan
 {% endblock %}
 
 {% block content %}
+
+<!-- ========================
+     PAGE HEADER
+     ======================== -->
+<div class="page-header phase4e-page-header">
+    <h1>Batalkan Tempahan</h1>
     <p>
-        Pemohon:
-        {{ booking.applicant.full_name }}
+        Semak maklumat tempahan dan nyatakan sebab pembatalan.
     </p>
+</div>
 
-    <p>
-        Bilik:
-        {{ booking.room.room_name }}
-    </p>
+<div class="phase4e-action-layout">
 
-    <p>
-        Masa:
-        {{ booking.start_datetime }}
-        hingga
-        {{ booking.end_datetime }}
-    </p>
+    <!-- ========================
+         BOOKING SUMMARY
+         ======================== -->
+    <div class="card phase4e-summary-card">
 
-    <p>
-        Status:
-        {{ booking.status }}
-    </p>
+        <div class="phase4e-summary-header">
+            <div>
+                <span class="booking-detail-label">Tempahan</span>
+                <h2>#{{ booking.id }} · {{ booking.room.room_name }}</h2>
+            </div>
 
-    <form method="POST">
+            {% if booking.status == "PENDING" %}
+                <span class="status-badge status-pending">Menunggu</span>
+            {% elif booking.status == "APPROVED" %}
+                <span class="status-badge status-approved">Diluluskan</span>
+            {% else %}
+                <span class="status-badge">{{ booking.status }}</span>
+            {% endif %}
+        </div>
 
-        {{ form.hidden_tag() }}
+        <div class="phase4e-summary-grid">
+            <div class="phase4e-summary-item">
+                <span>Pemohon</span>
+                <strong>{{ booking.applicant.full_name }}</strong>
+                <small>{{ booking.applicant.email }}</small>
+            </div>
 
-        <p>
-            {{ form.reason.label }}<br>
-            {{ form.reason(rows=5, cols=50) }}
+            <div class="phase4e-summary-item">
+                <span>Tarikh / Masa</span>
+                <strong>
+                    {% if booking.start_datetime.date() == booking.end_datetime.date() %}
+                        {{ booking.start_datetime.strftime("%d/%m/%Y") }}<br>
+                        {{ booking.start_datetime.strftime("%H:%M") }} -
+                        {{ booking.end_datetime.strftime("%H:%M") }}
+                    {% else %}
+                        {{ booking.start_datetime.strftime("%d/%m/%Y %H:%M") }}<br>
+                        hingga {{ booking.end_datetime.strftime("%d/%m/%Y %H:%M") }}
+                    {% endif %}
+                </strong>
+            </div>
 
-            {% for error in form.reason.errors %}
-                <br>
-                <span>{{ error }}</span>
-            {% endfor %}
-        </p>
+            <div class="phase4e-summary-item">
+                <span>Pengerusi Mesyuarat</span>
+                <strong>{{ booking.chairperson_name or "-" }}</strong>
+            </div>
+        </div>
 
-        {{ form.submit() }}
+        <div class="phase4e-summary-purpose">
+            <span>Tujuan Tempahan</span>
+            <p>{{ booking.purpose }}</p>
+        </div>
 
-    </form>
+    </div>
 
-    <p>
-        <a href="{{ url_for('admin.bookings') }}">
-            Kembali
-        </a>
-    </p>
+    <!-- ========================
+         CANCELLATION FORM
+         ======================== -->
+    <div class="card phase4e-decision-card phase4e-decision-danger">
+        <div class="phase4e-decision-heading">
+            <h2>Sebab Pembatalan</h2>
+            <p>
+                Tindakan ini akan menukar status tempahan kepada Dibatalkan.
+            </p>
+        </div>
+
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="form-group mb-0">
+                {{ form.reason.label }}
+                {{ form.reason(
+                    rows=6,
+                    placeholder="Nyatakan sebab pembatalan tempahan",
+                    class_="input-error" if form.reason.errors else ""
+                ) }}
+
+                {% for error in form.reason.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="phase4e-form-actions phase4e-decision-actions">
+                <a href="{{ url_for('admin.bookings') }}" class="btn btn-secondary">
+                    Kembali
+                </a>
+                {{ form.submit(class_="btn btn-danger") }}
+            </div>
+        </form>
+    </div>
+
+</div>
 
 {% endblock %}

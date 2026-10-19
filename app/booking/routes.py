@@ -10,6 +10,8 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
+from sqlalchemy import func, or_
+
 from app.booking import booking_bp
 from app.booking.forms import (
     BookingForm, 
@@ -143,21 +145,101 @@ def create_booking():
 @booking_bp.route("/my")
 @login_required
 def my_bookings():
-    
     mark_completed_bookings()
     mark_expired_bookings()
-    
-    bookings = db.session.scalars(
-        db.select(Booking)
-        .where(
-            Booking.applicant_id == current_user.id
+
+    selected_status = (
+        request.args.get("status", "ALL")
+        .strip()
+        .upper()
+    )
+
+    valid_statuses = {
+        "ALL",
+        "PENDING",
+        "APPROVED",
+        "COMPLETED",
+        "REJECTED",
+        "CANCELLED",
+        "EXPIRED"
+    }
+
+    if selected_status not in valid_statuses:
+        selected_status = "ALL"
+
+    search_query = request.args.get("q", "").strip()
+    search_text = search_query.lower()
+
+    statement = db.select(Booking).where(
+        Booking.applicant_id == current_user.id
+    )
+
+    if selected_status != "ALL":
+        statement = statement.where(
+            Booking.status == selected_status
         )
-        .order_by(
+
+    if search_text:
+        pattern = f"%{search_text}%"
+
+        search_conditions = [
+            func.lower(Booking.purpose).like(pattern),
+            func.lower(Booking.chairperson_name).like(pattern),
+            Booking.room.has(
+                func.lower(Room.room_name).like(pattern)
+            ),
+            Booking.room.has(
+                func.lower(Room.location).like(pattern)
+            )
+        ]
+
+        if search_query.isdigit():
+            search_conditions.append(
+                Booking.id == int(search_query)
+            )
+
+        statement = statement.where(
+            or_(*search_conditions)
+        )
+
+    bookings = db.session.scalars(
+        statement.order_by(
             Booking.start_datetime.desc()
         )
     ).all()
 
-    return render_template("booking/my_bookings.html", bookings=bookings)
+    status_rows = db.session.execute(
+        db.select(
+            Booking.status,
+            func.count(Booking.id)
+        )
+        .where(
+            Booking.applicant_id == current_user.id
+        )
+        .group_by(Booking.status)
+    ).all()
+
+    booking_counts = {
+        "ALL": sum(count for _, count in status_rows),
+        "PENDING": 0,
+        "APPROVED": 0,
+        "COMPLETED": 0,
+        "REJECTED": 0,
+        "CANCELLED": 0,
+        "EXPIRED": 0
+    }
+
+    for status, count in status_rows:
+        if status in booking_counts:
+            booking_counts[status] = count
+
+    return render_template(
+        "booking/my_bookings.html",
+        bookings=bookings,
+        selected_status=selected_status,
+        search_query=search_query,
+        booking_counts=booking_counts
+    )
 
 # ========================
 # Booking Detail

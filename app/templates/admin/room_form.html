@@ -1,59 +1,71 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Maklumat Bilik
+{{ title or "Maklumat Bilik" }}
 {% endblock %}
-
 
 {% block content %}
 
-    <form method="POST">
+<!-- ========================
+     PAGE HEADER
+     ======================== -->
+<div class="page-header phase4e-page-header">
+    <h1>{{ title or "Maklumat Bilik" }}</h1>
+    <p>
+        Masukkan maklumat bilik mesyuarat. Semua medan diperlukan.
+    </p>
+</div>
 
+<!-- ========================
+     ROOM FORM
+     ======================== -->
+<div class="card phase4e-form-card phase4e-form-card-narrow">
+
+    <form method="POST" novalidate>
         {{ form.hidden_tag() }}
 
-        <p>
-            {{ form.room_name.label }}<br>
+        <div class="form-section">
+            <h2 class="form-section-title">Maklumat Bilik</h2>
 
-            {{ form.room_name() }}
+            <div class="form-group">
+                {{ form.room_name.label }}
+                {{ form.room_name(class_="input-error" if form.room_name.errors else "") }}
 
-            {% for error in form.room_name.errors %}
-                <br>
-                <span>{{ error }}</span>
-            {% endfor %}
-        </p>
+                {% for error in form.room_name.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
 
-        <p>
-            {{ form.location.label }}<br>
+            <div class="form-group">
+                {{ form.location.label }}
+                {{ form.location(class_="input-error" if form.location.errors else "") }}
 
-            {{ form.location() }}
+                {% for error in form.location.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
 
-            {% for error in form.location.errors %}
-                <br>
-                <span>{{ error }}</span>
-            {% endfor %}
-        </p>
+            <div class="form-group mb-0">
+                {{ form.capacity.label }}
+                {{ form.capacity(class_="input-error" if form.capacity.errors else "") }}
+                <span class="form-help">
+                    Nyatakan jumlah maksimum pengguna yang boleh menggunakan bilik.
+                </span>
 
-        <p>
-            {{ form.capacity.label }}<br>
+                {% for error in form.capacity.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+        </div>
 
-            {{ form.capacity() }}
-
-            {% for error in form.capacity.errors %}
-                <br>
-                <span>{{ error }}</span>
-            {% endfor %}
-        </p>
-
-        <p>
-            {{ form.submit() }}
-        </p>
-
+        <div class="phase4e-form-actions">
+            <a href="{{ url_for('admin.rooms') }}" class="btn btn-secondary">
+                Kembali
+            </a>
+            {{ form.submit(class_="btn btn-primary") }}
+        </div>
     </form>
 
-    <p>
-        <a href="{{ url_for('admin.rooms') }}">
-            Kembali ke Senarai Bilik
-        </a>
-    </p>
+</div>
 
 {% endblock %}

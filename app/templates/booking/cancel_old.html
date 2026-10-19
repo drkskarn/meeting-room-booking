@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Batalkan Tempahan
+{% endblock %}
+
+
+{% block content %}
+
+    <p>
+        Bilik:
+        {{ booking.room.room_name }}
+    </p>
+
+    <p>
+        Masa:
+        {{ booking.start_datetime }}
+        hingga
+        {{ booking.end_datetime }}
+    </p>
+
+    <p>
+        Status:
+        {{ booking.status }}
+    </p>
+
+    <form method="POST">
+
+        {{ form.hidden_tag() }}
+
+        <p>
+            {{ form.reason.label }}<br>
+            {{ form.reason(rows=5, cols=50) }}
+
+            {% for error in form.reason.errors %}
+                <br>
+                <span>{{ error }}</span>
+            {% endfor %}
+        </p>
+
+        {{ form.submit() }}
+
+    </form>
+
+    <p>
+        <a href="{{ url_for('booking.my_bookings') }}">
+            Kembali
+        </a>
+    </p>
+
+{% endblock %}

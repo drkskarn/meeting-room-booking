@@ -219,19 +219,21 @@ Ketersediaan Bilik
                                     </span>
 
                                     <strong>
-                                        {% if booking.start_datetime.date() == booking.end_datetime.date() %}
+                                        {{ booking.start_datetime.strftime("%H:%M") }}
+                                        hingga
+                                        {{ booking.end_datetime.strftime("%H:%M") }}
+                                    </strong>
 
-                                            {{ booking.start_datetime.strftime("%H:%M") }}
-                                            hingga
-                                            {{ booking.end_datetime.strftime("%H:%M") }}
+                                </div>
 
-                                        {% else %}
+                                <div class="room-status-info">
 
-                                            {{ booking.start_datetime.strftime("%d/%m %H:%M") }}
-                                            hingga
-                                            {{ booking.end_datetime.strftime("%d/%m %H:%M") }}
+                                    <span>
+                                        Pengerusi Mesyuarat
+                                    </span>
 
-                                        {% endif %}
+                                    <strong>
+                                        {{ booking.chairperson_name or "-" }}
                                     </strong>
 
                                 </div>
@@ -262,23 +264,23 @@ Ketersediaan Bilik
                             Sedang berlangsung
                         </span>
 
-                        {% if item.current_booking.start_datetime.date() == item.current_booking.end_datetime.date() %}
-
-                            <strong>
+                        <strong>
                             {{ item.current_booking.start_datetime.strftime("%H:%M") }}
                             hingga
                             {{ item.current_booking.end_datetime.strftime("%H:%M") }}
-                            </strong>
+                        </strong>
 
-                        {% else %}
+                    </div>
 
-                            <strong>
-                                {{ item.current_booking.start_datetime.strftime("%d/%m %H:%M") }}
-                                hingga
-                                {{ item.current_booking.end_datetime.strftime("%d/%m %H:%M") }}
-                            </strong>
+                    <div class="room-status-info">
 
-                        {% endif %}
+                        <span>
+                            Pengerusi Mesyuarat
+                        </span>
+
+                        <strong>
+                            {{ item.current_booking.chairperson_name or "-" }}
+                        </strong>
 
                     </div>
 
@@ -322,23 +324,23 @@ Ketersediaan Bilik
                                 Sedang berlangsung
                             </span>
 
-                            {% if item.current_booking.start_datetime.date() == item.current_booking.end_datetime.date() %}
-
-                                <strong>
+                            <strong>
                                 {{ item.current_booking.start_datetime.strftime("%H:%M") }}
                                 hingga
                                 {{ item.current_booking.end_datetime.strftime("%H:%M") }}
-                                </strong>
+                            </strong>
 
-                            {% else %}
+                        </div>
 
-                                <strong>
-                                    {{ item.current_booking.start_datetime.strftime("%d/%m %H:%M") }}
-                                    hingga
-                                    {{ item.current_booking.end_datetime.strftime("%d/%m %H:%M") }}
-                                </strong>
+                        <div class="room-status-info">
 
-                            {% endif %}
+                            <span>
+                                Pengerusi Mesyuarat
+                            </span>
+
+                            <strong>
+                                {{ item.current_booking.chairperson_name or "-" }}
+                            </strong>
 
                         </div>
 
@@ -389,6 +391,18 @@ Ketersediaan Bilik
                                         </div>
 
 
+                                        <div class="room-status-info">
+
+                                            <span>
+                                                Pengerusi Mesyuarat
+                                            </span>
+
+                                            <strong>
+                                                {{ booking.chairperson_name or "-" }}
+                                            </strong>
+
+                                        </div>
+
                                         <div class="room-status-purpose">
 
                                             <span class="next-booking-purpose">
@@ -398,7 +412,7 @@ Ketersediaan Bilik
                                         </div>
 
                                     </div>
-                                </div>
+
                             {% endfor %}
 
                         </div>
