@@ -83,10 +83,19 @@
                     </a>
 
 
-                    <a
+                    <!-- <a
                         href="{{ url_for('booking.my_bookings') }}"
                         class="nav-item{% if request.endpoint == 'booking.my_bookings' %} active{% endif %}"
                         {% if request.endpoint == 'booking.my_bookings' %}
+                            aria-current="page"
+                        {% endif %}
+                    > -->
+                    <a
+                        href="{{ url_for('booking.my_bookings') }}"
+                        class="nav-item {% if request.endpoint in ['booking.my_bookings', 'booking.booking_detail', 'booking.edit_booking', 'booking.cancel_own_booking'] %}
+                        active
+                        {% endif %}"
+                        {% if request.endpoint in ['booking.my_bookings', 'booking.booking_detail', 'booking.edit_booking', 'booking.cancel_own_booking'] %}
                             aria-current="page"
                         {% endif %}
                     >
@@ -104,8 +113,8 @@
 
                         <a
                             href="{{ url_for('admin.bookings') }}"
-                            class="nav-item{% if request.endpoint == 'admin.bookings' %} active{% endif %}"
-                            {% if request.endpoint == 'admin.bookings' %}
+                            class="nav-item {% if request.endpoint in ['admin.bookings', 'admin.reject_booking', 'admin.cancel_booking'] %}active{% endif %}"
+                            {% if request.endpoint in ['admin.bookings', 'admin.reject_booking', 'admin.cancel_booking'] %}
                                 aria-current="page"
                             {% endif %}
                         >
@@ -128,8 +137,8 @@
 
                         <a
                             href="{{ url_for('admin.users') }}"
-                            class="nav-item{% if request.endpoint in ['admin.users', 'admin.user_detail', 'admin.edit_user'] %} active{% endif %}"
-                            {% if request.endpoint in ['admin.users', 'admin.user_detail', 'admin.edit_user'] %}
+                            class="nav-item{% if request.endpoint in ['admin.users', 'admin.add_user', 'admin.user_detail', 'admin.edit_user'] %} active{% endif %}"
+                            {% if request.endpoint in ['admin.users', 'admin.add_user', 'admin.user_detail', 'admin.edit_user'] %}
                                 aria-current="page"
                             {% endif %}
                         >
@@ -536,6 +545,34 @@
                         }
                     );
 
+                
+                    // ========================
+                    // Interactive Date / Time Picker
+                    // ========================
+                    document.querySelectorAll(
+                        'input[type="date"], input[type="time"]'
+                    ).forEach(function (input) {
+
+                        input.addEventListener(
+                            "click",
+                            function () {
+
+                                if (
+                                    typeof input.showPicker === "function"
+                                    && !input.disabled
+                                    && !input.readOnly
+                                ) {
+                                    try {
+                                        input.showPicker();
+                                    } catch (error) {
+                                        // Browser akan kekalkan native behaviour sebagai fallback.
+                                    }
+                                }
+
+                            }
+                        );
+
+                    });
 
                 /* ESCAPE KEY */
 

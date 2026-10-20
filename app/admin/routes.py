@@ -1,10 +1,16 @@
-from flask import abort, flash, redirect, render_template, request, url_for
+from flask import (
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+    )
 from flask_login import current_user, login_required
 from app.models import Booking, Room, User
 from sqlalchemy import func, or_
 from datetime import datetime, timezone
 from app.admin import admin_bp
-# from app.admin.forms import RoomForm, ToggleRoomForm
 from app.decorators import admin_required
 from app.extensions import db
 
@@ -16,12 +22,14 @@ from app.booking.services import (
 
 from app.admin.forms import (
     AdminEditUserForm,
+    AdminAddUserForm,
     BookingActionForm,
     CancelBookingForm,
     RejectBookingForm,
     RoomForm,
     ToggleRoomForm,
     UserStatusForm,
+    
 )
 
 # ========================
@@ -197,7 +205,122 @@ def user_detail(user_id):
         status_form=status_form
     )
 
+# ========================
+# Add User
+# ========================
+@admin_bp.route(
+    "/users/add",
+    methods=["GET", "POST"]
+)
+@login_required
+@admin_required
+def add_user():
 
+    form = AdminAddUserForm()
+
+    if form.validate_on_submit():
+
+        email = form.email.data.strip().lower()
+
+        # ========================
+        # Duplicate Email Check
+        # ========================
+        existing_email = db.session.scalar(
+            db.select(User).where(
+                func.lower(User.email) == email
+            )
+        )
+
+        if existing_email is not None:
+            flash(
+                "Alamat emel ini telah digunakan.",
+                "danger"
+            )
+
+            return render_template(
+                "admin/user_form.html",
+                user=None,
+                form=form,
+                mode="add"
+            )
+
+        identification_no = (
+            form.identification_no.data.strip()
+            if form.identification_no.data
+            else None
+        )
+
+        # ========================
+        # Duplicate Identification Check
+        # ========================
+        if identification_no:
+
+            existing_id = db.session.scalar(
+                db.select(User).where(
+                    User.identification_no == identification_no
+                )
+            )
+
+            if existing_id is not None:
+                flash(
+                    "No Pengenalan ini telah digunakan.",
+                    "danger"
+                )
+
+                return render_template(
+                    "admin/user_form.html",
+                    user=None,
+                    form=form,
+                    mode="add"
+                )
+
+        # ========================
+        # Create User
+        # ========================
+        user = User(
+            email=email,
+            full_name=form.full_name.data.strip(),
+            identification_no=identification_no,
+            division_name=(
+                form.division_name.data.strip()
+                if form.division_name.data
+                else None
+            ),
+            unit_name=(
+                form.unit_name.data.strip()
+                if form.unit_name.data
+                else None
+            ),
+            role=form.role.data,
+            is_active=True
+        )
+
+        user.set_password(
+            form.new_password.data
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+        flash(
+            "Akaun pengguna berjaya ditambah.",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "admin.user_detail",
+                user_id=user.id
+            )
+        )
+
+    return render_template(
+        "admin/user_form.html",
+        user=None,
+        form=form,
+        mode="add"
+    )
+    
 # ========================
 # Edit User
 # ========================

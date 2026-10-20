@@ -22,7 +22,11 @@ from wtforms.validators import (
     EqualTo,
 )
 
-# =================================Bagi pengurusan bilik mesyuarat========================
+
+# ====================================================
+# MENU PENGURUSAN BILIK MESYUARAT
+# ====================================================
+
 class RoomForm(FlaskForm):
     room_name = StringField(
         "Nama Bilik",
@@ -83,7 +87,11 @@ class CancelBookingForm(FlaskForm):
 
     submit = SubmitField("Batalkan Tempahan")
 
-# =========================bagi pengurusan akaun pengguna===========================
+
+# ====================================================
+# MENU PENGURUSAN AKAUN PENGGUNA
+# ====================================================
+
 class AdminEditUserForm(FlaskForm):
     email = StringField(
         "Alamat Emel",
@@ -178,6 +186,35 @@ class AdminEditUserForm(FlaskForm):
                 "Alamat emel mestilah menggunakan domain @kpkt.gov.my."
             )
 
+# ========================
+# Tambah Pengguna
+# ========================
+class AdminAddUserForm(AdminEditUserForm):
+
+    new_password = PasswordField(
+        "Kata Laluan",
+        validators=[
+            DataRequired(),
+            Length(
+                min=8,
+                message="Kata laluan mestilah sekurang-kurangnya 8 aksara."
+            )
+        ]
+    )
+
+    confirm_password = PasswordField(
+        "Sahkan Kata Laluan",
+        validators=[
+            DataRequired(),
+            EqualTo(
+                "new_password",
+                message="Kata laluan tidak sepadan."
+            )
+        ]
+    )
+
+    submit = SubmitField("Tambah Pengguna")
 
 class UserStatusForm(FlaskForm):
     submit = SubmitField("Kemaskini Status")
+    

@@ -287,6 +287,24 @@ img {
     font-size: 14px;
 }
 
+.page-header-with-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.page-header-action {
+    display: flex;
+    align-items: center;
+}
+
+.page-header-action .btn {
+    white-space: nowrap;
+}
+
 /* =========================================================
    6. CARDS
    ========================================================= */

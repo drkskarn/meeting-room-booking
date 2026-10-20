@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 
+{% set is_add_mode = mode|default("edit") == "add" %}
+
 {% block title %}
-Edit Pengguna
+    {% if is_add_mode %}
+        Tambah Pengguna
+    {% else %}
+        Kemaskini Pengguna
+    {% endif %}
 {% endblock %}
 
 
@@ -13,11 +19,19 @@ Edit Pengguna
 <div class="page-header">
 
     <h1>
-        Edit Pengguna
+        {% if is_add_mode %}
+            Tambah Pengguna
+        {% else %}
+            Edit Pengguna
+        {% endif %}
     </h1>
 
     <p>
-        Kemaskini maklumat profil, role dan kata laluan pengguna.
+        {% if is_add_mode %}
+            Daftarkan akaun pengguna baharu ke dalam sistem.
+        {% else %}
+            Kemaskini maklumat profil, role dan kata laluan pengguna.
+        {% endif %}
     </p>
 
 </div>
@@ -89,7 +103,7 @@ Edit Pengguna
                         <span class="form-error">{{ error }}</span>
                     {% endfor %}
 
-                    {% if user.id == current_user.id %}
+                     {% if not is_add_mode and user.id == current_user.id %}
                         <span class="form-help">
                             Role akaun Pentadbir yang sedang digunakan tidak boleh ditukar kepada Pemohon.
                         </span>
@@ -147,11 +161,19 @@ Edit Pengguna
         <div class="form-section">
 
             <h2 class="form-section-title">
-                Tukar Kata Laluan
+                {% if is_add_mode %}
+                    Kata Laluan
+                {% else %}
+                    Tukar Kata Laluan
+                {% endif %}
             </h2>
 
             <p class="form-help admin-user-password-help">
-                Biarkan kedua-dua ruangan kosong jika tidak mahu menukar kata laluan pengguna.
+                {% if is_add_mode %}
+                    Tetapkan kata laluan awal untuk pengguna baharu.
+                {% else %}
+                    Biarkan kedua-dua ruangan kosong jika tidak mahu menukar kata laluan pengguna.
+                {% endif %}
             </p>
 
             <div class="admin-user-form-grid">
@@ -189,10 +211,10 @@ Edit Pengguna
              ======================== -->
         <div class="admin-user-form-actions">
 
-            <a
-                href="{{ url_for('admin.user_detail', user_id=user.id) }}"
-                class="btn btn-secondary"
-            >
+            <a href="{% if is_add_mode %}{{ url_for('admin.users') }}
+                    {% else %}{{ url_for('admin.user_detail', user_id=user.id) }}
+                    {% endif %}"
+                class="btn btn-secondary">
                 Batal
             </a>
 
