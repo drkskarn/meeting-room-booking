@@ -35,24 +35,58 @@ Pengurusan Bilik
 <!-- ========================
      SEARCH DAN FILTER
      ======================== -->
+<!-- ========================
+     SEARCH DAN FILTER
+     ======================== -->
 <form
     method="GET"
     action="{{ url_for('admin.rooms') }}"
     class="availability-filter admin-room-filter"
 >
 
-    <div class="availability-search">
+    <!-- ========================
+         SEARCH ROW
+         ======================== -->
+    <div class="admin-room-search-row">
 
-        <input
-            type="text"
-            name="q"
-            value="{{ search_query }}"
-            placeholder="Cari ID, nama bilik, lokasi atau kapasiti..."
-        >
+        <div class="availability-search">
+
+            <input
+                type="text"
+                name="q"
+                value="{{ search_query }}"
+                placeholder="Cari ID, nama bilik, lokasi atau kapasiti..."
+            >
+
+        </div>
+
+
+        <div class="admin-room-search-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Cari
+            </button>
+
+            {% if search_query or selected_status != "ALL" %}
+                <a
+                    href="{{ url_for('admin.rooms') }}"
+                    class="btn btn-secondary"
+                >
+                    Reset
+                </a>
+            {% endif %}
+
+        </div>
 
     </div>
 
 
+    <!-- ========================
+         STATUS FILTER
+         ======================== -->
     <div class="availability-filter-buttons admin-room-filter-buttons">
 
         <button

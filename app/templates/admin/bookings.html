@@ -43,6 +43,26 @@ Pengurusan Tempahan
 
     </div>
 
+    <div class="admin-booking-search-actions">
+
+        <button
+            type="submit"
+            class="btn btn-primary"
+        >
+            Cari
+        </button>
+
+        {% if search_query or selected_status != "ALL" %}
+            <a
+                href="{{ url_for('admin.bookings') }}"
+                class="btn btn-secondary"
+            >
+                Reset
+            </a>
+        {% endif %}
+
+    </div>
+
 
     <div class="availability-filter-buttons admin-booking-filter-buttons">
 

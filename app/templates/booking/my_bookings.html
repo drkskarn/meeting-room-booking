@@ -27,58 +27,62 @@
 
     </div>
 
-
     <!-- ========================
-         SEARCH
-         ======================== -->
-    <form
-        method="GET"
-        action="{{ url_for('booking.my_bookings') }}"
-        class="availability-filter my-booking-search"
-    >
+     SEARCH DAN FILTER
+     ======================== -->
+    <div class="my-booking-control-panel">
 
-        <input
-            type="hidden"
-            name="status"
-            value="{{ selected_status }}"
+        <form
+            method="GET"
+            action="{{ url_for('booking.my_bookings') }}"
+            class="my-booking-search"
         >
 
-        <div class="availability-search">
             <input
-                type="search"
-                name="q"
-                value="{{ search_query }}"
-                placeholder="Cari ID, bilik, lokasi, pengerusi atau tujuan..."
-                aria-label="Cari tempahan"
+                type="hidden"
+                name="status"
+                value="{{ selected_status }}"
             >
-        </div>
 
-        <div class="my-booking-search-actions">
-            <button type="submit" class="btn btn-primary">
-                Cari
-            </button>
+            <div class="my-booking-search-row">
 
-            {% if search_query or selected_status != "ALL" %}
-                <a
-                    href="{{ url_for('booking.my_bookings') }}"
-                    class="btn btn-secondary"
-                >
-                    Reset
-                </a>
-            {% endif %}
-        </div>
+                <div class="availability-search">
 
-    </form>
+                    <input
+                        type="search"
+                        name="q"
+                        value="{{ search_query }}"
+                        placeholder="Cari ID, bilik, lokasi, pengerusi atau tujuan..."
+                        aria-label="Cari tempahan"
+                    >
+
+                </div>
 
 
-    <!-- ========================
-         STATUS FILTER
-         ======================== -->
-    <div class="card my-booking-filter-panel">
+                <div class="my-booking-search-actions">
 
-        <div class="my-booking-filter-label">
-            Filter Status
-        </div>
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Cari
+                    </button>
+
+                    {% if search_query or selected_status != "ALL" %}
+                        <a
+                            href="{{ url_for('booking.my_bookings') }}"
+                            class="btn btn-secondary"
+                        >
+                            Reset
+                        </a>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </form>
+
 
         <div class="my-booking-filter-buttons">
 
@@ -134,7 +138,6 @@
         </div>
 
     </div>
-
 
     <!-- ========================
          BOOKING LIST

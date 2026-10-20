@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}
+Tempahan Saya
+{% endblock %}
+
+{% block content %}
+
+<!-- ========================
+         PAGE HEADER
+         ======================== -->
+<div class="page-header my-bookings-page-header">
+
+    <div>
+        <h1>Tempahan Saya</h1>
+        <p>
+            Cari, semak dan urus semua tempahan bilik mesyuarat anda.
+        </p>
+    </div>
+
+    <a href="{{ url_for('booking.create_booking') }}" class="btn btn-primary">
+        + Buat Tempahan Baru
+    </a>
+
+</div>
+
+
+<!-- ========================
+         SEARCH
+         ======================== -->
+<form method="GET" action="{{ url_for('booking.my_bookings') }}" class="availability-filter my-booking-search">
+
+    <input type="hidden" name="status" value="{{ selected_status }}">
+
+    <div class="availability-search">
+        <input type="search" name="q" value="{{ search_query }}"
+            placeholder="Cari ID, bilik, lokasi, pengerusi atau tujuan..." aria-label="Cari tempahan">
+    </div>
+
+    <div class="my-booking-search-actions">
+        <button type="submit" class="btn btn-primary">
+            Cari
+        </button>
+
+        {% if search_query or selected_status != "ALL" %}
+        <a href="{{ url_for('booking.my_bookings') }}" class="btn btn-secondary">
+            Reset
+        </a>
+        {% endif %}
+    </div>
+
+</form>
+
+
+<!-- ========================
+         STATUS FILTER
+         ======================== -->
+<div class="card my-booking-filter-panel">
+
+    <div class="my-booking-filter-label">
+        Filter Status
+    </div>
+
+    <div class="my-booking-filter-buttons">
+
+        <a href="{{ url_for('booking.my_bookings', status='ALL', q=search_query) }}"
+            class="filter-button {% if selected_status == 'ALL' %}active{% endif %}">
+            Semua ({{ booking_counts.ALL }})
+        </a>
+
+        <a href="{{ url_for('booking.my_bookings', status='PENDING', q=search_query) }}"
+            class="filter-button {% if selected_status == 'PENDING' %}active{% endif %}">
+            Menunggu ({{ booking_counts.PENDING }})
+        </a>
+
+        <a href="{{ url_for('booking.my_bookings', status='APPROVED', q=search_query) }}"
+            class="filter-button {% if selected_status == 'APPROVED' %}active{% endif %}">
+            Diluluskan ({{ booking_counts.APPROVED }})
+        </a>
+
+        <a href="{{ url_for('booking.my_bookings', status='COMPLETED', q=search_query) }}"
+            class="filter-button {% if selected_status == 'COMPLETED' %}active{% endif %}">
+            Selesai ({{ booking_counts.COMPLETED }})
+        </a>
+
+        <a href="{{ url_for('booking.my_bookings', status='REJECTED', q=search_query) }}"
+            class="filter-button {% if selected_status == 'REJECTED' %}active{% endif %}">
+            Ditolak ({{ booking_counts.REJECTED }})
+        </a>
+
+        <a href="{{ url_for('booking.my_bookings', status='CANCELLED', q=search_query) }}"
+            class="filter-button {% if selected_status == 'CANCELLED' %}active{% endif %}">
+            Dibatalkan ({{ booking_counts.CANCELLED }})
+        </a>
+
+        <a href="{{ url_for('booking.my_bookings', status='EXPIRED', q=search_query) }}"
+            class="filter-button {% if selected_status == 'EXPIRED' %}active{% endif %}">
+            Tamat Tempoh ({{ booking_counts.EXPIRED }})
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- ========================
+         BOOKING LIST
+         ======================== -->
+{% if bookings %}
+
+<div class="table-container my-bookings-table-container">
+
+    <table class="my-bookings-table">
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Bilik</th>
+                <th>Tarikh / Masa</th>
+                <th>Pengerusi</th>
+                <th>Tujuan</th>
+                <th>Status</th>
+                <th>Tindakan</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for booking in bookings %}
+
+            <tr class="my-booking-row">
+
+                <td class="my-booking-col-id" data-label="ID">
+                    <strong>#{{ booking.id }}</strong>
+                </td>
+
+                <td class="my-booking-col-room" data-label="Bilik">
+                    <strong>
+                        {{ booking.room.room_name }}
+                    </strong>
+
+                    {% if booking.room.location %}
+                    <br>
+                    <span class="text-muted">
+                        {{ booking.room.location }}
+                    </span>
+                    {% endif %}
+                </td>
+
+                <td class="my-booking-col-datetime" data-label="Tarikh / Masa">
+                    {% if booking.start_datetime.date() == booking.end_datetime.date() %}
+
+                    <strong>
+                        {{ booking.start_datetime.strftime("%d/%m/%Y") }}
+                    </strong>
+                    <br>
+                    <span class="text-muted">
+                        {{ booking.start_datetime.strftime("%H:%M") }}
+                        -
+                        {{ booking.end_datetime.strftime("%H:%M") }}
+                    </span>
+
+                    {% else %}
+
+                    <strong>
+                        {{ booking.start_datetime.strftime("%d/%m/%Y %H:%M") }}
+                    </strong>
+                    <br>
+                    <span class="text-muted">
+                        hingga
+                        {{ booking.end_datetime.strftime("%d/%m/%Y %H:%M") }}
+                    </span>
+
+                    {% endif %}
+                </td>
+
+                <td class="my-booking-col-chairperson" data-label="Pengerusi Mesyuarat">
+                    {{ booking.chairperson_name or "-" }}
+                </td>
+
+                <td class="my-booking-col-purpose" data-label="Tujuan">
+                    {{ booking.purpose }}
+                </td>
+
+                <td class="my-booking-col-status" data-label="Status">
+                    {% if booking.status == "PENDING" %}
+                    <span class="status-badge status-pending">
+                        Menunggu
+                    </span>
+
+                    {% elif booking.status == "APPROVED" %}
+                    <span class="status-badge status-approved">
+                        Diluluskan
+                    </span>
+
+                    {% elif booking.status == "REJECTED" %}
+                    <span class="status-badge status-rejected">
+                        Ditolak
+                    </span>
+
+                    {% elif booking.status == "CANCELLED" %}
+                    <span class="status-badge status-cancelled">
+                        Dibatalkan
+                    </span>
+
+                    {% elif booking.status == "COMPLETED" %}
+                    <span class="status-badge status-completed">
+                        Selesai
+                    </span>
+
+                    {% elif booking.status == "EXPIRED" %}
+                    <span class="status-badge status-expired">
+                        Tamat Tempoh
+                    </span>
+
+                    {% else %}
+                    <span class="status-badge">
+                        {{ booking.status }}
+                    </span>
+                    {% endif %}
+                </td>
+
+                <td class="my-booking-col-actions" data-label="Tindakan">
+                    <div class="action-group">
+
+                        <a href="{{ url_for(
+                                            'booking.booking_detail',
+                                            booking_id=booking.id
+                                        ) }}" class="btn btn-secondary btn-sm">
+                            Lihat
+                        </a>
+
+                        {% if booking.status == "PENDING" %}
+
+                        <a href="{{ url_for(
+                                                'booking.edit_booking',
+                                                booking_id=booking.id
+                                            ) }}" class="btn btn-primary btn-sm">
+                            Edit
+                        </a>
+
+                        <a href="{{ url_for(
+                                                'booking.cancel_own_booking',
+                                                booking_id=booking.id
+                                            ) }}" class="btn btn-danger btn-sm">
+                            Batal
+                        </a>
+
+                        {% elif booking.status == "APPROVED" %}
+
+                        <a href="{{ url_for(
+                                                'booking.cancel_own_booking',
+                                                booking_id=booking.id
+                                            ) }}" class="btn btn-danger btn-sm">
+                            Batal
+                        </a>
+
+                        {% endif %}
+
+                    </div>
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% else %}
+
+<div class="card">
+    <div class="empty-state">
+
+        {% if booking_counts.ALL > 0 %}
+
+        <h3>Tiada tempahan dijumpai</h3>
+        <p>
+            Tiada tempahan yang sepadan dengan carian
+            atau filter yang dipilih.
+        </p>
+
+        <a href="{{ url_for('booking.my_bookings') }}" class="btn btn-secondary mt-2">
+            Reset Carian
+        </a>
+
+        {% else %}
+
+        <h3>Tiada tempahan</h3>
+        <p>
+            Anda belum mempunyai sebarang tempahan bilik mesyuarat.
+        </p>
+
+        <a href="{{ url_for('booking.create_booking') }}" class="btn btn-primary mt-2">
+            Buat Tempahan
+        </a>
+
+        {% endif %}
+
+    </div>
+</div>
+
+{% endif %}
+
+
+<!-- ========================
+         BACK
+         ======================== -->
+<div class="mt-3">
+    <a href="{{ url_for('auth.dashboard') }}" class="btn btn-secondary">
+        Kembali ke Dashboard
+    </a>
+</div>
+
+{% endblock %}

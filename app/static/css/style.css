@@ -1,7 +1,7 @@
 /* =========================================================
    SISTEM TEMPAHAN BILIK MESYUARAT
    Clean Global Stylesheet
-   UI Phase 1 + UI Phase 2 + UI Phase 3 + UI Phase 4D
+   UI Phase 1 + UI Phase 2 + UI Phase 3 + UI Phase 4G
    ========================================================= */
 
 /* =========================================================
@@ -882,6 +882,29 @@ tbody tr:last-child td {
     color: #7c3aed;
 }
 
+/* ========================
+   Preserve Dashboard Stat Cards
+   ======================== */
+.stat-card.stat-warning {
+    background: linear-gradient(135deg, #fffdf7, #fff8e7);
+    border-color: #f3e4b4;
+}
+
+.stat-card.stat-blue {
+    background: linear-gradient(135deg, #f8fbff, #edf5ff);
+    border-color: #d7e7fb;
+}
+
+.stat-card.stat-green {
+    background: linear-gradient(135deg, #f7fdf9, #ecf9f0);
+    border-color: #d3eddb;
+}
+
+.stat-card.stat-purple {
+    background: linear-gradient(135deg, #fbf9ff, #f2edff);
+    border-color: #e4dcf7;
+}
+
 .booking-action-card {
     min-height: 145px;
     display: flex;
@@ -1678,6 +1701,12 @@ body.modal-active {
    23. ROOM STATUS
    ======================================================== */
 
+/* ========================
+   Light Blue Glass Availability Cards
+   Scope: .room-status-card only
+   Dashboard .stat-card remains unchanged
+   ======================== */
+
 .room-status-grid {
     display: grid;
     grid-template-columns: repeat(
@@ -1688,10 +1717,71 @@ body.modal-active {
 }
 
 .room-status-card {
-    padding: 18px;
-    background: #ffffff;
-    border: 1px solid #e7ebf0;
-    border-radius: 12px;
+    position: relative;
+    padding: 20px;
+    overflow: hidden;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.96),
+        rgba(232, 243, 255, 0.84)
+    );
+    border: 1px solid rgba(183, 213, 244, 0.78);
+    border-radius: 16px;
+    box-shadow:
+        0 10px 30px rgba(23, 72, 128, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease,
+        border-color 0.22s ease;
+}
+
+.room-status-card::before,
+.room-status-card::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.room-status-card::before {
+    top: -75px;
+    right: -65px;
+    width: 190px;
+    height: 190px;
+    background: radial-gradient(
+        circle,
+        rgba(77, 153, 255, 0.24),
+        rgba(77, 153, 255, 0) 70%
+    );
+}
+
+.room-status-card::after {
+    left: -45px;
+    bottom: -85px;
+    width: 200px;
+    height: 160px;
+    background: radial-gradient(
+        circle,
+        rgba(191, 219, 254, 0.36),
+        rgba(191, 219, 254, 0) 72%
+    );
+}
+
+.room-status-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.room-status-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(116, 174, 235, 0.92);
+    box-shadow:
+        0 16px 38px rgba(23, 72, 128, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
 .room-status-header {
@@ -1703,33 +1793,39 @@ body.modal-active {
 }
 
 .room-status-header h3 {
-    margin: 0 0 4px;
-    color: #27364f;
+    margin: 0 0 5px;
+    color: #123b70;
     font-size: 16px;
+    font-weight: 700;
+    line-height: 1.45;
 }
 
 .room-status-badge {
     display: inline-flex;
     align-items: center;
-    white-space: nowrap;
-    padding: 5px 9px;
+    padding: 6px 11px;
+    border: 1px solid rgba(255, 255, 255, 0.78);
     border-radius: 999px;
+    box-shadow: 0 4px 12px rgba(31, 78, 121, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     font-size: 11px;
     font-weight: 700;
+    white-space: nowrap;
 }
 
 .room-status-available {
-    background: #ecfdf3;
+    background: rgba(220, 252, 231, 0.84);
     color: #067647;
 }
 
 .room-status-upcoming {
-    background: #fff7e8;
+    background: rgba(255, 247, 232, 0.88);
     color: #b54708;
 }
 
 .room-status-busy {
-    background: #fef3f2;
+    background: rgba(254, 226, 226, 0.88);
     color: #b42318;
 }
 
@@ -1740,20 +1836,21 @@ body.modal-active {
 }
 
 .room-status-info span {
-    color: #7a8798;
+    color: #7186a0;
     font-size: 12px;
 }
 
 .room-status-info strong {
-    color: #27364f;
+    color: #123b70;
     font-size: 14px;
+    font-weight: 700;
 }
 
 .room-status-purpose {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #edf0f4;
-    color: #667085;
+    margin-top: 14px;
+    padding-top: 13px;
+    border-top: 1px solid rgba(160, 195, 230, 0.45);
+    color: #58708f;
     font-size: 13px;
     line-height: 1.5;
     font-style: italic;
@@ -1860,6 +1957,22 @@ body.modal-active {
     min-width: 260px;
 }
 
+.admin-booking-search-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+    .admin-booking-search-actions {
+        width: 100%;
+    }
+
+    .admin-booking-search-actions .btn {
+        flex: 1;
+    }
+}
 
 .availability-search input {
     width: 100%;
@@ -1902,14 +2015,27 @@ body.modal-active {
     color: #ffffff;
 }
 
-
 .availability-grid {
     grid-template-columns:
         repeat(auto-fit, minmax(300px, 1fr));
 }
 
+.admin-room-search-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+}
 
+@media (max-width: 900px) {
+    .admin-room-search-actions {
+        width: 100%;
+    }
 
+    .admin-room-search-actions .btn {
+        flex: 1;
+    }
+}
 
 @media (max-width: 700px) {
 
@@ -1987,6 +2113,10 @@ body.modal-active {
     overflow-wrap: anywhere;
 }
 
+.admin-bookings-table .booking-col-chairperson {
+    min-width: 170px;
+}
+
 .admin-bookings-table .booking-col-actions {
     min-width: 150px;
 }
@@ -2058,6 +2188,7 @@ body.modal-active {
             "applicant applicant"
             "room room"
             "datetime datetime"
+            "chairperson chairperson"
             "purpose purpose"
             "actions actions";
         gap: 0;
@@ -2126,6 +2257,11 @@ body.modal-active {
 
     .admin-bookings-table .booking-col-datetime {
         grid-area: datetime;
+    }
+
+    .admin-bookings-table .booking-col-chairperson {
+        grid-area: chairperson;
+        min-width: 0;
     }
 
     .admin-bookings-table .booking-col-purpose {
@@ -2232,11 +2368,40 @@ body.modal-active {
     flex-shrink: 0;
 }
 
-.admin-room-filter .availability-search {
-    min-width: 320px;
+/* ========================
+   Search + Filter Layout
+   ======================== */
+.admin-room-filter {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+}
+
+.admin-room-search-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+}
+
+.admin-room-search-row .availability-search {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-room-search-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
 }
 
 .admin-room-filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
     flex-shrink: 0;
 }
 
@@ -2281,7 +2446,11 @@ body.modal-active {
         flex-direction: column;
     }
 
-    .admin-room-filter .availability-search {
+    .admin-room-search-row {
+        width: 100%;
+    }
+
+    .admin-room-search-row .availability-search {
         width: 100%;
         min-width: 0;
     }
@@ -2435,6 +2604,19 @@ body.modal-active {
 
     .admin-room-page-header {
         flex-direction: column;
+    }
+
+    .admin-room-search-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-room-search-actions {
+        width: 100%;
+    }
+
+    .admin-room-search-actions .btn {
+        flex: 1;
     }
 
     .admin-room-page-header .btn {
@@ -3288,6 +3470,53 @@ body.modal-active {
 }
 
 /* ========================
+   My Booking Control Panel
+   ======================== */
+.my-booking-control-panel {
+    margin-bottom: 22px;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #e7ebf0;
+    border-radius: 12px;
+}
+
+.my-booking-search {
+    margin: 0;
+}
+
+.my-booking-search-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.my-booking-search-row .availability-search {
+    flex: 1;
+    min-width: 0;
+}
+
+.my-booking-filter-buttons {
+    margin-top: 16px;
+}
+
+@media (max-width: 700px) {
+
+    .my-booking-search-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .my-booking-search-actions {
+        width: 100%;
+    }
+
+    .my-booking-search-actions .btn {
+        flex: 1;
+    }
+}
+
+/* ========================
    Tablet / Mobile Card View
    ======================== */
 @media (max-width: 900px) {
@@ -3502,4 +3731,308 @@ body.modal-active {
     .my-bookings-table .my-booking-col-actions .action-group {
         grid-template-columns: 1fr;
     }
+}
+
+/* ========================
+   Availability Filter Layout
+   ======================== */
+.availability-page-filter {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.availability-search-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.availability-search-row .availability-search {
+    flex: 1;
+    min-width: 0;
+}
+
+.availability-search-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+    .availability-search-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .availability-search-actions {
+        width: 100%;
+    }
+
+    .availability-search-actions .btn {
+        flex: 1;
+    }
+}
+
+/* =========================================================
+   31. DASHBOARD ROOM SUMMARY - LIGHT GLASS
+   ========================================================= */
+
+.dashboard-section .room-summary {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin: 18px 0 24px;
+}
+
+
+/* ========================
+   Summary Glass Pill
+   ======================== */
+.dashboard-section .room-summary-item {
+    min-height: 54px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 10px 16px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.92),
+            rgba(232, 243, 255, 0.72)
+        );
+
+    border:
+        1px solid rgba(183, 213, 244, 0.70);
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 6px 18px rgba(23, 72, 128, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+
+/* ========================
+   Summary Value
+   ======================== */
+.dashboard-section .room-summary-item strong {
+    color: #123b70;
+
+    font-size: 20px;
+    font-weight: 700;
+
+    line-height: 1;
+}
+
+
+/* ========================
+   Summary Label
+   ======================== */
+.dashboard-section .room-summary-item span:not(.room-summary-dot) {
+    color: #617a99;
+
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+/* ========================
+   Status Dot
+   ======================== */
+.dashboard-section .room-summary-dot {
+    width: 11px;
+    height: 11px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 0 4px rgba(255, 255, 255, 0.65);
+}
+
+
+/* ========================
+   Mobile
+   ======================== */
+@media (max-width: 600px) {
+
+    .dashboard-section .room-summary {
+        display: grid;
+
+        grid-template-columns: 1fr;
+
+        width: 100%;
+    }
+
+    .dashboard-section .room-summary-item {
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   32. DASHBOARD ROOM AVAILABILITY GLASS PANEL
+   ========================================================= */
+
+.room-availability-section {
+    position: relative;
+    isolation: isolate;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(235, 245, 255, 0.82)
+        );
+
+    border:
+        1px solid rgba(190, 215, 241, 0.82);
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 12px 35px rgba(24, 67, 115, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+
+/* ========================
+   Decorative Blue Glow
+   ======================== */
+.room-availability-section::before {
+    content: "";
+
+    position: absolute;
+    top: -170px;
+    right: -130px;
+
+    z-index: -1;
+
+    width: 430px;
+    height: 430px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(96, 165, 250, 0.20),
+            rgba(96, 165, 250, 0) 70%
+        );
+
+    pointer-events: none;
+}
+
+
+.room-availability-section::after {
+    content: "";
+
+    position: absolute;
+    left: -180px;
+    bottom: -220px;
+
+    z-index: -1;
+
+    width: 460px;
+    height: 460px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(191, 219, 254, 0.24),
+            rgba(191, 219, 254, 0) 72%
+        );
+
+    pointer-events: none;
+}
+
+
+/* ========================
+   Section Header
+   ======================== */
+.room-availability-section .section-header h2 {
+    color: #103a70;
+}
+
+.room-availability-section .section-header p {
+    color: #667f9e;
+}
+
+
+/* ========================
+   View All Link
+   ======================== */
+.room-availability-section .section-link {
+    padding: 7px 12px;
+
+    border:
+        1px solid rgba(168, 202, 238, 0.70);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255, 255, 255, 0.66);
+
+    color: #1769e0;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.room-availability-section .section-link:hover {
+    background:
+        rgba(255, 255, 255, 0.92);
+
+    border-color:
+        rgba(116, 174, 235, 0.90);
+
+    box-shadow:
+        0 5px 14px rgba(23, 105, 224, 0.10);
+}
+
+.dashboard-glass-section {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(235, 245, 255, 0.82)
+        );
+
+    border: 1px solid rgba(190, 215, 241, 0.82);
+    border-radius: 16px;
+
+    box-shadow:
+        0 12px 35px rgba(24, 67, 115, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }

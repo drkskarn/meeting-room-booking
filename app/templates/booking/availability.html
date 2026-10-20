@@ -66,20 +66,51 @@ Ketersediaan Bilik
 <form
     method="GET"
     action="{{ url_for('booking.room_availability') }}"
-    class="availability-filter"
+    class="availability-filter availability-page-filter"
 >
 
-    <div class="availability-search">
+    <!-- ========================
+         SEARCH ROW
+         ======================== -->
+    <div class="availability-search-row">
 
-        <input
-            type="text"
-            name="q"
-            value="{{ search_query }}"
-            placeholder="Cari nama atau lokasi bilik..."
-        >
+        <div class="availability-search">
+
+            <input
+                type="text"
+                name="q"
+                value="{{ search_query }}"
+                placeholder="Cari nama atau lokasi bilik..."
+            >
+
+        </div>
+
+        <div class="availability-search-actions">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Cari
+            </button>
+
+            {% if search_query or selected_status != "ALL" %}
+                <a
+                    href="{{ url_for('booking.room_availability') }}"
+                    class="btn btn-secondary"
+                >
+                    Reset
+                </a>
+            {% endif %}
+
+        </div>
 
     </div>
 
+
+    <!-- ========================
+         STATUS FILTER
+         ======================== -->
     <div class="availability-filter-buttons">
 
         <button

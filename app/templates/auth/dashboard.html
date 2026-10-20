@@ -105,7 +105,7 @@ Dashboard
      STATUS BILIK HARI INI - ADMIN
      ================================================= -->
 
-    <div class="dashboard-section">
+    <div class="dashboard-section room-availability-section">
 
         <div class="section-header">
             
@@ -154,7 +154,7 @@ Dashboard
                 </div>
             </div>
         
-            <a href="{{ url_for('booking.room_availability') }}" class="section-link">
+            <a href="{{ url_for('booking.room_availability') }}" class="btn btn-primary">
                 Lihat Semua
             </a>
         </div>
@@ -333,7 +333,7 @@ Dashboard
 
     <!-- PENDING APPLICATION -->
 
-    <div class="dashboard-section">
+    <div class="dashboard-section dashboard-glass-section">
 
         <div class="section-header">
 
@@ -362,9 +362,9 @@ Dashboard
 
         {% if pending_bookings %}
 
-            <div class="table-container">
+            <div class="table-container admin-bookings-table-container">
 
-                <table>
+                <table class="admin-bookings-table">
 
                     <thead>
 
@@ -386,18 +386,16 @@ Dashboard
 
                         {% for booking in pending_bookings %}
 
-                            <tr>
+                            <tr class="admin-booking-row">
 
-                                <td>
-                                    #{{ booking.id }}
+                                <td class="booking-col-id" data-label="ID">
+                                    <strong>#{{ booking.id }}</strong>
                                 </td>
 
 
-                                <td>
+                                <td class="booking-col-applicant" data-label="Pemohon">
 
-                                    <strong>
-                                        {{ booking.applicant.full_name }}
-                                    </strong>
+                                    <strong>{{ booking.applicant.full_name }}</strong>
 
                                     <br>
 
@@ -408,12 +406,12 @@ Dashboard
                                 </td>
 
 
-                                <td>
+                                <td class="booking-col-room" data-label="Bilik">
                                     {{ booking.room.room_name }}
                                 </td>
 
 
-                                <td>
+                                <td class="booking-col-datetime" data-label="Tarikh / Masa">
 
                                     {% if booking.start_datetime.date()
                                           == booking.end_datetime.date() %}
@@ -454,39 +452,33 @@ Dashboard
                                 </td>
 
 
-                                <td>
+                                <td class="booking-col-chairperson" data-label="Dipengerusikan Oleh">
                                     {{ booking.chairperson_name or "-" }}
                                 </td>
 
 
-                                <td>
+                                <td class="booking-col-purpose" data-label="Tujuan">
                                     {{ booking.purpose }}
                                 </td>
 
 
-                                <td>
+                                <td class="booking-col-status" data-label="Status">
 
-                                    <span
-                                        class="status-badge status-pending"
-                                    >
+                                    <span class="status-badge status-pending">
                                         Menunggu
                                     </span>
 
                                 </td>
 
 
-                                <td>
+                                <td class="booking-col-actions" data-label="Tindakan">
+                                    <div class="action-group">
 
-                                    <a
-                                        href="{{ url_for(
-                                            'booking.booking_detail',
-                                            booking_id=booking.id
-                                        ) }}"
-                                        class="btn btn-secondary btn-sm"
-                                    >
+                                        <a href="{{ url_for('booking.booking_detail', booking_id=booking.id) }}"
+                                        class="btn btn-secondary btn-sm">
                                         Lihat
-                                    </a>
-
+                                        </a>
+                                    </div>
                                 </td>
 
                             </tr>
@@ -622,7 +614,7 @@ Dashboard
 
     <!-- UPCOMING -->
 
-    <div class="dashboard-section">
+    <div class="dashboard-section dashboard-glass-section">
 
         <div class="section-header">
 
@@ -997,7 +989,7 @@ Dashboard
          STATUS BILIK HARI INI - APPLICANT
          ================================================= -->
 
-    <div class="dashboard-section">
+    <div class="dashboard-section room-availability-section">
 
         <div class="section-header">
 
