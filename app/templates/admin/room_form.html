@@ -21,7 +21,7 @@
      ======================== -->
 <div class="card phase4e-form-card phase4e-form-card-narrow">
 
-    <form method="POST" novalidate>
+    <form method="POST" enctype="multipart/form-data" novalidate>
         {{ form.hidden_tag() }}
 
         <div class="form-section">
@@ -54,6 +54,56 @@
 
                 {% for error in form.capacity.errors %}
                     <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+        <!-- ========================
+            CURRENT ROOM IMAGE
+            ======================== -->
+        {% if room and room.image_filename %}
+
+            <div class="room-image-preview">
+
+                <span class="form-help">
+                    Gambar semasa
+                </span>
+
+                <div class="room-image-preview-frame">
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='images/rooms/' ~ room.image_filename
+                        ) }}"
+                        alt="{{ room.room_name }}"
+                    >
+                </div>
+
+            </div>
+
+        {% endif %}
+
+        <!-- ========================
+            ROOM IMAGE
+            ======================== -->
+            <div class="form-group">
+
+                {{ form.image.label }}
+
+                {{
+                    form.image(
+                        accept=".jpg,.jpeg,.png,.webp",
+                        class_="input-error" if form.image.errors else ""
+                    )
+                }}
+
+                <span class="form-help">
+                    Format: JPG, JPEG, PNG atau WEBP. Maksimum 5 MB.
+                </span>
+
+                {% for error in form.image.errors %}
+                    <span class="form-error">
+                        {{ error }}
+                    </span>
                 {% endfor %}
             </div>
         </div>

@@ -168,143 +168,163 @@ Dashboard
 
                     <div class="room-status-card">
 
-                        <div class="room-status-header">
+                        <!-- ========================
+                             ROOM IMAGE
+                             ======================== -->
+                        <div class="room-status-image">
 
-                            <div>
+                            {% if item.room.image_filename %}
 
-                                <h3>
-                                    {{ item.room.room_name }}
-                                </h3>
-
-                                {% if item.room.location %}
-
-                                    <span class="text-muted">
-                                        {{ item.room.location }}
-                                    </span>
-
-                                {% endif %}
-
-                            </div>
-
-
-                            {% if item.status == "IN_USE" %}
-
-                                <span class="room-status-badge room-status-busy">
-                                    Sedang Digunakan
-                                </span>
-
-                            {% elif item.status == "UPCOMING" %}
-
-                                <span class="room-status-badge room-status-upcoming">
-                                    Akan Digunakan
-                                </span>
+                                <img
+                                    src="{{ url_for(
+                                        'static',
+                                        filename='images/rooms/' ~ item.room.image_filename
+                                    ) }}"
+                                    alt="{{ item.room.room_name }}"
+                                    loading="lazy"
+                                >
 
                             {% else %}
 
+                                <div class="room-status-image-placeholder">
+                                    <span>Bilik Mesyuarat</span>
+                                </div>
+
+                            {% endif %}
+
+                            {% if item.status == "IN_USE" %}
+                                <span class="room-status-badge room-status-busy">
+                                    Sedang Digunakan
+                                </span>
+                            {% elif item.status == "UPCOMING" %}
+                                <span class="room-status-badge room-status-upcoming">
+                                    Akan Digunakan
+                                </span>
+                            {% else %}
                                 <span class="room-status-badge room-status-available">
                                     Tersedia
                                 </span>
-
                             {% endif %}
 
                         </div>
 
+                        <!-- ========================
+                             ROOM BODY
+                             ======================== -->
+                        <div class="room-status-body">
 
-                        {% if item.status == "IN_USE" %}
+                            <div class="room-status-header">
+                                <div>
+                                    <h3>
+                                        {{ item.room.room_name }}
+                                    </h3>
 
-                            <div class="room-status-info">
+                                    {% if item.room.location %}
+                                        <span class="room-status-location">
+                                            <svg
+                                                class="room-status-location-icon"
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    d="M12 21s6-5.25 6-11a6 6 0 1 0-12 0c0 5.75 6 11 6 11Z"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="1.8"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                />
+                                                <circle
+                                                    cx="12"
+                                                    cy="10"
+                                                    r="2.2"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="1.8"
+                                                />
+                                            </svg>
+                                            {{ item.room.location }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
 
-                                <span>
-                                    Sedang berlangsung
-                                </span>
+                            <div class="room-status-details">
 
-                                {% if item.current_booking.start_datetime.date() == item.current_booking.end_datetime.date() %}
+                                {% if item.status == "IN_USE" %}
 
-                                    <strong>
-                                    {{ item.current_booking.start_datetime.strftime("%H:%M") }}
-                                    hingga
-                                    {{ item.current_booking.end_datetime.strftime("%H:%M") }}
-                                    </strong>
+                                    <div class="room-status-info">
+                                        <span>Sedang berlangsung</span>
+
+                                        {% if item.current_booking.start_datetime.date() == item.current_booking.end_datetime.date() %}
+                                            <strong>
+                                                {{ item.current_booking.start_datetime.strftime("%H:%M") }}
+                                                hingga
+                                                {{ item.current_booking.end_datetime.strftime("%H:%M") }}
+                                            </strong>
+                                        {% else %}
+                                            <strong>
+                                                {{ item.current_booking.start_datetime.strftime("%d/%m %H:%M") }}
+                                                hingga
+                                                {{ item.current_booking.end_datetime.strftime("%d/%m %H:%M") }}
+                                            </strong>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="room-status-info">
+                                        <span>Pengerusi Mesyuarat</span>
+                                        <strong>
+                                            {{ item.current_booking.chairperson_name or "-" }}
+                                        </strong>
+                                    </div>
+
+                                    <div class="room-status-purpose">
+                                        {{ item.current_booking.purpose }}
+                                    </div>
+
+                                {% elif item.status == "UPCOMING" %}
+
+                                    <div class="room-status-info">
+                                        <span>Tempahan seterusnya</span>
+
+                                        {% if item.next_booking.start_datetime.date() == item.next_booking.end_datetime.date() %}
+                                            <strong>
+                                                {{ item.next_booking.start_datetime.strftime("%H:%M") }}
+                                                hingga
+                                                {{ item.next_booking.end_datetime.strftime("%H:%M") }}
+                                            </strong>
+                                        {% else %}
+                                            <strong>
+                                                {{ item.next_booking.start_datetime.strftime("%d/%m %H:%M") }}
+                                                hingga
+                                                {{ item.next_booking.end_datetime.strftime("%d/%m %H:%M") }}
+                                            </strong>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="room-status-info">
+                                        <span>Pengerusi Mesyuarat</span>
+                                        <strong>
+                                            {{ item.next_booking.chairperson_name or "-" }}
+                                        </strong>
+                                    </div>
+
+                                    <div class="room-status-purpose">
+                                        {{ item.next_booking.purpose }}
+                                    </div>
 
                                 {% else %}
 
-                                    <strong>
-                                        {{ item.current_booking.start_datetime.strftime("%d/%m %H:%M") }}
-                                        hingga
-                                        {{ item.current_booking.end_datetime.strftime("%d/%m %H:%M") }}
-                                    </strong>
+                                    <div class="room-status-info">
+                                        <span>Status semasa</span>
+                                        <strong>Bilik boleh digunakan</strong>
+                                    </div>
 
                                 {% endif %}
 
                             </div>
 
-                            <div class="room-status-info">
-                                <span>Pengerusi Mesyuarat</span>
-                                <strong>
-                                    {{ item.current_booking.chairperson_name or "-" }}
-                                </strong>
-                            </div>
-
-                            <div class="room-status-purpose">
-                                {{ item.current_booking.purpose }}
-                            </div>
-
-
-                        {% elif item.status == "UPCOMING" %}
-
-                            <div class="room-status-info">
-
-                                <span>
-                                    Tempahan seterusnya
-                                </span>
-
-                                {% if item.next_booking.start_datetime.date() == item.next_booking.end_datetime.date() %}
-
-                                    <strong>
-                                        {{ item.next_booking.start_datetime.strftime("%H:%M") }}
-                                        hingga
-                                        {{ item.next_booking.end_datetime.strftime("%H:%M") }}
-                                    </strong>
-
-                                {% else %}
-
-                                    <strong>
-                                        {{ item.next_booking.start_datetime.strftime("%d/%m %H:%M") }}
-                                        hingga
-                                        {{ item.next_booking.end_datetime.strftime("%d/%m %H:%M") }}
-                                    </strong>
-
-                                {% endif %}
-
-                            </div>
-
-                            <div class="room-status-info">
-                                <span>Pengerusi Mesyuarat</span>
-                                <strong>
-                                    {{ item.next_booking.chairperson_name or "-" }}
-                                </strong>
-                            </div>
-
-                            <div class="room-status-purpose">
-                                {{ item.next_booking.purpose }}
-                            </div>
-
-
-                        {% else %}
-
-                            <div class="room-status-info">
-
-                                <span>
-                                    Status semasa
-                                </span>
-
-                                <strong>
-                                    Bilik boleh digunakan
-                                </strong>
-
-                            </div>
-
-                        {% endif %}
+                        </div>
 
                     </div>
 
@@ -1036,7 +1056,7 @@ Dashboard
                 </div>
 
             </div>
-            <a href="{{ url_for('booking.room_availability') }}" class="section-link">
+            <a href="{{ url_for('booking.room_availability') }}" class="btn btn-primary">
                 Lihat Semua
             </a>
         </div>
@@ -1049,21 +1069,29 @@ Dashboard
 
                     <div class="room-status-card">
 
-                        <div class="room-status-header">
+                        <!-- ========================
+                             ROOM IMAGE
+                             ======================== -->
+                        <div class="room-status-image">
 
-                            <div>
+                            {% if item.room.image_filename %}
 
-                                <h3>
-                                    {{ item.room.room_name }}
-                                </h3>
+                                <img
+                                    src="{{ url_for(
+                                        'static',
+                                        filename='images/rooms/' ~ item.room.image_filename
+                                    ) }}"
+                                    alt="{{ item.room.room_name }}"
+                                    loading="lazy"
+                                >
 
-                                {% if item.room.location %}
-                                    <span class="text-muted">
-                                        {{ item.room.location }}
-                                    </span>
-                                {% endif %}
+                            {% else %}
 
-                            </div>
+                                <div class="room-status-image-placeholder">
+                                    <span>Bilik Mesyuarat</span>
+                                </div>
+
+                            {% endif %}
 
                             {% if item.status == "IN_USE" %}
                                 <span class="room-status-badge room-status-busy">
@@ -1081,84 +1109,123 @@ Dashboard
 
                         </div>
 
-                        {% if item.status == "IN_USE" %}
+                        <!-- ========================
+                             ROOM BODY
+                             ======================== -->
+                        <div class="room-status-body">
 
-                            <div class="room-status-info">
-                                <span>Sedang berlangsung</span>
+                            <div class="room-status-header">
+                                <div>
+                                    <h3>
+                                        {{ item.room.room_name }}
+                                    </h3>
 
-                                {% if item.current_booking.start_datetime.date() == item.current_booking.end_datetime.date() %}
+                                    {% if item.room.location %}
+                                        <span class="room-status-location">
+                                            <svg
+                                                class="room-status-location-icon"
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    d="M12 21s6-5.25 6-11a6 6 0 1 0-12 0c0 5.75 6 11 6 11Z"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="1.8"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                />
+                                                <circle
+                                                    cx="12"
+                                                    cy="10"
+                                                    r="2.2"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="1.8"
+                                                />
+                                            </svg>
+                                            {{ item.room.location }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
 
-                                    <strong>
-                                        {{ item.current_booking.start_datetime.strftime("%H:%M") }}
-                                        hingga
-                                        {{ item.current_booking.end_datetime.strftime("%H:%M") }}
-                                    </strong>
+                            <div class="room-status-details">
+
+                                {% if item.status == "IN_USE" %}
+
+                                    <div class="room-status-info">
+                                        <span>Sedang berlangsung</span>
+
+                                        {% if item.current_booking.start_datetime.date() == item.current_booking.end_datetime.date() %}
+                                            <strong>
+                                                {{ item.current_booking.start_datetime.strftime("%H:%M") }}
+                                                hingga
+                                                {{ item.current_booking.end_datetime.strftime("%H:%M") }}
+                                            </strong>
+                                        {% else %}
+                                            <strong>
+                                                {{ item.current_booking.start_datetime.strftime("%d/%m %H:%M") }}
+                                                hingga
+                                                {{ item.current_booking.end_datetime.strftime("%d/%m %H:%M") }}
+                                            </strong>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="room-status-info">
+                                        <span>Pengerusi Mesyuarat</span>
+                                        <strong>
+                                            {{ item.current_booking.chairperson_name or "-" }}
+                                        </strong>
+                                    </div>
+
+                                    <div class="room-status-purpose">
+                                        {{ item.current_booking.purpose }}
+                                    </div>
+
+                                {% elif item.status == "UPCOMING" %}
+
+                                    <div class="room-status-info">
+                                        <span>Tempahan seterusnya</span>
+
+                                        {% if item.next_booking.start_datetime.date() == item.next_booking.end_datetime.date() %}
+                                            <strong>
+                                                {{ item.next_booking.start_datetime.strftime("%H:%M") }}
+                                                hingga
+                                                {{ item.next_booking.end_datetime.strftime("%H:%M") }}
+                                            </strong>
+                                        {% else %}
+                                            <strong>
+                                                {{ item.next_booking.start_datetime.strftime("%d/%m %H:%M") }}
+                                                hingga
+                                                {{ item.next_booking.end_datetime.strftime("%d/%m %H:%M") }}
+                                            </strong>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="room-status-info">
+                                        <span>Pengerusi Mesyuarat</span>
+                                        <strong>
+                                            {{ item.next_booking.chairperson_name or "-" }}
+                                        </strong>
+                                    </div>
+
+                                    <div class="room-status-purpose">
+                                        {{ item.next_booking.purpose }}
+                                    </div>
 
                                 {% else %}
 
-                                    <strong>
-                                        {{ item.current_booking.start_datetime.strftime("%d/%m %H:%M") }}
-                                        hingga
-                                        {{ item.current_booking.end_datetime.strftime("%d/%m %H:%M") }}
-                                    </strong>
+                                    <div class="room-status-info">
+                                        <span>Status semasa</span>
+                                        <strong>Bilik boleh digunakan</strong>
+                                    </div>
 
                                 {% endif %}
+
                             </div>
 
-                            <div class="room-status-info">
-                                <span>Pengerusi Mesyuarat</span>
-                                <strong>
-                                    {{ item.current_booking.chairperson_name or "-" }}
-                                </strong>
-                            </div>
-
-                            <div class="room-status-purpose">
-                                {{ item.current_booking.purpose }}
-                            </div>
-
-                        {% elif item.status == "UPCOMING" %}
-
-                            <div class="room-status-info">
-                                <span>Tempahan seterusnya</span>
-
-                                {% if item.next_booking.start_datetime.date() == item.next_booking.end_datetime.date() %}
-
-                                    <strong>
-                                        {{ item.next_booking.start_datetime.strftime("%H:%M") }}
-                                        hingga
-                                        {{ item.next_booking.end_datetime.strftime("%H:%M") }}
-                                    </strong>
-
-                                {% else %}
-
-                                    <strong>
-                                        {{ item.next_booking.start_datetime.strftime("%d/%m %H:%M") }}
-                                        hingga
-                                        {{ item.next_booking.end_datetime.strftime("%d/%m %H:%M") }}
-                                    </strong>
-
-                                {% endif %}
-                            </div>
-
-                            <div class="room-status-info">
-                                <span>Pengerusi Mesyuarat</span>
-                                <strong>
-                                    {{ item.next_booking.chairperson_name or "-" }}
-                                </strong>
-                            </div>
-
-                            <div class="room-status-purpose">
-                                {{ item.next_booking.purpose }}
-                            </div>
-
-                        {% else %}
-
-                            <div class="room-status-info">
-                                <span>Status semasa</span>
-                                <strong>Bilik boleh digunakan</strong>
-                            </div>
-
-                        {% endif %}
+                        </div>
 
                     </div>
 

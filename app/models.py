@@ -136,6 +136,11 @@ class Room (db.Model):
         onupdate=lambda: datetime.now(timezone.utc)
     )
     
+    image_filename: Mapped[str | None] = mapped_column(
+    String(255),
+    nullable=True
+    )
+    
 #  *****************Model utk Booking*************************
 class Booking(db.Model):
     __tablename__ = "bookings"

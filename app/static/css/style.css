@@ -4036,3 +4036,810 @@ body.modal-active {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
 }
+
+/* =========================================================
+   ROOM IMAGE PREVIEW
+   ========================================================= */
+
+.room-image-preview {
+    margin-bottom: 18px;
+}
+
+
+.room-image-preview-frame {
+    width: 100%;
+    max-width: 520px;
+
+    margin-top: 8px;
+
+    overflow: hidden;
+
+    aspect-ratio: 16 / 9;
+
+    background: #eef5fc;
+
+    border: 1px solid #d4e2f1;
+    border-radius: 14px;
+
+    box-shadow:
+        0 8px 22px rgba(23, 72, 128, 0.08);
+}
+
+
+.room-image-preview-frame img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+/* =========================================================
+   34. DASHBOARD PHOTO + GLASS ROOM CARD
+   Scope: Dashboard room availability panel only
+   ========================================================= */
+
+.room-availability-section .room-status-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 0;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(226, 240, 255, 0.78)
+        );
+
+    border: 1px solid rgba(183, 213, 244, 0.88);
+    border-radius: 18px;
+
+    box-shadow:
+        0 12px 28px rgba(23, 72, 128, 0.11),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96);
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.room-availability-section .room-status-card::before,
+.room-availability-section .room-status-card::after {
+    display: none;
+}
+
+/* ========================
+   Room Image
+   ======================== */
+.room-availability-section .room-status-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #eaf3fc;
+}
+
+.room-availability-section .room-status-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.room-availability-section .room-status-card:hover .room-status-image img {
+    transform: scale(1.035);
+}
+
+.room-availability-section .room-status-image::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(10, 42, 82, 0.02),
+            rgba(10, 42, 82, 0.16)
+        );
+    pointer-events: none;
+}
+
+/* ========================
+   Fallback Image
+   ======================== */
+.room-availability-section .room-status-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+
+    background:
+        radial-gradient(
+            circle at 75% 20%,
+            rgba(96, 165, 250, 0.38),
+            transparent 42%
+        ),
+        linear-gradient(135deg, #eaf4ff, #d7eaff);
+
+    color: #517195;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ========================
+   Status Badge On Image
+   ======================== */
+.room-availability-section .room-status-image .room-status-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    padding: 7px 12px;
+
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    box-shadow: 0 6px 16px rgba(15, 54, 96, 0.12);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* ========================
+   Room Body
+   ======================== */
+.room-availability-section .room-status-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    padding: 18px 20px 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.76),
+            rgba(229, 241, 255, 0.58)
+        );
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.room-availability-section .room-status-body .room-status-header {
+    margin-bottom: 16px;
+}
+
+.room-availability-section .room-status-body .room-status-header h3 {
+    margin: 0 0 7px;
+    color: #123b70;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.room-availability-section .room-status-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #7186a0;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.room-availability-section .room-status-location-icon {
+    width: 15px;
+    height: 15px;
+    flex: 0 0 15px;
+}
+
+.room-availability-section .room-status-details {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    padding-top: 13px;
+    border-top: 1px solid rgba(157, 190, 225, 0.42);
+}
+
+.room-availability-section .room-status-details .room-status-info {
+    gap: 4px;
+}
+
+.room-availability-section .room-status-details .room-status-info strong,
+.room-availability-section .room-status-details .room-status-purpose {
+    overflow-wrap: anywhere;
+}
+
+.room-availability-section .room-status-details .room-status-purpose {
+    margin-top: 0;
+    padding-top: 12px;
+    border-top: 1px solid rgba(160, 195, 230, 0.38);
+}
+
+/* ========================
+   Hover
+   ======================== */
+.room-availability-section .room-status-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(116, 174, 235, 0.95);
+    box-shadow: 0 18px 38px rgba(23, 72, 128, 0.16);
+}
+
+/* ========================
+   Responsive
+   ======================== */
+@media (max-width: 600px) {
+    .room-availability-section .room-status-body {
+        padding: 16px;
+    }
+
+    .room-availability-section .room-status-image .room-status-badge {
+        top: 10px;
+        right: 10px;
+    }
+
+    .room-availability-section .room-status-body .room-status-header {
+        flex-direction: row;
+    }
+}
+
+
+/* =========================================================
+   35. AVAILABILITY PAGE - PHOTO + GLASS UI
+   Scope: .availability-page only
+   ========================================================= */
+
+.availability-page {
+    position: relative;
+    min-width: 0;
+}
+
+/* ========================
+   Summary Glass Tiles
+   ======================== */
+.availability-page .availability-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: 0 0 20px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.availability-page .availability-summary-card {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 16px 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(229, 241, 255, 0.76)
+        );
+
+    border: 1px solid rgba(183, 213, 244, 0.76);
+    border-radius: 16px;
+
+    box-shadow:
+        0 9px 24px rgba(23, 72, 128, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96);
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.availability-page .availability-summary-card > div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+}
+
+.availability-page .availability-summary-card strong {
+    color: #123b70;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.availability-page .availability-summary-card > div > span {
+    color: #667f9e;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.availability-page .availability-summary-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+}
+
+.availability-page .availability-summary-icon svg {
+    width: 21px;
+    height: 21px;
+}
+
+.availability-page .availability-summary-available .availability-summary-icon {
+    background: rgba(220, 252, 231, 0.88);
+    color: #15803d;
+}
+
+.availability-page .availability-summary-busy .availability-summary-icon {
+    background: rgba(254, 226, 226, 0.9);
+    color: #b42318;
+}
+
+.availability-page .availability-summary-upcoming .availability-summary-icon {
+    background: rgba(255, 247, 232, 0.92);
+    color: #b54708;
+}
+
+/* ========================
+   Search + Filter Glass Panel
+   ======================== */
+.availability-page .availability-filter-glass {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin-bottom: 22px;
+    padding: 16px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.92),
+            rgba(232, 243, 255, 0.74)
+        );
+
+    border: 1px solid rgba(183, 213, 244, 0.76);
+    border-radius: 16px;
+
+    box-shadow:
+        0 10px 28px rgba(23, 72, 128, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.94);
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.availability-page .availability-search {
+    width: 100%;
+    min-width: 0;
+}
+
+.availability-page .availability-search input {
+    min-height: 44px;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(168, 202, 238, 0.84);
+}
+
+.availability-page .availability-search input:focus {
+    background: #ffffff;
+    border-color: #1769e0;
+}
+
+.availability-page .availability-filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.availability-page .availability-filter button.filter-button {
+    min-height: 39px;
+    padding: 8px 13px;
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(168, 202, 238, 0.78);
+    color: #47617f;
+    box-shadow: none;
+}
+
+.availability-page .availability-filter button.filter-button:hover {
+    background: rgba(255, 255, 255, 0.96);
+    border-color: rgba(116, 174, 235, 0.9);
+    color: #274e7d;
+}
+
+.availability-page .availability-filter button.filter-button.active,
+.availability-page .availability-filter button.filter-button.active:hover {
+    background: #1769e0;
+    border-color: #1769e0;
+    color: #ffffff;
+    box-shadow: 0 5px 14px rgba(23, 105, 224, 0.18);
+}
+
+/* ========================
+   Photo + Glass Room Cards
+   ======================== */
+.availability-page .availability-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+}
+
+.availability-page .room-status-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 0;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(226, 240, 255, 0.78)
+        );
+
+    border: 1px solid rgba(183, 213, 244, 0.88);
+    border-radius: 18px;
+
+    box-shadow:
+        0 12px 28px rgba(23, 72, 128, 0.11),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96);
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.availability-page .room-status-card::before,
+.availability-page .room-status-card::after {
+    display: none;
+}
+
+.availability-page .room-status-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #eaf3fc;
+}
+
+.availability-page .room-status-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.availability-page .room-status-card:hover .room-status-image img {
+    transform: scale(1.035);
+}
+
+.availability-page .room-status-image::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(10, 42, 82, 0.02),
+            rgba(10, 42, 82, 0.16)
+        );
+    pointer-events: none;
+}
+
+.availability-page .room-status-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+
+    background:
+        radial-gradient(
+            circle at 75% 20%,
+            rgba(96, 165, 250, 0.38),
+            transparent 42%
+        ),
+        linear-gradient(135deg, #eaf4ff, #d7eaff);
+
+    color: #517195;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.availability-page .room-status-image .room-status-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    padding: 7px 12px;
+
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    box-shadow: 0 6px 16px rgba(15, 54, 96, 0.12);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.availability-page .room-status-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    padding: 18px 20px 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.76),
+            rgba(229, 241, 255, 0.58)
+        );
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.availability-page .room-status-body .room-status-header {
+    margin-bottom: 16px;
+}
+
+.availability-page .room-status-body .room-status-header h3 {
+    margin: 0 0 7px;
+    color: #123b70;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.availability-page .room-status-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #7186a0;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.availability-page .room-status-location-icon {
+    width: 15px;
+    height: 15px;
+    flex: 0 0 15px;
+}
+
+.availability-page .availability-room-details {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    padding-top: 13px;
+    border-top: 1px solid rgba(157, 190, 225, 0.42);
+}
+
+.availability-page .availability-room-details > .room-status-info {
+    gap: 4px;
+}
+
+.availability-page .room-status-info strong,
+.availability-page .room-status-purpose {
+    overflow-wrap: anywhere;
+}
+
+.availability-page .room-status-purpose {
+    margin-top: 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(160, 195, 230, 0.36);
+}
+
+/* ========================
+   Booking Detail Blocks
+   ======================== */
+.availability-page .availability-upcoming-list {
+    display: grid;
+    gap: 10px;
+}
+
+.availability-page .availability-booking-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: 12px 13px;
+
+    background: rgba(255, 255, 255, 0.52);
+    border: 1px solid rgba(183, 213, 244, 0.6);
+    border-radius: 12px;
+}
+
+.availability-page .availability-booking-current {
+    background: rgba(254, 242, 242, 0.4);
+    border-color: rgba(248, 180, 180, 0.52);
+}
+
+.availability-page .availability-booking-block .room-status-purpose {
+    padding-top: 9px;
+}
+
+.availability-page .availability-status-available {
+    min-height: 64px;
+    justify-content: center;
+}
+
+.availability-page .room-status-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(116, 174, 235, 0.95);
+    box-shadow: 0 18px 38px rgba(23, 72, 128, 0.16);
+}
+
+.availability-page .availability-empty-card {
+    overflow: hidden;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(229, 241, 255, 0.76)
+        );
+    border-color: rgba(183, 213, 244, 0.76);
+    border-radius: 16px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+/* ========================
+   Responsive
+   ======================== */
+@media (max-width: 900px) {
+    .availability-page .availability-summary {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .availability-page .availability-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .availability-page .availability-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .availability-page .availability-filter-glass {
+        padding: 14px;
+    }
+
+    .availability-page .availability-filter-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .availability-page .availability-filter button.filter-button {
+        width: 100%;
+    }
+
+    .availability-page .availability-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .availability-page .room-status-body {
+        padding: 16px;
+    }
+
+    .availability-page .room-status-image .room-status-badge {
+        top: 10px;
+        right: 10px;
+    }
+
+    .availability-page .room-status-body .room-status-header {
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 420px) {
+    .availability-page .availability-filter-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   AVAILABILITY V2 - SEARCH ACTION + STABLE CARD WIDTH
+   ========================================================= */
+
+/* ========================
+   Search Row + Cari Button
+   ======================== */
+.availability-page .availability-search-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.availability-page .availability-search-row .availability-search {
+    flex: 1;
+    min-width: 0;
+}
+
+.availability-page .availability-search-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.availability-page .availability-search-actions .btn {
+    min-height: 44px;
+    white-space: nowrap;
+}
+
+/* ========================
+   Stable Room Card Width
+   ======================== */
+.availability-page .availability-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: start;
+    gap: 18px;
+}
+
+.availability-page .availability-room-card {
+    width: 100%;
+    height: auto;
+    align-self: start;
+}
+
+/* Card can grow downward naturally when there are more bookings. */
+.availability-page .availability-room-card .room-status-body,
+.availability-page .availability-room-card .availability-room-details {
+    height: auto;
+}
+
+@media (max-width: 1300px) {
+    .availability-page .availability-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1050px) {
+    .availability-page .availability-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .availability-page .availability-search-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .availability-page .availability-search-actions {
+        width: 100%;
+    }
+
+    .availability-page .availability-search-actions .btn {
+        flex: 1;
+    }
+
+    .availability-page .availability-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 420px) {
+    .availability-page .availability-search-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+}
+

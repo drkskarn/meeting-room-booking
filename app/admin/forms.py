@@ -2,7 +2,11 @@ from flask_wtf import FlaskForm
 # from wtforms import IntegerField, StringField, SubmitField
 # from wtforms.validators import DataRequired, Length, NumberRange
 
-from flask_wtf import FlaskForm
+from flask_wtf.file import (
+    FileAllowed,
+    FileField,
+    FileSize,
+)
 from wtforms import (
     IntegerField,
     SelectField,
@@ -55,6 +59,20 @@ class RoomForm(FlaskForm):
         ]
     )
 
+    image = FileField(
+        "Gambar Bilik (Opsyenal)",
+        validators=[
+            FileAllowed(
+                ["jpg", "jpeg", "png", "webp"],
+                "Format gambar mestilah JPG, JPEG, PNG atau WEBP."
+            ),
+            FileSize(
+                max_size=5 * 1024 * 1024,
+                message="Saiz gambar mestilah tidak melebihi 5 MB."
+            ),
+        ]
+    )
+    
     submit = SubmitField("Simpan")
 
 

@@ -1,5 +1,8 @@
+from pathlib import Path
+from uuid import uuid4
 from flask import (
     abort,
+    current_app,
     flash,
     redirect,
     render_template,
@@ -29,7 +32,6 @@ from app.admin.forms import (
     RoomForm,
     ToggleRoomForm,
     UserStatusForm,
-    
 )
 
 # ========================
@@ -510,6 +512,49 @@ def toggle_user_status(user_id):
         url_for("admin.users")
     )
 
+# ========================
+# Room Image Helpers
+# ========================
+def save_room_image(image_file):
+    extension = (
+        Path(image_file.filename)
+        .suffix
+        .lower()
+    )
+
+    filename = f"{uuid4().hex}{extension}"
+
+    upload_folder = (
+        Path(current_app.static_folder)
+        / "images"
+        / "rooms"
+    )
+
+    upload_folder.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    image_path = upload_folder / filename
+
+    image_file.save(image_path)
+
+    return filename
+
+
+def delete_room_image(filename):
+    if not filename:
+        return
+
+    image_path = (
+        Path(current_app.static_folder)
+        / "images"
+        / "rooms"
+        / filename
+    )
+
+    if image_path.exists():
+        image_path.unlink()
 
 # ========================
 # Room Management
@@ -629,40 +674,42 @@ def add_room():
         )
 
         if existing_room is not None:
-            flash(
-                "Nama bilik ini telah wujud.",
-                "danger"
-            )
+            flash("Nama bilik ini telah wujud.", "danger")
 
             return render_template(
                 "admin/room_form.html",
                 form=form,
-                title="Tambah Bilik"
+                title="Tambah Bilik",
+                room=None
+            )
+
+        image_filename = None
+
+        if form.image.data:
+            image_filename = save_room_image(
+                form.image.data
             )
 
         room = Room(
             room_name=room_name,
             location=form.location.data.strip(),
             capacity=form.capacity.data,
-            is_active=True
+            is_active=True,
+            image_filename=image_filename
         )
 
         db.session.add(room)
         db.session.commit()
 
-        flash(
-            "Bilik mesyuarat berjaya ditambah.",
-            "success"
-        )
+        flash("Bilik mesyuarat berjaya ditambah.", "success")
 
-        return redirect(
-            url_for("admin.rooms")
-        )
+        return redirect(url_for("admin.rooms"))
 
     return render_template(
         "admin/room_form.html",
         form=form,
-        title="Tambah Bilik"
+        title="Tambah Bilik",
+        room=None
     )
 
 @admin_bp.route(
@@ -691,36 +738,42 @@ def edit_room(room_id):
         )
 
         if existing_room is not None:
-            flash(
-                "Nama bilik ini telah digunakan oleh bilik lain.",
-                "danger"
-            )
+            flash("Nama bilik ini telah digunakan oleh bilik lain.", "danger")
 
             return render_template(
                 "admin/room_form.html",
                 form=form,
-                title="Kemaskini Bilik"
+                title="Kemaskini Bilik",
+                room=room
             )
 
         room.room_name = room_name
         room.location = form.location.data.strip()
         room.capacity = form.capacity.data
 
+        old_image_filename = room.image_filename
+
+        if form.image.data: 
+            room.image_filename = save_room_image(form.image.data)
+
         db.session.commit()
 
-        flash(
-            "Maklumat bilik berjaya dikemaskini.",
-            "success"
-        )
 
-        return redirect(
-            url_for("admin.rooms")
-        )
+        # ========================
+        # Delete Previous Image
+        # ========================
+        if (form.image.data and old_image_filename and old_image_filename != room.image_filename):
+             delete_room_image(old_image_filename)
+        
+        flash("Maklumat bilik berjaya dikemaskini.","success")
+
+        return redirect(url_for("admin.rooms"))
 
     return render_template(
         "admin/room_form.html",
         form=form,
-        title="Kemaskini Bilik"
+        title="Kemaskini Bilik",
+        room=room
     )
 
 

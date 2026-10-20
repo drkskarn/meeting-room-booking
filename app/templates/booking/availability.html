@@ -1,511 +1,455 @@
 {% extends "base.html" %}
 
-
 {% block title %}
 Ketersediaan Bilik
 {% endblock %}
 
-
 {% block content %}
-
 
 <!-- ========================
      PAGE HEADER
      ======================== -->
-<div class="page-header">
-
-    <h1>
-        Ketersediaan Bilik
-    </h1>
-
-    <p>
-        Semak status semua bilik mesyuarat yang aktif hari ini.
-    </p>
-
+<div class="page-header availability-page-header">
+    <h1>Ketersediaan Bilik</h1>
+    <p>Semak status semua bilik mesyuarat yang aktif hari ini.</p>
 </div>
 
-
-<!-- ========================
-     SUMMARY
-     ======================== -->
-<div class="room-summary availability-summary">
-
-    <div class="room-summary-item">
-        <span class="room-summary-dot available"></span>
-
-        <div>
-            <strong>{{ available_room_count }}</strong>
-            <span>Tersedia</span>
-        </div>
-    </div>
-
-    <div class="room-summary-item">
-        <span class="room-summary-dot busy"></span>
-
-        <div>
-            <strong>{{ in_use_room_count }}</strong>
-            <span>Sedang Digunakan</span>
-        </div>
-    </div>
-
-    <div class="room-summary-item">
-        <span class="room-summary-dot upcoming"></span>
-
-        <div>
-            <strong>{{ upcoming_room_count }}</strong>
-            <span>Akan Digunakan</span>
-        </div>
-    </div>
-
-</div>
-
-
-<!-- ========================
-     SEARCH DAN FILTER
-     ======================== -->
-<form
-    method="GET"
-    action="{{ url_for('booking.room_availability') }}"
-    class="availability-filter availability-page-filter"
->
+<div class="availability-page">
 
     <!-- ========================
-         SEARCH ROW
+         SUMMARY
          ======================== -->
-    <div class="availability-search-row">
+    <div class="room-summary availability-summary availability-summary-glass">
 
-        <div class="availability-search">
+        <div class="room-summary-item availability-summary-card availability-summary-available">
+            <span class="availability-summary-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 11l2 2 4-4"></path>
+                    <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+            </span>
+            <div>
+                <strong>{{ available_room_count }}</strong>
+                <span>Tersedia</span>
+            </div>
+        </div>
 
-            <input
-                type="text"
-                name="q"
-                value="{{ search_query }}"
-                placeholder="Cari nama atau lokasi bilik..."
-            >
+        <div class="room-summary-item availability-summary-card availability-summary-busy">
+            <span class="availability-summary-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M12 7v5l3 2"></path>
+                </svg>
+            </span>
+            <div>
+                <strong>{{ in_use_room_count }}</strong>
+                <span>Sedang Digunakan</span>
+            </div>
+        </div>
+
+        <div class="room-summary-item availability-summary-card availability-summary-upcoming">
+            <span class="availability-summary-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="5" width="16" height="15" rx="2"></rect>
+                    <path d="M8 3v4M16 3v4M4 10h16"></path>
+                </svg>
+            </span>
+            <div>
+                <strong>{{ upcoming_room_count }}</strong>
+                <span>Akan Digunakan</span>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ========================
+         SEARCH DAN FILTER
+         ======================== -->
+    <form
+        method="GET"
+        action="{{ url_for('booking.room_availability') }}"
+        class="availability-filter availability-filter-glass"
+    >
+
+        <div class="availability-search-row">
+
+            <div class="availability-search">
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ search_query }}"
+                    placeholder="Cari nama atau lokasi bilik..."
+                    aria-label="Cari nama atau lokasi bilik"
+                >
+            </div>
+
+            <div class="availability-search-actions">
+                <button
+                    type="submit"
+                    name="status"
+                    value="{{ selected_status }}"
+                    class="btn btn-primary"
+                >
+                    Cari
+                </button>
+
+                {% if search_query or selected_status != "ALL" %}
+                    <a
+                        href="{{ url_for('booking.room_availability') }}"
+                        class="btn btn-secondary"
+                    >
+                        Reset
+                    </a>
+                {% endif %}
+            </div>
 
         </div>
 
-        <div class="availability-search-actions">
+        <div class="availability-filter-buttons">
 
             <button
                 type="submit"
-                class="btn btn-primary"
+                name="status"
+                value="ALL"
+                class="filter-button {% if selected_status == 'ALL' %}active{% endif %}"
             >
-                Cari
+                Semua
             </button>
 
-            {% if search_query or selected_status != "ALL" %}
-                <a
-                    href="{{ url_for('booking.room_availability') }}"
-                    class="btn btn-secondary"
-                >
-                    Reset
-                </a>
-            {% endif %}
+            <button
+                type="submit"
+                name="status"
+                value="AVAILABLE"
+                class="filter-button {% if selected_status == 'AVAILABLE' %}active{% endif %}"
+            >
+                Tersedia
+            </button>
+
+            <button
+                type="submit"
+                name="status"
+                value="IN_USE"
+                class="filter-button {% if selected_status == 'IN_USE' %}active{% endif %}"
+            >
+                Sedang Digunakan
+            </button>
+
+            <button
+                type="submit"
+                name="status"
+                value="UPCOMING"
+                class="filter-button {% if selected_status == 'UPCOMING' %}active{% endif %}"
+            >
+                Akan Digunakan
+            </button>
 
         </div>
 
-    </div>
+    </form>
 
 
     <!-- ========================
-         STATUS FILTER
+         SENARAI BILIK
          ======================== -->
-    <div class="availability-filter-buttons">
+    {% if room_statuses %}
 
-        <button
-            type="submit"
-            name="status"
-            value="ALL"
-            class="filter-button {% if selected_status == 'ALL' %}active{% endif %}"
-        >
-            Semua
-        </button>
+        <div class="room-status-grid availability-grid">
 
-        <button
-            type="submit"
-            name="status"
-            value="AVAILABLE"
-            class="filter-button {% if selected_status == 'AVAILABLE' %}active{% endif %}"
-        >
-            Tersedia
-        </button>
+            {% for item in room_statuses %}
 
-        <button
-            type="submit"
-            name="status"
-            value="IN_USE"
-            class="filter-button {% if selected_status == 'IN_USE' %}active{% endif %}"
-        >
-            Sedang Digunakan
-        </button>
+                <div class="room-status-card availability-room-card">
 
-        <button
-            type="submit"
-            name="status"
-            value="UPCOMING"
-            class="filter-button {% if selected_status == 'UPCOMING' %}active{% endif %}"
-        >
-            Akan Digunakan
-        </button>
+                    <!-- ========================
+                         ROOM IMAGE
+                         ======================== -->
+                    <div class="room-status-image">
 
-    </div>
+                        {% if item.room.image_filename %}
+                            <img
+                                src="{{ url_for('static', filename='images/rooms/' ~ item.room.image_filename) }}"
+                                alt="{{ item.room.room_name }}"
+                                loading="lazy"
+                            >
+                        {% else %}
+                            <div class="room-status-image-placeholder">
+                                <span>Bilik Mesyuarat</span>
+                            </div>
+                        {% endif %}
 
-</form>
-
-
-<!-- ========================
-     SENARAI BILIK
-     ======================== -->
-{% if room_statuses %}
-
-    <div class="room-status-grid availability-grid">
-
-        {% for item in room_statuses %}
-
-            <div class="room-status-card">
-
-
-                <!-- ========================
-                     ROOM HEADER
-                     ======================== -->
-                <div class="room-status-header">
-
-                    <div>
-
-                        <h3>
-                            {{ item.room.room_name }}
-                        </h3>
-
-                        {% if item.room.location %}
-
-                            <span class="text-muted">
-                                {{ item.room.location }}
+                        <!-- ========================
+                             STATUS BADGE
+                             ======================== -->
+                        {% if selected_status == "UPCOMING" %}
+                            <span class="room-status-badge room-status-upcoming">
+                                Akan Digunakan
                             </span>
-
+                        {% elif selected_status == "IN_USE" %}
+                            <span class="room-status-badge room-status-busy">
+                                Sedang Digunakan
+                            </span>
+                        {% elif selected_status == "AVAILABLE" %}
+                            <span class="room-status-badge room-status-available">
+                                Tersedia
+                            </span>
+                        {% elif item.status == "IN_USE" %}
+                            <span class="room-status-badge room-status-busy">
+                                Sedang Digunakan
+                            </span>
+                        {% elif item.status == "UPCOMING" %}
+                            <span class="room-status-badge room-status-upcoming">
+                                Akan Digunakan
+                            </span>
+                        {% else %}
+                            <span class="room-status-badge room-status-available">
+                                Tersedia
+                            </span>
                         {% endif %}
 
                     </div>
 
 
                     <!-- ========================
-                         STATUS BADGE
+                         ROOM BODY
                          ======================== -->
-                    {% if selected_status == "UPCOMING" %}
+                    <div class="room-status-body">
 
-                        <span class="room-status-badge room-status-upcoming">
-                            Akan Digunakan
-                        </span>
+                        <div class="room-status-header">
+                            <div>
+                                <h3>{{ item.room.room_name }}</h3>
 
-                    {% elif selected_status == "IN_USE" %}
-
-                        <span class="room-status-badge room-status-busy">
-                            Sedang Digunakan
-                        </span>
-
-                    {% elif selected_status == "AVAILABLE" %}
-
-                        <span class="room-status-badge room-status-available">
-                            Tersedia
-                        </span>
-
-                    {% elif item.status == "IN_USE" %}
-
-                        <span class="room-status-badge room-status-busy">
-                            Sedang Digunakan
-                        </span>
-
-                    {% elif item.status == "UPCOMING" %}
-
-                        <span class="room-status-badge room-status-upcoming">
-                            Akan Digunakan
-                        </span>
-
-                    {% else %}
-
-                        <span class="room-status-badge room-status-available">
-                            Tersedia
-                        </span>
-
-                    {% endif %}
-
-                </div>
-
-
-                <!-- ========================
-                     FILTER AKAN DIGUNAKAN
-                     ======================== -->
-                {% if selected_status == "UPCOMING" %}
-
-                    <div class="upcoming-booking-list">
-
-                        {% for booking in item.upcoming_bookings %}
-
-                            <div class="upcoming-booking-item">
-
-                                <div class="room-status-info">
-
-                                    <span>
-                                        Tempahan {{ loop.index }}
+                                {% if item.room.location %}
+                                    <span class="room-status-location">
+                                        <svg
+                                            class="room-status-location-icon"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.8"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            aria-hidden="true"
+                                        >
+                                            <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"></path>
+                                            <circle cx="12" cy="10" r="2.5"></circle>
+                                        </svg>
+                                        {{ item.room.location }}
                                     </span>
-
-                                    <strong>
-                                        {{ booking.start_datetime.strftime("%H:%M") }}
-                                        hingga
-                                        {{ booking.end_datetime.strftime("%H:%M") }}
-                                    </strong>
-
-                                </div>
-
-                                <div class="room-status-info">
-
-                                    <span>
-                                        Pengerusi Mesyuarat
-                                    </span>
-
-                                    <strong>
-                                        {{ booking.chairperson_name or "-" }}
-                                    </strong>
-
-                                </div>
-
-                                <div class="room-status-purpose">
-
-                                    <span class="next-booking-purpose">
-                                        {{ booking.purpose }}
-                                    </span>
-
-                                </div>
-
+                                {% endif %}
                             </div>
-
-                        {% endfor %}
-
-                    </div>
-
-
-                <!-- ========================
-                     FILTER SEDANG DIGUNAKAN
-                     ======================== -->
-                {% elif selected_status == "IN_USE" %}
-
-                    <div class="room-status-info">
-
-                        <span>
-                            Sedang berlangsung
-                        </span>
-
-                        <strong>
-                            {{ item.current_booking.start_datetime.strftime("%H:%M") }}
-                            hingga
-                            {{ item.current_booking.end_datetime.strftime("%H:%M") }}
-                        </strong>
-
-                    </div>
-
-                    <div class="room-status-info">
-
-                        <span>
-                            Pengerusi Mesyuarat
-                        </span>
-
-                        <strong>
-                            {{ item.current_booking.chairperson_name or "-" }}
-                        </strong>
-
-                    </div>
-
-                    <div class="room-status-purpose">
-
-                        <span class="current-booking-purpose">
-                            {{ item.current_booking.purpose }}
-                        </span>
-
-                    </div>
-
-
-                <!-- ========================
-                     FILTER TERSEDIA
-                     ======================== -->
-                {% elif selected_status == "AVAILABLE" %}
-
-                    <div class="room-status-info">
-
-                        <span>
-                            Status semasa
-                        </span>
-
-                        <strong>
-                            Bilik boleh digunakan
-                        </strong>
-
-                    </div>
-
-
-                <!-- ========================
-                     FILTER SEMUA
-                     ======================== -->
-                {% else %}
-
-                    {% if item.current_booking %}
-
-                        <div class="room-status-info">
-
-                            <span>
-                                Sedang berlangsung
-                            </span>
-
-                            <strong>
-                                {{ item.current_booking.start_datetime.strftime("%H:%M") }}
-                                hingga
-                                {{ item.current_booking.end_datetime.strftime("%H:%M") }}
-                            </strong>
-
                         </div>
 
-                        <div class="room-status-info">
+                        <div class="room-status-details availability-room-details">
 
-                            <span>
-                                Pengerusi Mesyuarat
-                            </span>
+                            <!-- ========================
+                                 FILTER AKAN DIGUNAKAN
+                                 ======================== -->
+                            {% if selected_status == "UPCOMING" %}
 
-                            <strong>
-                                {{ item.current_booking.chairperson_name or "-" }}
-                            </strong>
+                                <div class="upcoming-booking-list availability-upcoming-list">
 
-                        </div>
+                                    {% for booking in item.upcoming_bookings %}
 
-                        <div class="room-status-purpose">
+                                        <div class="upcoming-booking-item availability-booking-block">
 
-                            <span class="current-booking-purpose">
-                                {{ item.current_booking.purpose }}
-                            </span>
-
-                        </div>
-
-                    {% endif %}
-
-
-                    {% if item.upcoming_bookings %}
-
-                        <div class="upcoming-booking-list">
-
-                            {% for booking in item.upcoming_bookings %}
-
-                                <div class="upcoming-booking-item">
-
-                                    <div class="room-next-booking-block">
-
-                                        <div class="room-status-info">
-
-                                            <span>
-                                                Tempahan seterusnya
-                                            </span>
-
-                                            <strong>
-                                                {% if booking.start_datetime.date()
-                                                    == booking.end_datetime.date() %}
-
+                                            <div class="room-status-info">
+                                                <span>Tempahan {{ loop.index }}</span>
+                                                <strong>
                                                     {{ booking.start_datetime.strftime("%H:%M") }}
                                                     hingga
                                                     {{ booking.end_datetime.strftime("%H:%M") }}
+                                                </strong>
+                                            </div>
 
-                                                {% else %}
+                                            <div class="room-status-info">
+                                                <span>Pengerusi Mesyuarat</span>
+                                                <strong>{{ booking.chairperson_name or "-" }}</strong>
+                                            </div>
 
-                                                    {{ booking.start_datetime.strftime("%d/%m %H:%M") }}
-                                                    hingga
-                                                    {{ booking.end_datetime.strftime("%d/%m %H:%M") }}
-
-                                                {% endif %}
-                                            </strong>
+                                            <div class="room-status-purpose">
+                                                <span class="next-booking-purpose">
+                                                    {{ booking.purpose }}
+                                                </span>
+                                            </div>
 
                                         </div>
 
+                                    {% endfor %}
+
+                                </div>
+
+
+                            <!-- ========================
+                                 FILTER SEDANG DIGUNAKAN
+                                 ======================== -->
+                            {% elif selected_status == "IN_USE" %}
+
+                                <div class="room-status-info">
+                                    <span>Sedang berlangsung</span>
+                                    <strong>
+                                        {{ item.current_booking.start_datetime.strftime("%H:%M") }}
+                                        hingga
+                                        {{ item.current_booking.end_datetime.strftime("%H:%M") }}
+                                    </strong>
+                                </div>
+
+                                <div class="room-status-info">
+                                    <span>Pengerusi Mesyuarat</span>
+                                    <strong>{{ item.current_booking.chairperson_name or "-" }}</strong>
+                                </div>
+
+                                <div class="room-status-purpose">
+                                    <span class="current-booking-purpose">
+                                        {{ item.current_booking.purpose }}
+                                    </span>
+                                </div>
+
+
+                            <!-- ========================
+                                 FILTER TERSEDIA
+                                 ======================== -->
+                            {% elif selected_status == "AVAILABLE" %}
+
+                                <div class="room-status-info availability-status-available">
+                                    <span>Status semasa</span>
+                                    <strong>Bilik boleh digunakan</strong>
+                                </div>
+
+
+                            <!-- ========================
+                                 FILTER SEMUA
+                                 ======================== -->
+                            {% else %}
+
+                                {% if item.current_booking %}
+
+                                    <div class="availability-booking-block availability-booking-current">
 
                                         <div class="room-status-info">
-
-                                            <span>
-                                                Pengerusi Mesyuarat
-                                            </span>
-
+                                            <span>Sedang berlangsung</span>
                                             <strong>
-                                                {{ booking.chairperson_name or "-" }}
+                                                {{ item.current_booking.start_datetime.strftime("%H:%M") }}
+                                                hingga
+                                                {{ item.current_booking.end_datetime.strftime("%H:%M") }}
                                             </strong>
+                                        </div>
 
+                                        <div class="room-status-info">
+                                            <span>Pengerusi Mesyuarat</span>
+                                            <strong>{{ item.current_booking.chairperson_name or "-" }}</strong>
                                         </div>
 
                                         <div class="room-status-purpose">
-
-                                            <span class="next-booking-purpose">
-                                                {{ booking.purpose }}
+                                            <span class="current-booking-purpose">
+                                                {{ item.current_booking.purpose }}
                                             </span>
-
                                         </div>
 
                                     </div>
 
-                            {% endfor %}
+                                {% endif %}
+
+
+                                {% if item.upcoming_bookings %}
+
+                                    <div class="upcoming-booking-list availability-upcoming-list">
+
+                                        {% for booking in item.upcoming_bookings %}
+
+                                            <div class="upcoming-booking-item availability-booking-block">
+
+                                                <div class="room-status-info">
+                                                    <span>
+                                                        {% if item.current_booking %}
+                                                            Tempahan seterusnya {{ loop.index }}
+                                                        {% else %}
+                                                            Tempahan {{ loop.index }}
+                                                        {% endif %}
+                                                    </span>
+
+                                                    <strong>
+                                                        {% if booking.start_datetime.date()
+                                                            == booking.end_datetime.date() %}
+
+                                                            {{ booking.start_datetime.strftime("%H:%M") }}
+                                                            hingga
+                                                            {{ booking.end_datetime.strftime("%H:%M") }}
+
+                                                        {% else %}
+
+                                                            {{ booking.start_datetime.strftime("%d/%m %H:%M") }}
+                                                            hingga
+                                                            {{ booking.end_datetime.strftime("%d/%m %H:%M") }}
+
+                                                        {% endif %}
+                                                    </strong>
+                                                </div>
+
+                                                <div class="room-status-info">
+                                                    <span>Pengerusi Mesyuarat</span>
+                                                    <strong>{{ booking.chairperson_name or "-" }}</strong>
+                                                </div>
+
+                                                <div class="room-status-purpose">
+                                                    <span class="next-booking-purpose">
+                                                        {{ booking.purpose }}
+                                                    </span>
+                                                </div>
+
+                                            </div>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% if not item.current_booking and not item.upcoming_bookings %}
+
+                                    <div class="room-status-info availability-status-available">
+                                        <span>Status semasa</span>
+                                        <strong>Bilik boleh digunakan</strong>
+                                    </div>
+
+                                {% endif %}
+
+                            {% endif %}
 
                         </div>
 
-                    {% endif %}
+                    </div>
 
+                </div>
 
-                    {% if not item.current_booking and not item.upcoming_bookings %}
-
-                        <div class="room-status-info">
-
-                            <span>
-                                Status semasa
-                            </span>
-
-                            <strong>
-                                Bilik boleh digunakan
-                            </strong>
-
-                        </div>
-
-                    {% endif %}
-
-                {% endif %}
-
-            </div>
-
-        {% endfor %}
-
-    </div>
-
-
-<!-- ========================
-     EMPTY STATE
-     ======================== -->
-{% else %}
-
-    <div class="card">
-
-        <div class="empty-state">
-
-            <h3>
-                Tiada bilik dijumpai
-            </h3>
-
-            <p>
-                Tiada bilik yang sepadan dengan carian
-                atau filter yang dipilih.
-            </p>
-
-            <a
-                href="{{ url_for('booking.room_availability') }}"
-                class="btn btn-secondary mt-2"
-            >
-                Reset Carian
-            </a>
+            {% endfor %}
 
         </div>
 
-    </div>
 
-{% endif %}
+    <!-- ========================
+         EMPTY STATE
+         ======================== -->
+    {% else %}
 
+        <div class="card availability-empty-card">
+            <div class="empty-state">
+                <h3>Tiada bilik dijumpai</h3>
+                <p>
+                    Tiada bilik yang sepadan dengan carian
+                    atau filter yang dipilih.
+                </p>
+                <a
+                    href="{{ url_for('booking.room_availability') }}"
+                    class="btn btn-secondary mt-2"
+                >
+                    Reset Carian
+                </a>
+            </div>
+        </div>
+
+    {% endif %}
+
+</div>
 
 {% endblock %}
