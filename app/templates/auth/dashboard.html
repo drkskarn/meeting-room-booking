@@ -107,23 +107,30 @@ Dashboard
 
     <div class="dashboard-section room-availability-section">
 
-        <div class="section-header">
-            
-            <div>
+        <div class="room-availability-heading">
 
-                <h2>
-                    Status Bilik Hari Ini
-                </h2>
+            <h2>
+                Status Bilik Hari Ini
+            </h2>
 
-                <p>
-                    Ketersediaan bilik berdasarkan
-                    tempahan yang telah diluluskan.
-                </p>
-                
-                <div class="room-summary">
+            <p>
+                Ketersediaan bilik berdasarkan
+                tempahan yang telah diluluskan.
+            </p>
 
-                    <div class="room-summary-item">
-                        <span class="room-summary-dot available"></span>
+        </div>
+
+        <div class="dashboard-room-summary-row">
+
+            <div class="room-summary dashboard-room-summary">
+
+                    <div class="room-summary-item dashboard-room-summary-card dashboard-room-summary-available">
+                        <span class="dashboard-room-summary-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 11l2 2 4-4"></path>
+                                <circle cx="12" cy="12" r="9"></circle>
+                            </svg>
+                        </span>
 
                         <div>
                             <strong>{{ available_room_count }}</strong>
@@ -131,9 +138,13 @@ Dashboard
                         </div>
                     </div>
 
-
-                    <div class="room-summary-item">
-                        <span class="room-summary-dot busy"></span>
+                    <div class="room-summary-item dashboard-room-summary-card dashboard-room-summary-busy">
+                        <span class="dashboard-room-summary-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <path d="M12 7v5l3 2"></path>
+                            </svg>
+                        </span>
 
                         <div>
                             <strong>{{ in_use_room_count }}</strong>
@@ -141,9 +152,13 @@ Dashboard
                         </div>
                     </div>
 
-
-                    <div class="room-summary-item">
-                        <span class="room-summary-dot upcoming"></span>
+                    <div class="room-summary-item dashboard-room-summary-card dashboard-room-summary-upcoming">
+                        <span class="dashboard-room-summary-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="5" width="16" height="15" rx="2"></rect>
+                                <path d="M8 3v4M16 3v4M4 10h16"></path>
+                            </svg>
+                        </span>
 
                         <div>
                             <strong>{{ upcoming_room_count }}</strong>
@@ -151,12 +166,15 @@ Dashboard
                         </div>
                     </div>
 
-                </div>
             </div>
-        
-            <a href="{{ url_for('booking.room_availability') }}" class="btn btn-primary">
+
+            <a
+                href="{{ url_for('booking.room_availability') }}"
+                class="btn btn-primary room-availability-view-all"
+            >
                 Lihat Semua
             </a>
+
         </div>
 
 
@@ -1011,23 +1029,30 @@ Dashboard
 
     <div class="dashboard-section room-availability-section">
 
-        <div class="section-header">
+        <div class="room-availability-heading">
 
-            <div>
+            <h2>
+                Status Bilik Hari Ini
+            </h2>
 
-                <h2>
-                    Status Bilik Hari Ini
-                </h2>
+            <p>
+                Ketersediaan bilik berdasarkan
+                tempahan yang telah diluluskan.
+            </p>
 
-                <p>
-                    Ketersediaan bilik berdasarkan
-                    tempahan yang telah diluluskan.
-                </p>
+        </div>
 
-                <div class="room-summary">
+        <div class="dashboard-room-summary-row">
 
-                    <div class="room-summary-item">
-                        <span class="room-summary-dot available"></span>
+            <div class="room-summary dashboard-room-summary">
+
+                    <div class="room-summary-item dashboard-room-summary-card dashboard-room-summary-available">
+                        <span class="dashboard-room-summary-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 11l2 2 4-4"></path>
+                                <circle cx="12" cy="12" r="9"></circle>
+                            </svg>
+                        </span>
 
                         <div>
                             <strong>{{ available_room_count }}</strong>
@@ -1035,8 +1060,13 @@ Dashboard
                         </div>
                     </div>
 
-                    <div class="room-summary-item">
-                        <span class="room-summary-dot busy"></span>
+                    <div class="room-summary-item dashboard-room-summary-card dashboard-room-summary-busy">
+                        <span class="dashboard-room-summary-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <path d="M12 7v5l3 2"></path>
+                            </svg>
+                        </span>
 
                         <div>
                             <strong>{{ in_use_room_count }}</strong>
@@ -1044,8 +1074,13 @@ Dashboard
                         </div>
                     </div>
 
-                    <div class="room-summary-item">
-                        <span class="room-summary-dot upcoming"></span>
+                    <div class="room-summary-item dashboard-room-summary-card dashboard-room-summary-upcoming">
+                        <span class="dashboard-room-summary-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="5" width="16" height="15" rx="2"></rect>
+                                <path d="M8 3v4M16 3v4M4 10h16"></path>
+                            </svg>
+                        </span>
 
                         <div>
                             <strong>{{ upcoming_room_count }}</strong>
@@ -1053,12 +1088,15 @@ Dashboard
                         </div>
                     </div>
 
-                </div>
-
             </div>
-            <a href="{{ url_for('booking.room_availability') }}" class="btn btn-primary">
+
+            <a
+                href="{{ url_for('booking.room_availability') }}"
+                class="btn btn-primary room-availability-view-all"
+            >
                 Lihat Semua
             </a>
+
         </div>
 
         {% if room_status_preview %}
