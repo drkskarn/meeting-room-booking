@@ -10,28 +10,27 @@ Pengurusan Pengguna
 <!-- ========================
      PAGE HEADER
      ======================== -->
-<div class="page-header page-header-with-action">
-    
+<div class="page-header admin-user-page-header">
+
     <div>
-        <h1 class="page-title">
-        Pengurusan Akaun Pengguna
+        <h1>
+            Pengurusan Akaun Pengguna
         </h1>
 
-        <p class="page-subtitle">
+        <p>
             Cari, semak dan urus akaun pengguna sistem.
         </p>
     </div>
-    
-    <!-- ========================
-    USER ACTIONS
-    ======================== -->
-    <div class="page-header-action">
-        <a href="{{ url_for('admin.add_user') }}" class="btn btn-primary">
-            + Tambah Pengguna
-        </a>
-    </div>
+
+    <a
+        href="{{ url_for('admin.add_user') }}"
+        class="btn btn-primary"
+    >
+        + Tambah Pengguna
+    </a>
 
 </div>
+
 
 <!-- ========================
      SEARCH
@@ -302,6 +301,7 @@ Pengurusan Pengguna
                                         method="POST"
                                         action="{{ url_for('admin.toggle_user_status', user_id=user.id) }}"
                                         class="inline-action-form"
+                                        onsubmit="return confirm('{% if user.is_active %}Nyahaktifkan{% else %}Aktifkan{% endif %} akaun pengguna ini?');"
                                     >
 
                                         {{ status_form.hidden_tag() }}

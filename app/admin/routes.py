@@ -12,7 +12,7 @@ from flask import (
 from flask_login import current_user, login_required
 from app.models import Booking, Room, User
 from sqlalchemy import func, or_
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from app.admin import admin_bp
 from app.decorators import admin_required
 from app.extensions import db
@@ -813,6 +813,11 @@ def toggle_room(room_id):
 # ========================
 # Booking Management
 # ========================
+# Tambah timedelta pada import datetime sedia ada:
+# from datetime import datetime, timedelta, timezone
+
+# Gantikan HANYA function bookings() dalam app/admin/routes.py dengan function ini.
+
 @admin_bp.route("/bookings")
 @login_required
 @admin_required
@@ -843,17 +848,59 @@ def bookings():
         selected_status = "ALL"
 
     # ========================
-    # Search
+    # Search + Date Range
     # ========================
     search_query = request.args.get("q", "").strip()
     search_text = search_query.lower()
 
-    statement = db.select(Booking)
+    date_from = request.args.get("date_from", "").strip()
+    date_to = request.args.get("date_to", "").strip()
 
-    if selected_status != "ALL":
-        statement = statement.where(
-            Booking.status == selected_status
+    date_from_dt = None
+    date_to_dt = None
+    date_to_exclusive = None
+    invalid_period = False
+
+    if date_from:
+        try:
+            date_from_dt = datetime.strptime(
+                date_from,
+                "%Y-%m-%d"
+            )
+        except ValueError:
+            flash(
+                "Tarikh 'Dari' tidak sah.",
+                "warning"
+            )
+            date_from = ""
+
+    if date_to:
+        try:
+            date_to_dt = datetime.strptime(
+                date_to,
+                "%Y-%m-%d"
+            )
+            date_to_exclusive = date_to_dt + timedelta(days=1)
+        except ValueError:
+            flash(
+                "Tarikh 'Hingga' tidak sah.",
+                "warning"
+            )
+            date_to = ""
+
+    if (
+        date_from_dt is not None
+        and date_to_dt is not None
+        and date_from_dt > date_to_dt
+    ):
+        flash(
+            "Tarikh 'Dari' tidak boleh selepas tarikh 'Hingga'.",
+            "warning"
         )
+        invalid_period = True
+
+    # Syarat yang dikongsi oleh senarai dan kiraan status.
+    common_conditions = []
 
     if search_text:
         search_pattern = f"%{search_text}%"
@@ -879,8 +926,42 @@ def bookings():
                 Booking.id == int(search_query)
             )
 
-        statement = statement.where(
+        common_conditions.append(
             or_(*search_conditions)
+        )
+
+    # Overlap tempoh:
+    # booking.end > Dari
+    # booking.start < hari selepas Hingga
+    if date_from_dt is not None:
+        common_conditions.append(
+            Booking.end_datetime > date_from_dt
+        )
+
+    if date_to_exclusive is not None:
+        common_conditions.append(
+            Booking.start_datetime < date_to_exclusive
+        )
+
+    # Jika susunan tarikh tidak sah, sengaja pulangkan 0 rekod.
+    if invalid_period:
+        common_conditions.append(
+            Booking.id == -1
+        )
+
+    # ========================
+    # Booking List
+    # ========================
+    statement = db.select(Booking)
+
+    if common_conditions:
+        statement = statement.where(
+            *common_conditions
+        )
+
+    if selected_status != "ALL":
+        statement = statement.where(
+            Booking.status == selected_status
         )
 
     bookings = db.session.scalars(
@@ -891,13 +972,21 @@ def bookings():
 
     # ========================
     # Status Counts
+    # Mengikut carian teks + tempoh,
+    # tetapi tidak dikunci kepada selected_status.
     # ========================
-    status_rows = db.session.execute(
-        db.select(
-            Booking.status,
-            func.count(Booking.id)
+    count_statement = db.select(
+        Booking.status,
+        func.count(Booking.id)
+    )
+
+    if common_conditions:
+        count_statement = count_statement.where(
+            *common_conditions
         )
-        .group_by(Booking.status)
+
+    status_rows = db.session.execute(
+        count_statement.group_by(Booking.status)
     ).all()
 
     status_counts = {
@@ -923,6 +1012,8 @@ def bookings():
         action_form=action_form,
         selected_status=selected_status,
         search_query=search_query,
+        date_from=date_from,
+        date_to=date_to,
         booking_counts=booking_counts,
     )
 

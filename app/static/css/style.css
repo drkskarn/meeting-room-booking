@@ -5500,3 +5500,519 @@ body.modal-active {
     }
 }
 
+
+/* =========================================================
+   ADMIN ROOM MANAGEMENT - FINAL ACTION POLISH
+   ========================================================= */
+
+.admin-room-filter {
+    padding: 16px 18px;
+}
+
+.admin-room-search-row {
+    margin: 0;
+}
+
+.admin-room-filter-buttons .filter-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 8px 13px;
+    border: 1px solid #d7dde6;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.88);
+    color: #475467;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+}
+
+.admin-room-filter-buttons .filter-button:hover {
+    background: #f8fafc;
+    border-color: #c7d0dc;
+    color: #344054;
+}
+
+.admin-room-filter-buttons .filter-button.active,
+.admin-room-filter-buttons .filter-button.active:hover {
+    background: #1769e0;
+    border-color: #1769e0;
+    color: #ffffff;
+}
+
+.admin-rooms-table .room-col-actions {
+    min-width: 260px;
+}
+
+.admin-rooms-table .admin-room-action-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(110px, 1fr));
+    gap: 10px;
+    width: 100%;
+    align-items: stretch;
+}
+
+.admin-rooms-table .admin-room-action-group .btn,
+.admin-rooms-table .admin-room-action-group .inline-action-form {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+}
+
+.admin-rooms-table .admin-room-action-group .btn {
+    min-height: 38px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.admin-rooms-table .admin-room-action-group .inline-action-form button[type="submit"] {
+    width: 100% !important;
+    min-height: 38px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: none;
+}
+
+.admin-rooms-table .admin-room-action-group .inline-action-form button.btn-success[type="submit"] {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: #ffffff;
+}
+
+.admin-rooms-table .admin-room-action-group .inline-action-form button.btn-success[type="submit"]:hover {
+    background: #15803d;
+    border-color: #15803d;
+    color: #ffffff;
+    box-shadow: 0 5px 12px rgba(22, 163, 74, 0.18);
+}
+
+.admin-rooms-table .admin-room-action-group .inline-action-form button.btn-danger[type="submit"] {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: #ffffff;
+}
+
+.admin-rooms-table .admin-room-action-group .inline-action-form button.btn-danger[type="submit"]:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+    color: #ffffff;
+    box-shadow: 0 5px 12px rgba(220, 38, 38, 0.18);
+}
+
+@media (max-width: 600px) {
+    .admin-room-filter {
+        padding: 14px;
+    }
+
+    .admin-room-search-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-room-search-actions .btn {
+        width: 100%;
+    }
+
+    .admin-rooms-table .admin-room-action-group {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 420px) {
+    .admin-room-search-actions,
+    .admin-rooms-table .admin-room-action-group {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* =========================================================
+   36. ADMIN USER MANAGEMENT - FINAL UI POLISH
+   ========================================================= */
+
+.admin-user-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.admin-user-page-header > div {
+    min-width: 0;
+}
+
+.admin-user-page-header > .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+/* Search panel already follows the common glass filter family. */
+.admin-user-search {
+    gap: 14px;
+}
+
+.admin-user-filter-panel {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.92),
+            rgba(234, 244, 255, 0.78)
+        );
+    border: 1px solid rgba(184, 213, 243, 0.86);
+    border-radius: 16px;
+    box-shadow:
+        0 10px 24px rgba(23, 72, 128, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+/* Keep the actions readable and evenly spaced on desktop. */
+.admin-users-table .user-col-actions {
+    min-width: 330px;
+}
+
+.admin-users-table .user-col-actions .action-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-users-table .user-col-actions .btn,
+.admin-users-table .user-col-actions .inline-action-form button {
+    min-height: 36px;
+    padding: 8px 13px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.admin-users-table .user-col-actions .btn {
+    min-width: 72px;
+}
+
+.admin-users-table .user-col-actions .inline-action-form {
+    display: inline-flex;
+    width: auto;
+    margin: 0;
+}
+
+/* Override the generic form submit styling so semantic colors win. */
+.admin-users-table .user-col-actions .inline-action-form button.btn-success[type="submit"] {
+    width: auto !important;
+    min-width: 88px;
+    background: #16a34a;
+    border-color: transparent;
+    color: #ffffff;
+    box-shadow: none;
+}
+
+.admin-users-table .user-col-actions .inline-action-form button.btn-success[type="submit"]:hover {
+    background: #15803d;
+    color: #ffffff;
+    box-shadow: 0 5px 12px rgba(22, 163, 74, 0.18);
+}
+
+.admin-users-table .user-col-actions .inline-action-form button.btn-danger[type="submit"] {
+    width: auto !important;
+    min-width: 112px;
+    background: #dc2626;
+    border-color: transparent;
+    color: #ffffff;
+    box-shadow: none;
+}
+
+.admin-users-table .user-col-actions .inline-action-form button.btn-danger[type="submit"]:hover {
+    background: #b91c1c;
+    color: #ffffff;
+    box-shadow: 0 5px 12px rgba(220, 38, 38, 0.18);
+}
+
+.admin-users-table .current-account-note {
+    min-height: 36px;
+    padding: 0 10px;
+    border: 1px solid rgba(203, 213, 225, 0.85);
+    border-radius: 8px;
+    background: rgba(248, 250, 252, 0.82);
+}
+
+@media (max-width: 900px) {
+    .admin-user-page-header {
+        align-items: stretch;
+    }
+
+    .admin-users-table .user-col-actions {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-user-page-header {
+        flex-direction: column;
+    }
+
+    .admin-user-page-header > .btn {
+        width: 100%;
+    }
+
+    .admin-users-table .user-col-actions .action-group {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+        gap: 8px;
+    }
+
+    .admin-users-table .user-col-actions .btn,
+    .admin-users-table .user-col-actions .inline-action-form,
+    .admin-users-table .user-col-actions .inline-action-form button,
+    .admin-users-table .current-account-note {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .admin-users-table .current-account-note {
+        justify-content: center;
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 420px) {
+    .admin-users-table .user-col-actions .action-group {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-users-table .current-account-note {
+        grid-column: auto;
+    }
+}
+
+/* =========================================================
+   PHASE 4G FINAL AUDIT - MY BOOKINGS POLISH
+   ========================================================= */
+
+/* ========================
+   Combined Search + Filter Panel
+   ======================== */
+.my-booking-control-panel {
+    margin-bottom: 22px;
+    padding: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(234, 245, 255, 0.82)
+        );
+
+    border: 1px solid rgba(184, 213, 243, 0.88);
+    border-radius: 16px;
+
+    box-shadow:
+        0 10px 26px rgba(23, 72, 128, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.my-booking-control-panel .my-booking-search {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.my-booking-control-panel .my-booking-search-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.my-booking-control-panel .my-booking-search-row .availability-search {
+    flex: 1;
+    min-width: 0;
+}
+
+.my-booking-control-panel .my-booking-filter-panel {
+    margin: 16px 0 0;
+    padding: 16px 0 0;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid rgba(174, 203, 233, 0.52);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.my-booking-control-panel .my-booking-filter-buttons {
+    margin-top: 0;
+}
+
+/* ========================
+   Booking Table Actions
+   ======================== */
+.my-bookings-table .my-booking-col-actions {
+    min-width: 260px;
+}
+
+.my-bookings-table .my-booking-action-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.my-bookings-table .my-booking-action-group .btn {
+    min-width: 78px;
+    min-height: 38px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* ========================
+   Responsive
+   ======================== */
+@media (max-width: 900px) {
+    .my-booking-control-panel {
+        padding: 16px;
+    }
+
+    .my-bookings-table .my-booking-action-group {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+    }
+
+    .my-bookings-table .my-booking-action-group .btn {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 700px) {
+    .my-booking-control-panel .my-booking-search-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .my-booking-control-panel .my-booking-search-actions {
+        width: 100%;
+    }
+
+    .my-booking-control-panel .my-booking-search-actions .btn {
+        flex: 1;
+    }
+}
+
+@media (max-width: 420px) {
+    .my-bookings-table .my-booking-action-group {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* =========================================================
+   PHASE 4G - BOOKING DATE RANGE FILTER
+   Pengurusan Tempahan + Tempahan Saya
+   ========================================================= */
+
+.booking-period-filter {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(174, 203, 233, 0.52);
+}
+
+.booking-period-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 190px;
+}
+
+.booking-period-field label {
+    color: #526078;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.25px;
+}
+
+.booking-period-field input[type="date"] {
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 12px;
+    border: 1px solid rgba(176, 204, 234, 0.84);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.84);
+    color: #17233c;
+    font: inherit;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.booking-period-field input[type="date"]:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.96);
+    border-color: #1769e0;
+    box-shadow: 0 0 0 3px rgba(23, 105, 224, 0.10);
+}
+
+.booking-period-help {
+    flex: 1 1 260px;
+    align-self: center;
+    padding-top: 20px;
+    color: #718096;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.admin-booking-filter-buttons {
+    margin-top: 14px;
+}
+
+.my-booking-control-panel .my-booking-period-filter {
+    margin-top: 14px;
+}
+
+@media (max-width: 700px) {
+    .booking-period-filter {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+    }
+
+    .booking-period-field {
+        min-width: 0;
+    }
+
+    .booking-period-help {
+        grid-column: 1 / -1;
+        padding-top: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .booking-period-filter {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-period-help {
+        grid-column: auto;
+    }
+}

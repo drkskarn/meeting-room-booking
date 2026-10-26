@@ -35,31 +35,31 @@ Pengurusan Bilik
 <!-- ========================
      SEARCH DAN FILTER
      ======================== -->
-<!-- ========================
-     SEARCH DAN FILTER
-     ======================== -->
-<form
-    method="GET"
-    action="{{ url_for('admin.rooms') }}"
-    class="availability-filter admin-room-filter"
->
+<div class="availability-filter admin-room-filter">
 
-    <!-- ========================
-         SEARCH ROW
-         ======================== -->
-    <div class="admin-room-search-row">
+    <form
+        method="GET"
+        action="{{ url_for('admin.rooms') }}"
+        class="admin-room-search-row"
+    >
+
+        <input
+            type="hidden"
+            name="status"
+            value="{{ selected_status }}"
+        >
 
         <div class="availability-search">
 
             <input
-                type="text"
+                type="search"
                 name="q"
                 value="{{ search_query }}"
                 placeholder="Cari ID, nama bilik, lokasi atau kapasiti..."
+                aria-label="Cari bilik"
             >
 
         </div>
-
 
         <div class="admin-room-search-actions">
 
@@ -81,44 +81,35 @@ Pengurusan Bilik
 
         </div>
 
-    </div>
+    </form>
 
 
-    <!-- ========================
-         STATUS FILTER
-         ======================== -->
-    <div class="availability-filter-buttons admin-room-filter-buttons">
+    <div class="admin-room-filter-buttons">
 
-        <button
-            type="submit"
-            name="status"
-            value="ALL"
+        <a
+            href="{{ url_for('admin.rooms', status='ALL', q=search_query) }}"
             class="filter-button {% if selected_status == 'ALL' %}active{% endif %}"
         >
             Semua ({{ room_counts["ALL"] }})
-        </button>
+        </a>
 
-        <button
-            type="submit"
-            name="status"
-            value="ACTIVE"
+        <a
+            href="{{ url_for('admin.rooms', status='ACTIVE', q=search_query) }}"
             class="filter-button {% if selected_status == 'ACTIVE' %}active{% endif %}"
         >
             Aktif ({{ room_counts["ACTIVE"] }})
-        </button>
+        </a>
 
-        <button
-            type="submit"
-            name="status"
-            value="INACTIVE"
+        <a
+            href="{{ url_for('admin.rooms', status='INACTIVE', q=search_query) }}"
             class="filter-button {% if selected_status == 'INACTIVE' %}active{% endif %}"
         >
             Tidak Aktif ({{ room_counts["INACTIVE"] }})
-        </button>
+        </a>
 
     </div>
 
-</form>
+</div>
 
 
 <!-- ========================
@@ -238,7 +229,7 @@ Pengurusan Bilik
                             data-label="Tindakan"
                         >
 
-                            <div class="action-group">
+                            <div class="action-group admin-room-action-group">
 
                                 <a
                                     href="{{ url_for(
@@ -257,7 +248,8 @@ Pengurusan Bilik
                                         'admin.toggle_room',
                                         room_id=room.id
                                     ) }}"
-                                    class="inline-action-form"
+                                    class="inline-action-form admin-room-toggle-form"
+                                    onsubmit="return confirm('{% if room.is_active %}Nyahaktifkan{% else %}Aktifkan{% endif %} bilik ini?');"
                                 >
 
                                     {{ toggle_form.hidden_tag() }}

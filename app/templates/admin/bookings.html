@@ -57,7 +57,7 @@ Pengurusan Tempahan
                 Cari
             </button>
 
-            {% if search_query or selected_status != "ALL" %}
+            {% if search_query or selected_status != "ALL" or date_from or date_to %}
                 <a
                     href="{{ url_for('admin.bookings') }}"
                     class="btn btn-secondary"
@@ -67,6 +67,40 @@ Pengurusan Tempahan
             {% endif %}
 
         </div>
+
+    </div>
+
+
+    <!-- ========================
+         DATE RANGE FILTER
+         ======================== -->
+    <div class="booking-period-filter admin-booking-period-filter">
+
+        <div class="booking-period-field">
+            <label for="admin-date-from">Dari</label>
+            <input
+                type="date"
+                id="admin-date-from"
+                name="date_from"
+                value="{{ date_from }}"
+                {% if date_to %}max="{{ date_to }}"{% endif %}
+            >
+        </div>
+
+        <div class="booking-period-field">
+            <label for="admin-date-to">Hingga</label>
+            <input
+                type="date"
+                id="admin-date-to"
+                name="date_to"
+                value="{{ date_to }}"
+                {% if date_from %}min="{{ date_from }}"{% endif %}
+            >
+        </div>
+
+        <span class="booking-period-help">
+            Carian merangkumi tempahan yang bertindih dengan tempoh dipilih.
+        </span>
 
     </div>
 

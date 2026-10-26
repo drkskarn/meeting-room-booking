@@ -27,9 +27,10 @@
 
     </div>
 
+
     <!-- ========================
-     SEARCH DAN FILTER
-     ======================== -->
+         SEARCH + FILTER PANEL
+         ======================== -->
     <div class="my-booking-control-panel">
 
         <form
@@ -47,7 +48,6 @@
             <div class="my-booking-search-row">
 
                 <div class="availability-search">
-
                     <input
                         type="search"
                         name="q"
@@ -55,20 +55,14 @@
                         placeholder="Cari ID, bilik, lokasi, pengerusi atau tujuan..."
                         aria-label="Cari tempahan"
                     >
-
                 </div>
 
-
                 <div class="my-booking-search-actions">
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
+                    <button type="submit" class="btn btn-primary">
                         Cari
                     </button>
 
-                    {% if search_query or selected_status != "ALL" %}
+                    {% if search_query or selected_status != "ALL" or date_from or date_to %}
                         <a
                             href="{{ url_for('booking.my_bookings') }}"
                             class="btn btn-secondary"
@@ -76,60 +70,101 @@
                             Reset
                         </a>
                     {% endif %}
-
                 </div>
+
+            </div>
+
+            <!-- ========================
+                 DATE RANGE FILTER
+                 ======================== -->
+            <div class="booking-period-filter my-booking-period-filter">
+
+                <div class="booking-period-field">
+                    <label for="my-date-from">Dari</label>
+                    <input
+                        type="date"
+                        id="my-date-from"
+                        name="date_from"
+                        value="{{ date_from }}"
+                        {% if date_to %}max="{{ date_to }}"{% endif %}
+                    >
+                </div>
+
+                <div class="booking-period-field">
+                    <label for="my-date-to">Hingga</label>
+                    <input
+                        type="date"
+                        id="my-date-to"
+                        name="date_to"
+                        value="{{ date_to }}"
+                        {% if date_from %}min="{{ date_from }}"{% endif %}
+                    >
+                </div>
+
+                <span class="booking-period-help">
+                    Carian merangkumi tempahan yang bertindih dengan tempoh dipilih.
+                </span>
 
             </div>
 
         </form>
 
 
+        <!-- ========================
+             STATUS FILTER
+             ======================== -->
+        <div class="my-booking-filter-panel">
+
+        <div class="my-booking-filter-label">
+            Filter Status
+        </div>
+
         <div class="my-booking-filter-buttons">
 
             <a
-                href="{{ url_for('booking.my_bookings', status='ALL', q=search_query) }}"
+                href="{{ url_for('booking.my_bookings', status='ALL', q=search_query, date_from=date_from, date_to=date_to) }}"
                 class="filter-button {% if selected_status == 'ALL' %}active{% endif %}"
             >
                 Semua ({{ booking_counts.ALL }})
             </a>
 
             <a
-                href="{{ url_for('booking.my_bookings', status='PENDING', q=search_query) }}"
+                href="{{ url_for('booking.my_bookings', status='PENDING', q=search_query, date_from=date_from, date_to=date_to) }}"
                 class="filter-button {% if selected_status == 'PENDING' %}active{% endif %}"
             >
                 Menunggu ({{ booking_counts.PENDING }})
             </a>
 
             <a
-                href="{{ url_for('booking.my_bookings', status='APPROVED', q=search_query) }}"
+                href="{{ url_for('booking.my_bookings', status='APPROVED', q=search_query, date_from=date_from, date_to=date_to) }}"
                 class="filter-button {% if selected_status == 'APPROVED' %}active{% endif %}"
             >
                 Diluluskan ({{ booking_counts.APPROVED }})
             </a>
 
             <a
-                href="{{ url_for('booking.my_bookings', status='COMPLETED', q=search_query) }}"
+                href="{{ url_for('booking.my_bookings', status='COMPLETED', q=search_query, date_from=date_from, date_to=date_to) }}"
                 class="filter-button {% if selected_status == 'COMPLETED' %}active{% endif %}"
             >
                 Selesai ({{ booking_counts.COMPLETED }})
             </a>
 
             <a
-                href="{{ url_for('booking.my_bookings', status='REJECTED', q=search_query) }}"
+                href="{{ url_for('booking.my_bookings', status='REJECTED', q=search_query, date_from=date_from, date_to=date_to) }}"
                 class="filter-button {% if selected_status == 'REJECTED' %}active{% endif %}"
             >
                 Ditolak ({{ booking_counts.REJECTED }})
             </a>
 
             <a
-                href="{{ url_for('booking.my_bookings', status='CANCELLED', q=search_query) }}"
+                href="{{ url_for('booking.my_bookings', status='CANCELLED', q=search_query, date_from=date_from, date_to=date_to) }}"
                 class="filter-button {% if selected_status == 'CANCELLED' %}active{% endif %}"
             >
                 Dibatalkan ({{ booking_counts.CANCELLED }})
             </a>
 
             <a
-                href="{{ url_for('booking.my_bookings', status='EXPIRED', q=search_query) }}"
+                href="{{ url_for('booking.my_bookings', status='EXPIRED', q=search_query, date_from=date_from, date_to=date_to) }}"
                 class="filter-button {% if selected_status == 'EXPIRED' %}active{% endif %}"
             >
                 Tamat Tempoh ({{ booking_counts.EXPIRED }})
@@ -137,7 +172,10 @@
 
         </div>
 
+        </div>
+
     </div>
+
 
     <!-- ========================
          BOOKING LIST
@@ -278,7 +316,7 @@
                                 class="my-booking-col-actions"
                                 data-label="Tindakan"
                             >
-                                <div class="action-group">
+                                <div class="action-group my-booking-action-group">
 
                                     <a
                                         href="{{ url_for(
