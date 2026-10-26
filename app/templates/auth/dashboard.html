@@ -512,10 +512,35 @@ Dashboard
                                 <td class="booking-col-actions" data-label="Tindakan">
                                     <div class="action-group">
 
-                                        <a href="{{ url_for('booking.booking_detail', booking_id=booking.id) }}"
-                                        class="btn btn-secondary btn-sm">
-                                        Lihat
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for(
+                                                'admin.approve_booking',
+                                                booking_id=booking.id
+                                            ) }}"
+                                            class="inline-action-form"
+                                            onsubmit="return confirm('Luluskan permohonan tempahan ini?');"
+                                        >
+                                            {{ action_form.hidden_tag() }}
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-success btn-sm"
+                                            >
+                                                Lulus
+                                            </button>
+                                        </form>
+
+                                        <a
+                                            href="{{ url_for(
+                                                'admin.reject_booking',
+                                                booking_id=booking.id
+                                            ) }}"
+                                            class="btn btn-danger btn-sm"
+                                        >
+                                            Tolak
                                         </a>
+
                                     </div>
                                 </td>
 

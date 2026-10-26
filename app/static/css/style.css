@@ -5306,3 +5306,197 @@ body.modal-active {
         margin-bottom: 16px;
     }
 }
+
+/* =========================================================
+   DASHBOARD PENDING ACTION BUTTONS
+   Standardize approve / reject actions
+   ========================================================= */
+
+.dashboard-glass-section .booking-col-actions .action-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.dashboard-glass-section .booking-col-actions .inline-action-form,
+.dashboard-glass-section .booking-col-actions .btn {
+    flex: 0 0 auto;
+}
+
+.dashboard-glass-section .booking-col-actions .btn {
+    min-width: 74px;
+    min-height: 36px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* Override generic form submit styling for dashboard approval action. */
+.dashboard-glass-section .booking-col-actions .inline-action-form button.btn-success[type="submit"] {
+    width: auto !important;
+    min-width: 74px;
+    min-height: 36px;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: #16a34a;
+    color: #ffffff;
+    box-shadow: none;
+}
+
+.dashboard-glass-section .booking-col-actions .inline-action-form button.btn-success[type="submit"]:hover {
+    background: #15803d;
+    color: #ffffff;
+    box-shadow: 0 5px 12px rgba(22, 163, 74, 0.18);
+}
+
+.dashboard-glass-section .booking-col-actions .btn-danger {
+    background: #dc2626;
+    border-color: transparent;
+    color: #ffffff;
+}
+
+.dashboard-glass-section .booking-col-actions .btn-danger:hover {
+    background: #b91c1c;
+    color: #ffffff;
+    box-shadow: 0 5px 12px rgba(220, 38, 38, 0.18);
+}
+
+@media (max-width: 600px) {
+    .dashboard-glass-section .booking-col-actions .action-group {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+    }
+
+    .dashboard-glass-section .booking-col-actions .inline-action-form,
+    .dashboard-glass-section .booking-col-actions .btn,
+    .dashboard-glass-section .booking-col-actions .inline-action-form button.btn-success[type="submit"] {
+        width: 100% !important;
+        min-width: 0;
+    }
+}
+
+/* =========================================================
+   ADMIN BOOKING - SEARCH + ACTION POLISH
+   ========================================================= */
+
+.admin-booking-search-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+}
+
+.admin-booking-search-row .availability-search {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-booking-search-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.admin-bookings-table .booking-col-actions {
+    min-width: 210px;
+}
+
+.admin-booking-action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(84px, 1fr));
+    align-items: stretch;
+    gap: 10px;
+    width: 190px;
+    min-width: 190px;
+}
+
+.admin-booking-action-grid .btn,
+.admin-booking-action-grid .inline-action-form {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+}
+
+.admin-booking-action-grid .btn {
+    min-height: 36px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* Override generic form submit styling so approval stays green. */
+.admin-booking-action-grid .inline-action-form button.btn-success[type="submit"] {
+    width: 100% !important;
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: #16a34a;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: none;
+}
+
+.admin-booking-action-grid .inline-action-form button.btn-success[type="submit"]:hover {
+    background: #15803d;
+    color: #ffffff;
+    box-shadow: 0 5px 12px rgba(22, 163, 74, 0.18);
+}
+
+.admin-booking-action-grid .btn-danger {
+    background: #dc2626;
+    border-color: transparent;
+    color: #ffffff;
+}
+
+.admin-booking-action-grid .btn-danger:hover {
+    background: #b91c1c;
+    color: #ffffff;
+    box-shadow: 0 5px 12px rgba(220, 38, 38, 0.18);
+}
+
+.booking-action-none {
+    grid-column: 1 / -1;
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    color: #98a2b3;
+    font-size: 14px;
+}
+
+@media (max-width: 900px) {
+    .admin-booking-search-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-booking-search-actions {
+        width: 100%;
+    }
+
+    .admin-booking-search-actions .btn {
+        flex: 1;
+    }
+
+    .admin-booking-action-grid {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 420px) {
+    .admin-booking-action-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

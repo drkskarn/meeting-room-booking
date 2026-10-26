@@ -32,34 +32,41 @@ Pengurusan Tempahan
     class="availability-filter admin-booking-filter"
 >
 
-    <div class="availability-search">
+    <div class="admin-booking-search-row">
 
-        <input
-            type="text"
-            name="q"
-            value="{{ search_query }}"
-            placeholder="Cari ID, pemohon, emel, bilik atau tujuan..."
-        >
+        <div class="availability-search">
 
-    </div>
-
-    <div class="admin-booking-search-actions">
-
-        <button
-            type="submit"
-            class="btn btn-primary"
-        >
-            Cari
-        </button>
-
-        {% if search_query or selected_status != "ALL" %}
-            <a
-                href="{{ url_for('admin.bookings') }}"
-                class="btn btn-secondary"
+            <input
+                type="search"
+                name="q"
+                value="{{ search_query }}"
+                placeholder="Cari ID, pemohon, emel, bilik atau tujuan..."
+                aria-label="Cari tempahan"
             >
-                Reset
-            </a>
-        {% endif %}
+
+        </div>
+
+        <div class="admin-booking-search-actions">
+
+            <button
+                type="submit"
+                name="status"
+                value="{{ selected_status }}"
+                class="btn btn-primary"
+            >
+                Cari
+            </button>
+
+            {% if search_query or selected_status != "ALL" %}
+                <a
+                    href="{{ url_for('admin.bookings') }}"
+                    class="btn btn-secondary"
+                >
+                    Reset
+                </a>
+            {% endif %}
+
+        </div>
 
     </div>
 
@@ -311,18 +318,7 @@ Pengurusan Tempahan
                              ======================== -->
                         <td class="booking-col-actions" data-label="Tindakan">
 
-                            <div class="action-group">
-
-                                <a
-                                    href="{{ url_for(
-                                        'booking.booking_detail',
-                                        booking_id=booking.id
-                                    ) }}"
-                                    class="btn btn-secondary btn-sm"
-                                >
-                                    Lihat
-                                </a>
-
+                            <div class="action-group admin-booking-action-grid">
 
                                 {% if booking.status == "PENDING" %}
 
@@ -344,6 +340,7 @@ Pengurusan Tempahan
                                             booking_id=booking.id
                                         ) }}"
                                         class="inline-action-form"
+                                        onsubmit="return confirm('Luluskan permohonan tempahan ini?');"
                                     >
 
                                         {{ action_form.hidden_tag() }}
@@ -363,7 +360,7 @@ Pengurusan Tempahan
                                             'admin.reject_booking',
                                             booking_id=booking.id
                                         ) }}"
-                                        class="btn btn-warning btn-sm"
+                                        class="btn btn-danger btn-sm"
                                     >
                                         Tolak
                                     </a>
@@ -402,6 +399,12 @@ Pengurusan Tempahan
                                     >
                                         Batal
                                     </a>
+
+                                {% else %}
+
+                                    <span class="booking-action-none">
+                                        —
+                                    </span>
 
                                 {% endif %}
 

@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from app.auth import auth_bp
 from app.auth.forms import LoginForm, RegistrationForm
+from app.admin.forms import BookingActionForm
 
 from app.auth.tokens import (
     generate_activation_token,
@@ -195,19 +196,19 @@ def dashboard():
         1
         for item in room_statuses
         if item["status"] == "AVAILABLE"
-    )
+        )
 
     in_use_room_count = sum(
         1
         for item in room_statuses
         if item["status"] == "IN_USE"
-    )
+        )
 
     upcoming_room_count = sum(
         1
         for item in room_statuses
-        if item["next_booking"] is not None
-    )
+        if item["upcoming_bookings"]
+        )
 
 
     room_status_preview = room_statuses[:6]
@@ -333,6 +334,11 @@ def dashboard():
             .limit(5)
         ).all()
 
+    # ========================
+    # Dashboard Booking Action Form
+    # ========================
+    action_form = BookingActionForm()
+
     return render_template(
     "auth/dashboard.html",
 
@@ -350,5 +356,6 @@ def dashboard():
     today_booking_count=today_booking_count,
     ongoing_booking_count=ongoing_booking_count,
     active_room_count=active_room_count,
-    pending_bookings=pending_bookings
+    pending_bookings=pending_bookings,
+    action_form=action_form
     )
