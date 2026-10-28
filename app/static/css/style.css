@@ -6016,3 +6016,308 @@ body.modal-active {
         grid-column: auto;
     }
 }
+
+/* =========================================================
+   PHASE 4G FINAL AUDIT - FORM / DETAIL / ACTION SURFACES
+   ========================================================= */
+
+/* ========================
+   Shared Glass Surfaces
+   ======================== */
+.phase4e-form-card,
+.phase4e-summary-card,
+.phase4e-decision-card,
+.booking-detail-card,
+.admin-user-form-card,
+.user-detail-card {
+    position: relative;
+    overflow: hidden;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(234, 245, 255, 0.80)
+        );
+    border: 1px solid rgba(184, 213, 243, 0.86);
+    border-radius: 16px;
+    box-shadow:
+        0 12px 30px rgba(23, 72, 128, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.phase4e-form-card,
+.admin-user-form-card,
+.booking-detail-card,
+.user-detail-card {
+    padding: 24px;
+}
+
+.phase4e-summary-card,
+.phase4e-decision-card {
+    padding: 22px;
+}
+
+/* ========================
+   Form Sections
+   ======================== */
+.phase4e-form-card .form-section,
+.admin-user-form-card .form-section {
+    margin-bottom: 22px;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.58);
+    border: 1px solid rgba(196, 216, 238, 0.72);
+    border-radius: 12px;
+}
+
+.phase4e-form-card .form-section:last-of-type,
+.admin-user-form-card .form-section:last-of-type {
+    margin-bottom: 0;
+}
+
+.phase4e-form-card .form-section-title,
+.admin-user-form-card .form-section-title {
+    margin: 0 0 16px;
+    color: #163b68;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.1px;
+}
+
+/* ========================
+   Form Controls
+   ======================== */
+.phase4e-form-card input:not([type="submit"]):not([type="hidden"]),
+.phase4e-form-card select,
+.phase4e-form-card textarea,
+.phase4e-decision-card textarea,
+.admin-user-form-card input:not([type="submit"]):not([type="hidden"]),
+.admin-user-form-card select,
+.admin-user-form-card textarea {
+    background: rgba(255, 255, 255, 0.88);
+    border-color: rgba(176, 204, 234, 0.90);
+    border-radius: 9px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
+}
+
+.phase4e-form-card input:not([type="submit"]):not([type="hidden"]):focus,
+.phase4e-form-card select:focus,
+.phase4e-form-card textarea:focus,
+.phase4e-decision-card textarea:focus,
+.admin-user-form-card input:not([type="submit"]):not([type="hidden"]):focus,
+.admin-user-form-card select:focus,
+.admin-user-form-card textarea:focus {
+    background: #ffffff;
+    border-color: #1769e0;
+    box-shadow: 0 0 0 3px rgba(23, 105, 224, 0.10);
+}
+
+/* ========================
+   Form Actions
+   ======================== */
+.phase4e-form-actions,
+.admin-user-form-actions,
+.booking-detail-actions,
+.user-detail-actions {
+    gap: 10px;
+}
+
+.phase4e-form-actions .btn,
+.phase4e-form-actions input[type="submit"],
+.admin-user-form-actions .btn,
+.admin-user-form-actions input[type="submit"],
+.booking-detail-actions .btn,
+.user-detail-actions .btn,
+.user-detail-actions button {
+    min-height: 40px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* Override broad submit styles while keeping semantic colours. */
+.phase4e-form-actions input.btn-primary[type="submit"],
+.admin-user-form-actions input.btn-primary[type="submit"] {
+    background: #1769e0;
+    border-color: #1769e0;
+    color: #ffffff;
+}
+
+.phase4e-form-actions input.btn-danger[type="submit"],
+.phase4e-decision-actions input.btn-danger[type="submit"] {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: #ffffff;
+}
+
+.phase4e-form-actions input.btn-danger[type="submit"]:hover,
+.phase4e-decision-actions input.btn-danger[type="submit"]:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+    color: #ffffff;
+}
+
+/* ========================
+   Booking Detail
+   ======================== */
+.phase4e-booking-detail-card,
+.booking-detail-card {
+    max-width: 980px;
+}
+
+.booking-detail-header {
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom-color: rgba(184, 213, 243, 0.70);
+}
+
+.booking-detail-grid {
+    gap: 14px;
+}
+
+.booking-detail-item {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.82),
+            rgba(238, 247, 255, 0.68)
+        );
+    border: 1px solid rgba(196, 216, 238, 0.72);
+    border-radius: 11px;
+}
+
+.booking-detail-section:not(.detail-alert) {
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.48);
+    border: 1px solid rgba(196, 216, 238, 0.62);
+    border-radius: 11px;
+}
+
+.booking-detail-section + .booking-detail-section {
+    margin-top: 14px;
+}
+
+.booking-detail-actions {
+    border-top-color: rgba(184, 213, 243, 0.70);
+}
+
+/* ========================
+   Reject / Cancel Decision Pages
+   ======================== */
+.phase4e-summary-item {
+    background: rgba(255, 255, 255, 0.66);
+    border: 1px solid rgba(196, 216, 238, 0.68);
+    border-radius: 10px;
+}
+
+.phase4e-summary-purpose {
+    border-top-color: rgba(184, 213, 243, 0.62);
+}
+
+.phase4e-decision-danger {
+    border-color: rgba(248, 113, 113, 0.36);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.95),
+            rgba(254, 242, 242, 0.82)
+        );
+}
+
+.phase4e-decision-heading {
+    margin-bottom: 18px;
+}
+
+.phase4e-decision-heading h2 {
+    margin: 0 0 6px;
+    color: #7f1d1d;
+    font-size: 18px;
+}
+
+.phase4e-decision-heading p {
+    margin: 0;
+    color: #667085;
+}
+
+.phase4e-decision-card textarea {
+    min-height: 132px;
+    resize: vertical;
+}
+
+/* ========================
+   Detail Alert Refinement
+   ======================== */
+.detail-alert {
+    border-radius: 11px;
+}
+
+.detail-alert-danger {
+    background: rgba(254, 242, 242, 0.88);
+    border-color: rgba(248, 113, 113, 0.38);
+}
+
+.detail-alert-warning {
+    background: rgba(255, 251, 235, 0.90);
+    border-color: rgba(245, 158, 11, 0.30);
+}
+
+.detail-alert-neutral {
+    background: rgba(248, 250, 252, 0.90);
+    border-color: rgba(203, 213, 225, 0.75);
+}
+
+/* ========================
+   Responsive
+   ======================== */
+@media (max-width: 700px) {
+    .phase4e-form-card,
+    .phase4e-summary-card,
+    .phase4e-decision-card,
+    .booking-detail-card,
+    .admin-user-form-card,
+    .user-detail-card {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .phase4e-form-card .form-section,
+    .admin-user-form-card .form-section {
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .phase4e-summary-grid,
+    .booking-detail-grid,
+    .phase4e-form-grid,
+    .admin-user-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .phase4e-form-actions,
+    .admin-user-form-actions,
+    .booking-detail-actions,
+    .user-detail-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .phase4e-form-actions .btn,
+    .phase4e-form-actions input[type="submit"],
+    .admin-user-form-actions .btn,
+    .admin-user-form-actions input[type="submit"],
+    .booking-detail-actions .btn,
+    .user-detail-actions .btn,
+    .user-detail-actions button {
+        width: 100%;
+    }
+
+    .booking-detail-actions .action-group,
+    .user-detail-actions .action-group {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+        gap: 8px;
+    }
+}

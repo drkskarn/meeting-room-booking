@@ -6,10 +6,14 @@ from app.extensions import db, login_manager, mail, migrate
 # semua config file diletakkan dalam satu file
 from config import Config
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
 
-    app.config.from_object(Config)
+    if test_config is None:
+        app.config.from_object(Config)
+    else:
+        app.config.from_object(Config)
+        app.config.update(test_config)
     
     # initialze Flask application
     db.init_app(app)
@@ -38,8 +42,10 @@ def create_app():
     
     # setup utk akaun admin, selepas model di import
     from app.admin_setup import ensure_default_admin
-    with app.app_context():
-        ensure_default_admin(app)
+
+    if not app.config.get("TESTING"):
+        with app.app_context():
+            ensure_default_admin(app)
         
     # Flask route management
     @app.route("/")
