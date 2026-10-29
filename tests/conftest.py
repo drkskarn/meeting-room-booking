@@ -17,8 +17,9 @@ def app():
         "SQLALCHEMY_DATABASE_URI": "sqlite://",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
         "WTF_CSRF_ENABLED": False,
+        "RATELIMIT_ENABLED": False,
     })
-
+    
     with test_app.app_context():
         db.create_all()
 
@@ -149,6 +150,7 @@ def app_csrf():
         "SQLALCHEMY_DATABASE_URI": "sqlite://",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
         "WTF_CSRF_ENABLED": True,
+        "RATELIMIT_ENABLED": False,
     })
 
     with test_app.app_context():

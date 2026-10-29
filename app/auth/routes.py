@@ -1,4 +1,13 @@
-from flask import flash, redirect, render_template, url_for
+from flask import (
+    flash,
+    redirect,
+    render_template,
+    url_for,
+    request,
+    session,
+)
+
+from urllib.parse import urljoin, urlsplit
 from datetime import timedelta
 
 from app.auth import auth_bp
@@ -9,14 +18,14 @@ from app.auth.tokens import (
     generate_activation_token,
     verify_activation_token
     )
-from app.extensions import db
+from app.extensions import db, limiter
 
 from app.models import (
     User,
     Booking,
 )
 from app.email import send_activation_email
-
+from flask_limiter.util import get_remote_address
 from flask_login import (
     current_user,
     login_required,
@@ -85,8 +94,47 @@ def register():
         form=form
     )
 
+# ========================
+# Safe Redirect - Helper
+# ========================
+def is_safe_redirect_target(target):
+    if not target:
+        return False
+
+    host_url = urlsplit(
+        request.host_url
+    )
+
+    redirect_url = urlsplit(
+        urljoin(
+            request.host_url,
+            target
+        )
+    )
+
+    return (redirect_url.scheme == host_url.scheme and redirect_url.netloc == host_url.netloc)
+
+# ========================
+# Login Rate Limit Key - Helper
+# ========================
+def login_rate_limit_key():
+    email = (
+        request.form.get("email")
+        or ""
+    ).strip().lower()
+
+    return (f"{get_remote_address()}:"f"{email or 'unknown'}")
+    
 # ================Utk Login======================
 @auth_bp.route("/login", methods=["GET", "POST"])
+@limiter.limit( "5 per minute",
+    key_func=login_rate_limit_key,
+    methods=["POST"],
+    error_message=(
+        "Terlalu banyak percubaan log masuk. "
+        "Sila cuba semula sebentar lagi."
+    ),
+)
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("auth.dashboard"))
@@ -125,16 +173,28 @@ def login():
                 form=form
             )
 
+        # ========================
+        # Reset Session
+        # ========================
+        session.clear()
+
         login_user(user)
 
-        return redirect(
-            url_for("auth.dashboard")
-        )
+        session.permanent = True
 
-    return render_template(
-        "auth/login.html",
-        form=form
-    )
+
+        # ========================
+        # Safe Next Redirect
+        # ========================
+        next_url = request.args.get("next")
+
+        if (next_url and is_safe_redirect_target(next_url)):
+            return redirect(next_url)
+
+        return redirect(url_for("auth.dashboard"))
+
+
+    return render_template("auth/login.html", form=form)
 
 # ================Utk Logout======================
 @auth_bp.route("/logout")

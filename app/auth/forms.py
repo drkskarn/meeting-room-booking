@@ -11,6 +11,7 @@ from wtforms.validators import (
 
 from app.extensions import db
 from app.models import User
+from app.auth.past import validate_password_strength
 
 # Form untuk register
 class RegistrationForm(FlaskForm):
@@ -61,10 +62,7 @@ class RegistrationForm(FlaskForm):
         "Kata Laluan",
         validators=[
             DataRequired(),
-            Length(
-                min=8,
-                message="Kata laluan mestilah sekurang-kurangnya 8 aksara.",
-            ),
+            validate_password_strength,
         ],
     )
 

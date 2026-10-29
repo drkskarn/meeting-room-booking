@@ -25,7 +25,7 @@ from wtforms.validators import (
     ValidationError,
     EqualTo,
 )
-
+from app.auth.past import validate_password_strength
 
 # ====================================================
 # MENU PENGURUSAN BILIK MESYUARAT
@@ -142,10 +142,7 @@ class AdminEditUserForm(FlaskForm):
         "Kata Laluan Baru",
         validators=[
             Optional(),
-            Length(
-                min=8,
-                message="Kata laluan mestilah sekurang-kurangnya 8 aksara."
-            )
+            validate_password_strength,
         ]
     )
 

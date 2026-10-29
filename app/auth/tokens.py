@@ -6,6 +6,16 @@ from itsdangerous import (
 )
 
 
+# ========================
+# Activation Token Config
+# ========================
+ACTIVATION_TOKEN_SALT = "email-activation"
+ACTIVATION_TOKEN_MAX_AGE = 3600
+
+
+# ========================
+# Generate Activation Token
+# ========================
 def generate_activation_token(email):
     serializer = URLSafeTimedSerializer(
         current_app.config["SECRET_KEY"]
@@ -13,27 +23,30 @@ def generate_activation_token(email):
 
     return serializer.dumps(
         email,
-        salt="email-activation"
+        salt=ACTIVATION_TOKEN_SALT
     )
 
 
-def verify_activation_token(token, max_age=3600):
+# ========================
+# Verify Activation Token
+# ========================
+def verify_activation_token(
+    token,
+    max_age=ACTIVATION_TOKEN_MAX_AGE
+):
     serializer = URLSafeTimedSerializer(
         current_app.config["SECRET_KEY"]
     )
 
     try:
-        email = serializer.loads(
+        return serializer.loads(
             token,
-            salt="email-activation",
-            # max_age=86400 seconds (24 hrs) ni tarik dari function. utk testing 3600 seconds (1 hrs)
+            salt=ACTIVATION_TOKEN_SALT,
             max_age=max_age
         )
 
-        return email
-
-    except SignatureExpired:
-        return None
-
-    except BadSignature:
+    except (
+        SignatureExpired,
+        BadSignature
+    ):
         return None
