@@ -8,6 +8,7 @@ from app.extensions import (
     migrate,
     limiter,
 )
+from app.errors import register_error_handlers
 
 # semua config file diletakkan dalam satu file
 from config import Config
@@ -89,5 +90,10 @@ def create_app(test_config=None):
         )
 
         return response
+    
+    # ========================
+    # Error Handlers
+    # ========================
+    register_error_handlers(app)
     
     return app
