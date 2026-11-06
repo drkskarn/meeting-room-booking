@@ -129,13 +129,9 @@ class AdminEditUserForm(FlaskForm):
 
     identification_no = StringField(
         "No Pengenalan",
-        validators=[
-            Optional(),
-            Regexp(
-                r"^\d{12}$",
-                message="No Pengenalan mestilah tepat 12 digit nombor."
-            )
-        ]
+        render_kw={
+            "disabled": True
+        }
     )
     
     new_password = PasswordField(
@@ -206,6 +202,29 @@ class AdminEditUserForm(FlaskForm):
 # ========================
 class AdminAddUserForm(AdminEditUserForm):
 
+    identification_no = StringField(
+        "No Pengenalan",
+        validators=[
+            DataRequired(),
+            Regexp(
+                r"^\d{12}$",
+                message=(
+                    "No Pengenalan mestilah tepat "
+                    "12 digit nombor."
+                )
+            )
+        ],
+        render_kw={
+            "maxlength": "12",
+            "inputmode": "numeric",
+            "pattern": "[0-9]{12}",
+            "oninput": (
+                "this.value = "
+                "this.value.replace(/[^0-9]/g, '').slice(0, 12)"
+            )
+        }
+    )
+    
     new_password = PasswordField(
         "Kata Laluan",
         validators=[

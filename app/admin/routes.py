@@ -10,12 +10,15 @@ from flask import (
     url_for,
     )
 from flask_login import current_user, login_required
-from app.models import Booking, Room, User
+from app.models import Booking, Room, User, AuditLog
 from sqlalchemy import func, or_
 from datetime import datetime, timezone, timedelta
 from app.admin import admin_bp
+from app.audit import log_audit
 from app.decorators import admin_required
 from app.extensions import db
+
+from zoneinfo import ZoneInfo
 
 from app.booking.services import (
     has_booking_conflict,
@@ -302,6 +305,17 @@ def add_user():
         )
 
         db.session.add(user)
+        db.session.flush()
+        
+        log_audit(
+                    action="CREATE",
+                    entity_type="USER",
+                    entity_id=user.id,
+                    description=(
+                        "Akaun pengguna diwujudkan."
+                        )
+                )
+        
         db.session.commit()
 
         flash(
@@ -326,6 +340,20 @@ def add_user():
 # ========================
 # Edit User
 # ========================
+def get_changes(old_values, new_values):
+    changes = {}
+
+    for field, old_value in old_values.items():
+        new_value = new_values.get(field)
+
+        if old_value != new_value:
+            changes[field] = {
+                "old": old_value,
+                "new": new_value,
+            }
+
+    return changes
+
 @admin_bp.route(
     "/users/<int:user_id>/edit",
     methods=["GET", "POST"]
@@ -333,14 +361,20 @@ def add_user():
 @login_required
 @admin_required
 def edit_user(user_id):
-    user = db.session.get(
-        User,
-        user_id
-    )
+    user = db.session.get(User, user_id)
 
     if user is None:
         abort(404)
-
+        
+    old_values = {
+            "name": user.full_name,
+            "email": user.email,
+            "role": user.role,
+            "changed_password":False,
+            "department": user.division_name,
+            "unit": user.unit_name,
+        }
+    
     form = AdminEditUserForm(obj=user)
 
     if form.validate_on_submit():
@@ -365,42 +399,13 @@ def edit_user(user_id):
                 form=form
             )
 
-        identification_no = (
-            form.identification_no.data.strip()
-            if form.identification_no.data
-            else None
-        )
-
-        if identification_no:
-            existing_id = db.session.scalar(
-                db.select(User).where(
-                    User.identification_no == identification_no,
-                    User.id != user.id
-                )
-            )
-
-            if existing_id is not None:
-                flash(
-                    "No Pengenalan ini telah digunakan oleh akaun lain.",
-                    "danger"
-                )
-
-                return render_template(
-                    "admin/user_form.html",
-                    user=user,
-                    form=form
-                )
-
         # Admin tidak boleh menukar role dirinya sendiri
-        if (
-            user.id == current_user.id
-            and form.role.data != "ADMIN"
-        ):
+        if (user.id == current_user.id and form.role.data != "ADMIN"):
             flash(
                 "Anda tidak boleh menukar role akaun Pentadbir "
                 "yang sedang digunakan.",
                 "danger"
-            )
+                )
 
             return render_template(
                 "admin/user_form.html",
@@ -410,7 +415,7 @@ def edit_user(user_id):
 
         user.email = email
         user.full_name = form.full_name.data.strip()
-        user.identification_no = identification_no
+        # user.identification_no = identification_no
 
         user.division_name = (
             form.division_name.data.strip()
@@ -432,6 +437,60 @@ def edit_user(user_id):
             user.set_password(form.new_password.data)
             password_changed = True
 
+        new_values = {
+                "name": user.full_name,
+                "email": user.email,
+                "changed_password":password_changed,
+                "role": user.role,
+                "department": user.division_name,
+                "unit": user.unit_name,
+            }
+
+        changes = get_changes(old_values, new_values)
+        
+        # ========================
+        # Audit - Edit User
+        # ========================
+        if changes:
+
+            field_labels = {
+                "name": "Nama",
+                "email": "Emel",
+                "role": "Peranan",
+                "department": "Bahagian",
+                "unit": "Cawangan/Unit",
+            }
+
+            change_lines = []
+
+            for field, values in changes.items():
+
+                if field == "changed_password":
+                    change_lines.append(
+                        "Kata laluan telah ditukar."
+                    )
+                    continue
+
+                label = field_labels.get(
+                    field,
+                    field
+                )
+
+                old_value = values["old"] or "-"
+                new_value = values["new"] or "-"
+
+                change_lines.append(
+                    f"{label}: "
+                    f"{old_value} -> {new_value}"
+                )
+
+            log_audit(
+                action="UPDATE",
+                entity_type="USER",
+                entity_id=user.id,
+                description="; ".join(change_lines)
+            )
+            
         db.session.commit()
 
         if password_changed:
@@ -496,6 +555,20 @@ def toggle_user_status(user_id):
 
     user.is_active = not user.is_active
 
+    if user.is_active:
+        action = "ACTIVATE"
+        description = "Akaun pengguna diaktifkan."
+    else:
+        action = "DEACTIVATE"
+        description = "Akaun pengguna dinyahaktifkan."
+
+    log_audit(
+        action=action,
+        entity_type="USER",
+        entity_id=user.id,
+        description=description,
+    )
+    
     db.session.commit()
 
     if user.is_active:
@@ -697,8 +770,22 @@ def add_room():
             is_active=True,
             image_filename=image_filename
         )
-
+        # ========================
+        # Audit - Create Room
+        # ========================
         db.session.add(room)
+        db.session.flush()
+
+        log_audit(
+            action="CREATE",
+            entity_type="ROOM",
+            entity_id=room.id,
+            description=(
+                "Bilik mesyuarat diwujudkan."
+                )
+            )
+
+
         db.session.commit()
 
         flash("Bilik mesyuarat berjaya ditambah.", "success")
@@ -747,6 +834,16 @@ def edit_room(room_id):
                 room=room
             )
 
+        # ========================
+        # Old Room Values
+        # ========================
+        old_values = {
+            "room_name": room.room_name,
+            "location": room.location,
+            "capacity": room.capacity,
+            "image_changed": False,
+        }
+
         room.room_name = room_name
         room.location = form.location.data.strip()
         room.capacity = form.capacity.data
@@ -756,6 +853,57 @@ def edit_room(room_id):
         if form.image.data: 
             room.image_filename = save_room_image(form.image.data)
 
+        # ========================
+        # New Room Values
+        # ========================
+        new_values = {
+            "room_name": room.room_name,
+            "location": room.location,
+            "capacity": room.capacity,
+            "image_changed": bool(form.image.data),
+        }
+
+        changes = get_changes(
+            old_values,
+            new_values,
+        )
+        
+        # ========================
+        # Audit - Edit Room
+        # ========================
+        if changes:
+
+            field_labels = {
+                "room_name": "Nama Bilik",
+                "location": "Lokasi",
+                "capacity": "Kapasiti",
+            }
+
+            change_lines = []
+
+            for field, values in changes.items():
+
+                if field == "image_changed": 
+                    change_lines.append("Gambar bilik telah ditukar.")
+                    continue
+
+                label = field_labels.get(
+                    field,
+                    field
+                )
+
+                change_lines.append(
+                    f"{label}: "
+                    f"{values['old']} -> "
+                    f"{values['new']}"
+                )
+
+            log_audit(
+                action="UPDATE",
+                entity_type="ROOM",
+                entity_id=room.id,
+                description="; ".join(change_lines)
+            )
         db.session.commit()
 
 
@@ -794,7 +942,28 @@ def toggle_room(room_id):
     if not form.validate_on_submit():
         abort(400)
             
+    # ========================
+    # Toggle Room Status
+    # ========================
     room.is_active = not room.is_active
+
+    if room.is_active:
+        action = "ACTIVATE"
+        description = "Bilik mesyuarat diaktifkan."
+    else:
+        action = "DEACTIVATE"
+        description = "Bilik mesyuarat dinyahaktifkan."
+
+
+    # ========================
+    # Audit - Toggle Room
+    # ========================
+    log_audit(
+        action=action,
+        entity_type="ROOM",
+        entity_id=room.id,
+        description=description,
+    )
 
     db.session.commit()
 
@@ -816,7 +985,6 @@ def toggle_room(room_id):
 # Tambah timedelta pada import datetime sedia ada:
 # from datetime import datetime, timedelta, timezone
 
-# Gantikan HANYA function bookings() dalam app/admin/routes.py dengan function ini.
 
 @admin_bp.route("/bookings")
 @login_required
@@ -1098,6 +1266,18 @@ def approve_booking(booking_id):
     booking.approved_by_id = current_user.id
     booking.approved_at = datetime.now(timezone.utc)
 
+    # ========================
+    # Audit - Approve Booking
+    # ========================
+    log_audit(
+        action="APPROVE",
+        entity_type="BOOKING",
+        entity_id=booking.id,
+        description=(
+            "Permohonan tempahan diluluskan."
+        )
+    )
+
     db.session.commit()
 
     flash(
@@ -1158,6 +1338,18 @@ def reject_booking(booking_id):
         booking.rejected_by_id = current_user.id
         booking.rejected_at = datetime.now(timezone.utc)
         booking.rejection_reason = form.reason.data.strip()
+
+        # ========================
+        # Audit - Approve Booking
+        # ========================
+        log_audit(
+            action="REJECTED",
+            entity_type="BOOKING",
+            entity_id=booking.id,
+            description=(
+                "Permohonan tempahan tidak diluluskan."
+            )
+        )
 
         db.session.commit()
 
@@ -1228,6 +1420,18 @@ def cancel_booking(booking_id):
         booking.cancelled_by_id = current_user.id
         booking.cancelled_at = datetime.now(timezone.utc)
         booking.cancellation_reason = form.reason.data.strip()
+        
+        # ========================
+        # Audit - Approve Booking
+        # ========================
+        log_audit(
+            action="CANCELLED",
+            entity_type="BOOKING",
+            entity_id=booking.id,
+            description=(
+                "Permohonan tempahan dibatalkan."
+            )
+        )
 
         db.session.commit()
 
@@ -1244,4 +1448,253 @@ def cancel_booking(booking_id):
         "admin/cancel_booking.html",
         booking=booking,
         form=form
+    )
+
+# ========================
+# Audit Log
+# ========================
+@admin_bp.route("/audit-logs")
+@login_required
+@admin_required
+def audit_logs():
+
+    # ========================
+    # Filter Entity Type
+    # ========================
+    selected_entity = (
+        request.args.get(
+            "entity_type",
+            "ALL"
+        )
+        .strip()
+        .upper()
+    )
+
+    valid_entities = {
+        "ALL",
+        "USER",
+        "ROOM",
+        "BOOKING",
+    }
+
+    if selected_entity not in valid_entities:
+        selected_entity = "ALL"
+
+    # ========================
+    # Filter Action
+    # ========================
+    selected_action = (
+        request.args.get(
+            "action",
+            "ALL"
+        )
+        .strip()
+        .upper()
+    )
+
+    valid_actions = {
+        "ALL",
+        "CREATE",
+        "UPDATE",
+        "ACTIVATE",
+        "DEACTIVATE",
+        "APPROVE",
+        "REJECTED",
+        "CANCELLED",
+    }
+
+    if selected_action not in valid_actions:
+        selected_action = "ALL"
+        
+    # ========================
+    # Search
+    # ========================
+    search_query = request.args.get(
+        "q",
+        ""
+    ).strip()
+
+    search_text = search_query.lower()
+    
+    # ========================
+    # Filter Date Range
+    # ========================
+    date_from = request.args.get(
+        "date_from",
+        ""
+    ).strip()
+
+    date_to = request.args.get(
+        "date_to",
+        ""
+    ).strip()
+
+    malaysia_tz = ZoneInfo(
+        "Asia/Kuala_Lumpur"
+    )
+
+    date_from_utc = None
+    date_to_utc = None
+    
+    date_from_dt = None
+    date_to_dt = None
+    invalid_period = False
+    
+    # ========================
+    # Convert Malaysia Date
+    # To UTC
+    # ========================
+    if date_from:
+        try:
+            date_from_dt = datetime.strptime(
+                date_from,
+                "%Y-%m-%d"
+            )
+
+            local_from = date_from_dt.replace(
+                tzinfo=malaysia_tz
+            )
+
+            date_from_utc = (
+                local_from
+                .astimezone(timezone.utc)
+                .replace(tzinfo=None)
+            )
+
+        except ValueError:
+            flash(
+                "Tarikh 'Dari' tidak sah.",
+                "warning"
+            )
+
+            date_from = ""
+            date_from_dt = None
+
+
+    if date_to:
+        try:
+            date_to_dt = datetime.strptime(
+                date_to,
+                "%Y-%m-%d"
+            )
+
+            local_to = (
+                date_to_dt
+                .replace(
+                    tzinfo=malaysia_tz
+                )
+                + timedelta(days=1)
+            )
+
+            date_to_utc = (
+                local_to
+                .astimezone(timezone.utc)
+                .replace(tzinfo=None)
+            )
+
+        except ValueError:
+            flash(
+                "Tarikh 'Hingga' tidak sah.",
+                "warning"
+            )
+
+            date_to = ""
+            date_to_dt = None
+    
+    # ========================
+    # Validate Date Range
+    # ========================
+    if (
+        date_from_dt is not None
+        and date_to_dt is not None
+        and date_from_dt > date_to_dt
+    ):
+        flash(
+            "Tarikh 'Dari' tidak boleh selepas tarikh 'Hingga'.",
+            "warning"
+        )
+
+        invalid_period = True
+        
+    statement = db.select(AuditLog)
+
+    # ========================
+    # Apply Search
+    # ========================
+    if search_text:
+        search_pattern = f"%{search_text}%"
+
+        search_conditions = [
+            func.lower(AuditLog.action).like(
+                search_pattern
+            ),
+            func.lower(AuditLog.entity_type).like(
+                search_pattern
+            ),
+            func.lower(AuditLog.description).like(
+                search_pattern
+            ),
+        ]
+
+        if search_query.isdigit():
+            search_number = int(search_query)
+
+            search_conditions.extend([
+                AuditLog.id == search_number,
+                AuditLog.entity_id == search_number,
+            ])
+
+        statement = statement.where(
+            or_(*search_conditions)
+        )
+        
+    # ========================
+    # Apply Filters
+    # ========================
+    if selected_entity != "ALL":
+        statement = statement.where(
+            AuditLog.entity_type
+            == selected_entity
+        )
+        
+    if selected_action != "ALL":
+        statement = statement.where(
+        AuditLog.action
+        == selected_action
+    )
+        
+    if date_from_utc is not None:
+        statement = statement.where(
+            AuditLog.created_at
+            >= date_from_utc
+        )
+
+    if date_to_utc is not None:
+        statement = statement.where(
+            AuditLog.created_at
+            < date_to_utc
+        )
+
+    if invalid_period:
+        statement = statement.where(
+        AuditLog.id == -1
+    )
+        
+    audit_logs = db.session.scalars(
+        statement.order_by(
+            AuditLog.created_at.desc()
+        )
+    ).all()
+
+    
+    return render_template(
+        "admin/audit_logs.html",
+        audit_logs=audit_logs,
+        selected_entity=selected_entity,
+        date_from=date_from,
+        date_to=date_to,
+        search_query=search_query,
+        selected_action=selected_action,
+        malaysia_tz=malaysia_tz,
+        utc_timezone=timezone,
     )

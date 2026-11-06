@@ -19,7 +19,9 @@ from flask_login import UserMixin
 # untuk kegunaan password hashing
 from werkzeug.security import generate_password_hash, check_password_hash
 
-#*****************Model utk Users*************************
+# ========================
+# Model utk Users
+# ========================
 class User(UserMixin, db.Model):
     
     __tablename__ = "users"
@@ -96,7 +98,9 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
-# *****************Model utk Rooms*************************
+# ========================
+# Model utk Rooms
+# ========================
 class Room (db.Model):
     __tablename__ = "rooms"
     id: Mapped[int] = mapped_column(
@@ -141,7 +145,9 @@ class Room (db.Model):
     nullable=True
     )
     
-#  *****************Model utk Booking*************************
+# ========================
+# Model utk Booking
+# ========================
 class Booking(db.Model):
     __tablename__ = "bookings"
 
@@ -256,4 +262,51 @@ class Booking(db.Model):
     
     rejected_by: Mapped["User | None"] = relationship(
     foreign_keys=[rejected_by_id]
+    )
+
+# ========================
+# Audit Log
+# ========================
+class AuditLog(db.Model):
+    __tablename__ = "audit_logs"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True
+    )
+
+    actor_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id"),
+        nullable=True
+    )
+
+    action: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False
+    )
+
+    entity_type: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False
+    )
+
+    entity_id: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True
+    )
+
+    description: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(
+            timezone.utc
+        ),
+        nullable=False
+    )
+
+    actor: Mapped["User | None"] = relationship(
+        foreign_keys=[actor_id]
     )

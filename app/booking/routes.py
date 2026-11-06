@@ -19,6 +19,8 @@ from app.booking.forms import (
     EditBookingForm,
 )
 
+from app.audit import log_audit
+
 from app.extensions import db
 
 from app.models import Booking, Room
@@ -121,7 +123,26 @@ def create_booking():
             status="PENDING"
         )
 
+        # ========================
+        # Save Booking
+        # ========================
         db.session.add(booking)
+
+        # Dapatkan booking.id sebelum commit
+        db.session.flush()
+
+
+        # ========================
+        # Audit - Create Booking
+        # ========================
+        log_audit(
+            action="CREATE",
+            entity_type="BOOKING",
+            entity_id=booking.id,
+            description="Tempahan baharu dicipta."
+        )
+
+
         db.session.commit()
 
         flash(
@@ -144,8 +165,6 @@ def create_booking():
 # ========================
 # Tambah timedelta pada import datetime sedia ada:
 # from datetime import datetime, timedelta, timezone
-
-# Gantikan HANYA function my_bookings() dalam app/booking/routes.py dengan function ini.
 
 @booking_bp.route("/my")
 @login_required
@@ -517,6 +536,16 @@ def edit_booking(booking_id):
             form.chairperson_name.data or ""
         ).strip() or None
 
+        # ========================
+        # Audit - Edit Booking
+        # ========================
+        log_audit(
+            action="EDIT",
+            entity_type="BOOKING",
+            entity_id=booking.id,
+            description="Maklumat tempahan dikemaskini."
+        )
+        
         db.session.commit()
 
         flash(
@@ -602,6 +631,16 @@ def cancel_own_booking(booking_id):
         booking.cancelled_at = datetime.now(timezone.utc)
         booking.cancellation_reason = form.reason.data.strip()
 
+        # ========================
+        # Audit - Edit Booking
+        # ========================
+        log_audit(
+            action="CANCELLED",
+            entity_type="BOOKING",
+            entity_id=booking.id,
+            description="Maklumat tempahan dikemaskini."
+        )
+        
         db.session.commit()
 
         flash(

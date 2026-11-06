@@ -6363,3 +6363,129 @@ body.modal-active {
     color: #667085;
     line-height: 1.6;
 }
+
+/* =========================================================
+   REGISTER PAGE
+   ========================================================= */
+
+.register-card {
+    max-width: 620px;
+}
+
+
+/* ========================
+   Register Form
+   ======================== */
+
+.register-card .form-group {
+    margin-bottom: 18px;
+}
+
+.register-card .form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #0f2d5c;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.register-card .form-group input {
+    width: 100%;
+}
+
+
+/* ========================
+   Validation Error
+   ======================== */
+
+.form-error {
+    display: block;
+
+    margin-top: 6px;
+
+    color: #dc2626;
+
+    font-size: 13px;
+}
+
+
+/* ========================
+   Register Actions
+   ======================== */
+
+.register-actions {
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 25px;
+}
+
+.register-actions .btn {
+    flex: 1;
+
+    min-height: 42px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    text-decoration: none;
+}
+
+
+/* ========================
+   Secondary Button
+   ======================== */
+
+.btn-secondary {
+    border: 1px solid #cbd5e1;
+
+    background: #f1f5f9;
+
+    color: #334155;
+
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+
+/* ========================
+   Outline Button
+   ======================== */
+
+.btn-outline {
+    border: 1px solid #1769e0;
+
+    background: #ffffff;
+
+    color: #1769e0;
+}
+
+.btn-outline:hover {
+    background: #eff6ff;
+}
+
+
+/* ========================
+   Register Mobile
+   ======================== */
+
+@media (max-width: 600px) {
+
+    .register-actions {
+        flex-direction: column;
+    }
+
+    .register-actions .btn {
+        width: 100%;
+    }
+
+}

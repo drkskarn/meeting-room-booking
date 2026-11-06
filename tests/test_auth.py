@@ -206,3 +206,25 @@ def test_logout_clears_user_session(
 
     assert dashboard_response.status_code == 302
     assert login_url in dashboard_response.headers["Location"]
+
+def test_register_page_displays_form(
+    app,
+    client,
+):
+    with app.test_request_context():
+        register_url = url_for(
+            "auth.register"
+        )
+
+    response = client.get(
+        register_url
+    )
+
+    body = response.get_data(
+        as_text=True
+    )
+
+    assert response.status_code == 200
+    assert 'name="email"' in body
+    assert 'name="password"' in body
+    assert 'name="confirm_password"' in body

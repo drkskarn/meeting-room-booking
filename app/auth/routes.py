@@ -9,6 +9,7 @@ from flask import (
 
 from urllib.parse import urljoin, urlsplit
 from datetime import timedelta
+import smtplib
 
 from app.auth import auth_bp
 from app.auth.forms import LoginForm, RegistrationForm
@@ -47,53 +48,205 @@ from app.booking.services import (
 # ==========================================================
 
 # ===========Utk Registration======================
-@auth_bp.route("/register", methods=["GET", "POST"])
+# ========================
+# Registration
+# ========================
+@auth_bp.route(
+    "/register",
+    methods=["GET", "POST"]
+)
 def register():
     form = RegistrationForm()
 
     if form.validate_on_submit():
         user = User(
-            email=form.email.data.strip().lower(),
-            full_name=form.full_name.data.strip(),
-            identification_no=form.identification_no.data.strip(),
-            division_name=form.division_name.data.strip(),
-            unit_name=form.unit_name.data.strip(),
+            email=(
+                form.email.data
+                .strip()
+                .lower()
+            ),
+            full_name=(
+                form.full_name.data
+                .strip()
+            ),
+            identification_no=(
+                form.identification_no.data
+                .strip()
+            ),
+            division_name=(
+                form.division_name.data
+                .strip()
+            ),
+            unit_name=(
+                form.unit_name.data
+                .strip()
+            ),
             role="APPLICANT",
             is_active=False
         )
 
-        user.set_password(form.password.data)
+        user.set_password(
+            form.password.data
+        )
 
+
+        # ========================
+        # Add User To Transaction
+        # ========================
         db.session.add(user)
-        db.session.commit()
 
-        token = generate_activation_token(user.email)
+        try:
+            # ========================
+            # Validate Database Insert
+            # ========================
+            db.session.flush()
 
-        activation_url = url_for(
-            "auth.activate_account",
-            token=token,
-            _external=True 
-        )
-        
-        # hanya utk tujuan checking dev sahaja
-        # print(f"Activation URL: {activation_url}")
-        send_activation_email(
-            user,
-            activation_url
-        )
-        
+
+            # ========================
+            # Generate Activation Link
+            # ========================
+            token = generate_activation_token(
+                user.email
+            )
+
+            activation_url = url_for(
+                "auth.activate_account",
+                token=token,
+                _external=True
+            )
+
+
+            # ========================
+            # Send Activation Email
+            # ========================
+            send_activation_email(
+                user,
+                activation_url
+            )
+
+
+            # ========================
+            # Commit Registration
+            # ========================
+            db.session.commit()
+
+
+        except (
+            ConnectionRefusedError,
+            smtplib.SMTPException,
+            OSError,
+        ):
+            db.session.rollback()
+
+            flash(
+                "Pendaftaran tidak dapat diselesaikan "
+                "kerana emel pengaktifan gagal dihantar. "
+                "Sila cuba semula.",
+                "danger"
+            )
+
+            return render_template(
+                "auth/register.html",
+                form=form
+            )
+
+
+        # ========================
+        # Registration Success
+        # ========================
         flash(
-            "Pendaftaran berjaya. Akaun anda menunggu pengaktifan.",
+            "Pendaftaran berjaya. "
+            "Sila semak emel anda untuk "
+            "link pengaktifan.",
             "success"
         )
 
-        return redirect(url_for("auth.register"))        
-        
+        return redirect(
+            url_for("auth.login")
+        )
+
+
     return render_template(
         "auth/register.html",
         form=form
     )
 
+# ========================
+# Account Activation
+# ========================
+@auth_bp.route("/activate/<token>")
+def activate_account(token):
+    email = verify_activation_token(
+        token
+    )
+
+    # ========================
+    # Invalid / Expired Token
+    # ========================
+    if email is None:
+        flash(
+            "Pautan pengaktifan tidak sah "
+            "atau telah tamat tempoh.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("auth.login")
+        )
+
+
+    # ========================
+    # Find User
+    # ========================
+    user = db.session.scalar(
+        db.select(User).where(
+            User.email == email
+        )
+    )
+
+    if user is None:
+        flash(
+            "Akaun tidak ditemui.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("auth.register")
+        )
+
+
+    # ========================
+    # Already Activated
+    # ========================
+    if user.is_active:
+        flash(
+            "Akaun ini telah diaktifkan. "
+            "Sila log masuk.",
+            "info"
+        )
+
+        return redirect(
+            url_for("auth.login")
+        )
+
+
+    # ========================
+    # Activate Account
+    # ========================
+    user.is_active = True
+
+    db.session.commit()
+
+    flash(
+        "Akaun anda berjaya diaktifkan. "
+        "Sila log masuk.",
+        "success"
+    )
+
+    return redirect(
+        url_for("auth.login")
+    )
+    
 # ========================
 # Safe Redirect - Helper
 # ========================

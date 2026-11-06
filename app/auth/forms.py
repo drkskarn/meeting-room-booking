@@ -40,6 +40,15 @@ class RegistrationForm(FlaskForm):
                 message="No Pengenalan mestilah tepat 12 digit nombor.",
             ),
         ],
+        render_kw={
+            "maxlength": "12",
+            "inputmode": "numeric",
+            "pattern": "[0-9]{12}",
+            "oninput": (
+                "this.value = "
+                "this.value.replace(/[^0-9]/g, '').slice(0, 12)"
+            )
+        }
     )
 
     division_name = StringField(

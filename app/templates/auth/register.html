@@ -1,80 +1,203 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Daftar Akaun Pengguna
+    Daftar Akaun
 {% endblock %}
 
+{% block public_content %}
 
-{% block content %}
+<div class="auth-card register-card">
 
-    <form method="POST">
+    <!-- ========================
+         Header
+         ======================== -->
+    <div class="auth-card-header">
+        <h1>Daftar Akaun</h1>
+
+        <p>
+            Lengkapkan maklumat di bawah untuk mendaftar akaun anda.
+        </p>
+    </div>
+
+
+    <!-- ========================
+         Registration Form
+         ======================== -->
+    <form
+        method="POST"
+        action="{{ url_for('auth.register') }}"
+    >
 
         {{ form.hidden_tag() }}
 
-        <p>
-            {{ form.email.label }}<br>
-            {{ form.email() }}
+
+        <!-- ========================
+             Email
+             ======================== -->
+        <div class="form-group">
+            {{ form.email.label }}
+
+            {{ form.email(
+                placeholder="contoh@kpkt.gov.my"
+            ) }}
 
             {% for error in form.email.errors %}
-                <br>
-                <span>{{ error }}</span>
+                <span class="form-error">
+                    {{ error }}
+                </span>
             {% endfor %}
-        </p>
+        </div>
 
-        <p>
-            {{ form.full_name.label }}<br>
-            {{ form.full_name() }}
+
+        <!-- ========================
+             Full Name
+             ======================== -->
+        <div class="form-group">
+            {{ form.full_name.label }}
+
+            {{ form.full_name(
+                placeholder="Masukkan nama penuh"
+            ) }}
 
             {% for error in form.full_name.errors %}
-                <br>
-                <span>{{ error }}</span>
+                <span class="form-error">
+                    {{ error }}
+                </span>
             {% endfor %}
-        </p>
+        </div>
 
-        <p>
-            {{ form.identification_no.label }}<br>
-            {{ form.identification_no() }}
+
+        <!-- ========================
+             Identification Number
+             ======================== -->
+        <div class="form-group">
+            {{ form.identification_no.label }}
+
+            {{ form.identification_no(
+                placeholder="12 digit tanpa '-'"
+            ) }}
 
             {% for error in form.identification_no.errors %}
-                <br>
-                <span>{{ error }}</span>
+                <span class="form-error">
+                    {{ error }}
+                </span>
             {% endfor %}
-        </p>
+        </div>
 
-        <p>
-            {{ form.division_name.label }}<br>
-            {{ form.division_name() }}
-        </p>
 
-        <p>
-            {{ form.unit_name.label }}<br>
-            {{ form.unit_name() }}
-        </p>
+        <!-- ========================
+             Division
+             ======================== -->
+        <div class="form-group">
+            {{ form.division_name.label }}
 
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password() }}
+            {{ form.division_name(
+                placeholder="Masukkan nama bahagian"
+            ) }}
+
+            {% for error in form.division_name.errors %}
+                <span class="form-error">
+                    {{ error }}
+                </span>
+            {% endfor %}
+        </div>
+
+
+        <!-- ========================
+             Unit
+             ======================== -->
+        <div class="form-group">
+            {{ form.unit_name.label }}
+
+            {{ form.unit_name(
+                placeholder="Masukkan nama cawangan/unit"
+            ) }}
+
+            {% for error in form.unit_name.errors %}
+                <span class="form-error">
+                    {{ error }}
+                </span>
+            {% endfor %}
+        </div>
+
+
+        <!-- ========================
+             Password
+             ======================== -->
+        <div class="form-group">
+            {{ form.password.label }}
+
+            {{ form.password(
+                placeholder="Masukkan kata laluan"
+            ) }}
 
             {% for error in form.password.errors %}
-                <br>
-                <span>{{ error }}</span>
+                <span class="form-error">
+                    {{ error }}
+                </span>
             {% endfor %}
-        </p>
+        </div>
 
-        <p>
-            {{ form.confirm_password.label }}<br>
-            {{ form.confirm_password() }}
+
+        <!-- ========================
+             Confirm Password
+             ======================== -->
+        <div class="form-group">
+            {{ form.confirm_password.label }}
+
+            {{ form.confirm_password(
+                placeholder="Masukkan semula kata laluan"
+            ) }}
 
             {% for error in form.confirm_password.errors %}
-                <br>
-                <span>{{ error }}</span>
+                <span class="form-error">
+                    {{ error }}
+                </span>
             {% endfor %}
-        </p>
+        </div>
 
-        <p>
-            {{ form.submit() }}
-        </p>
+
+        <!-- ========================
+             Actions
+             ======================== -->
+        <div class="register-actions">
+
+            {{ form.submit(
+                class="btn btn-primary"
+            ) }}
+
+            <button
+                type="reset"
+                class="btn btn-secondary"
+            >
+                Reset
+            </button>
+
+            <a
+                href="{{ url_for('auth.login') }}"
+                class="btn btn-outline"
+            >
+                Kembali
+            </a>
+
+        </div>
 
     </form>
+
+
+    <!-- ========================
+         Footer
+         ======================== -->
+    <div class="auth-footer">
+
+        Sudah mempunyai akaun?
+
+        <a href="{{ url_for('auth.login') }}">
+            Log Masuk
+        </a>
+
+    </div>
+
+</div>
 
 {% endblock %}
