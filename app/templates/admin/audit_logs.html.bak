@@ -1,0 +1,566 @@
+{% extends "base.html" %}
+
+{% block title %}
+Audit Log
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ========================
+     PAGE HEADER
+     ======================== -->
+<div class="page-header">
+
+    <h1>
+        Audit Log
+    </h1>
+
+    <p>
+        Rekod aktiviti penting yang berlaku di dalam sistem.
+    </p>
+
+</div>
+
+
+<!-- ========================
+     SEARCH + FILTER PANEL
+     ======================== -->
+<div class="my-booking-control-panel audit-control-panel">
+
+    <form
+        method="GET"
+        action="{{ url_for('admin.audit_logs') }}"
+        class="my-booking-search"
+    >
+
+        <input
+            type="hidden"
+            name="entity_type"
+            value="{{ selected_entity }}"
+        >
+
+        <input
+            type="hidden"
+            name="action"
+            value="{{ selected_action }}"
+        >
+
+        <!-- ========================
+             SEARCH
+             ======================== -->
+        <div class="my-booking-search-row audit-search-row">
+
+            <div class="availability-search">
+                <input
+                    type="search"
+                    name="q"
+                    value="{{ search_query }}"
+                    placeholder="Cari tindakan, entiti, ID atau keterangan..."
+                    aria-label="Cari audit log"
+                >
+            </div>
+
+            <div class="my-booking-search-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Cari
+                </button>
+
+                {% if search_query
+                    or selected_entity != "ALL"
+                    or selected_action != "ALL"
+                    or date_from
+                    or date_to
+                %}
+                    <a
+                        href="{{ url_for('admin.audit_logs') }}"
+                        class="btn btn-secondary"
+                    >
+                        Reset
+                    </a>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================
+             DATE RANGE FILTER
+             ======================== -->
+        <div class="booking-period-filter audit-period-filter">
+
+            <div class="booking-period-field">
+
+                <label for="audit-date-from">
+                    Dari
+                </label>
+
+                <input
+                    type="date"
+                    id="audit-date-from"
+                    name="date_from"
+                    value="{{ date_from }}"
+                    {% if date_to %}max="{{ date_to }}"{% endif %}
+                >
+
+            </div>
+
+            <div class="booking-period-field">
+
+                <label for="audit-date-to">
+                    Hingga
+                </label>
+
+                <input
+                    type="date"
+                    id="audit-date-to"
+                    name="date_to"
+                    value="{{ date_to }}"
+                    {% if date_from %}min="{{ date_from }}"{% endif %}
+                >
+
+            </div>
+
+            <span class="booking-period-help">
+                Paparkan rekod audit dalam tempoh tarikh yang dipilih.
+            </span>
+
+        </div>
+
+    </form>
+
+
+    <!-- ========================
+         ENTITY FILTER
+         ======================== -->
+    <div class="my-booking-filter-panel audit-filter-panel">
+
+        <div class="my-booking-filter-label">
+            Filter Entiti
+        </div>
+
+        <div class="my-booking-filter-buttons">
+
+            <a
+                href="{{ url_for(
+                    'admin.audit_logs',
+                    entity_type='ALL',
+                    action=selected_action,
+                    q=search_query,
+                    date_from=date_from,
+                    date_to=date_to
+                ) }}"
+                class="filter-button {% if selected_entity == 'ALL' %}active{% endif %}"
+            >
+                Semua
+            </a>
+
+            <a
+                href="{{ url_for(
+                    'admin.audit_logs',
+                    entity_type='USER',
+                    action=selected_action,
+                    q=search_query,
+                    date_from=date_from,
+                    date_to=date_to
+                ) }}"
+                class="filter-button {% if selected_entity == 'USER' %}active{% endif %}"
+            >
+                Pengguna
+            </a>
+
+            <a
+                href="{{ url_for(
+                    'admin.audit_logs',
+                    entity_type='ROOM',
+                    action=selected_action,
+                    q=search_query,
+                    date_from=date_from,
+                    date_to=date_to
+                ) }}"
+                class="filter-button {% if selected_entity == 'ROOM' %}active{% endif %}"
+            >
+                Bilik
+            </a>
+
+            <a
+                href="{{ url_for(
+                    'admin.audit_logs',
+                    entity_type='BOOKING',
+                    action=selected_action,
+                    q=search_query,
+                    date_from=date_from,
+                    date_to=date_to
+                ) }}"
+                class="filter-button {% if selected_entity == 'BOOKING' %}active{% endif %}"
+            >
+                Tempahan
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================
+         ACTION FILTER
+         ======================== -->
+    <div class="my-booking-filter-panel audit-filter-panel">
+
+        <div class="my-booking-filter-label">
+            Filter Tindakan
+        </div>
+
+        <div class="my-booking-filter-buttons">
+
+            <a
+                href="{{ url_for('admin.audit_logs', entity_type=selected_entity, action='ALL', q=search_query, date_from=date_from, date_to=date_to) }}"
+                class="filter-button {% if selected_action == 'ALL' %}active{% endif %}"
+            >
+                Semua
+            </a>
+
+            <a
+                href="{{ url_for('admin.audit_logs', entity_type=selected_entity, action='CREATE', q=search_query, date_from=date_from, date_to=date_to) }}"
+                class="filter-button {% if selected_action == 'CREATE' %}active{% endif %}"
+            >
+                Cipta
+            </a>
+
+            <a
+                href="{{ url_for('admin.audit_logs', entity_type=selected_entity, action='UPDATE', q=search_query, date_from=date_from, date_to=date_to) }}"
+                class="filter-button {% if selected_action == 'UPDATE' %}active{% endif %}"
+            >
+                Kemaskini
+            </a>
+
+            <a
+                href="{{ url_for('admin.audit_logs', entity_type=selected_entity, action='ACTIVATE', q=search_query, date_from=date_from, date_to=date_to) }}"
+                class="filter-button {% if selected_action == 'ACTIVATE' %}active{% endif %}"
+            >
+                Aktifkan
+            </a>
+
+            <a
+                href="{{ url_for('admin.audit_logs', entity_type=selected_entity, action='DEACTIVATE', q=search_query, date_from=date_from, date_to=date_to) }}"
+                class="filter-button {% if selected_action == 'DEACTIVATE' %}active{% endif %}"
+            >
+                Nyahaktif
+            </a>
+
+            <a
+                href="{{ url_for('admin.audit_logs', entity_type=selected_entity, action='APPROVE', q=search_query, date_from=date_from, date_to=date_to) }}"
+                class="filter-button {% if selected_action == 'APPROVE' %}active{% endif %}"
+            >
+                Lulus
+            </a>
+
+            <a
+                href="{{ url_for('admin.audit_logs', entity_type=selected_entity, action='REJECTED', q=search_query, date_from=date_from, date_to=date_to) }}"
+                class="filter-button {% if selected_action == 'REJECTED' %}active{% endif %}"
+            >
+                Tolak
+            </a>
+
+            <a
+                href="{{ url_for('admin.audit_logs', entity_type=selected_entity, action='CANCELLED', q=search_query, date_from=date_from, date_to=date_to) }}"
+                class="filter-button {% if selected_action == 'CANCELLED' %}active{% endif %}"
+            >
+                Batal
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================
+     AUDIT LOG LIST
+     ======================== -->
+{% if audit_logs %}
+
+    <div class="table-container admin-audit-table-container">
+
+        <table class="admin-audit-table">
+
+            <thead>
+
+                <tr>
+                    <th>Tarikh / Masa</th>
+                    <th>Pengguna</th>
+                    <th>Tindakan</th>
+                    <th>Entiti</th>
+                    <th>ID Entiti</th>
+                    <th>Keterangan</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for audit in audit_logs %}
+
+                    <tr class="admin-audit-row">
+
+                        <!-- ========================
+                             TARIKH / MASA
+                             ======================== -->
+                        <td
+                            class="audit-col-datetime"
+                            data-label="Tarikh / Masa"
+                        >
+                            <strong>
+                                {{ audit.created_at
+                                    .replace(tzinfo=utc_timezone.utc)
+                                    .astimezone(malaysia_tz)
+                                    .strftime("%d/%m/%Y")
+                                }}
+                            </strong>
+                            <br>
+                            <span class="text-muted">
+                                {{ audit.created_at
+                                    .replace(tzinfo=utc_timezone.utc)
+                                    .astimezone(malaysia_tz)
+                                    .strftime("%I:%M %p")
+                                }}
+                            </span>
+                        </td>
+
+
+                        <!-- ========================
+                             PENGGUNA / ACTOR
+                             ======================== -->
+                        <td
+                            class="audit-col-actor"
+                            data-label="Pengguna"
+                        >
+                            {% if audit.actor %}
+                                <strong>
+                                    {{ audit.actor.full_name }}
+                                </strong>
+
+                                {% if audit.actor.email %}
+                                    <br>
+                                    <span class="text-muted">
+                                        {{ audit.actor.email }}
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <strong>Sistem</strong>
+                            {% endif %}
+                        </td>
+
+
+                        <!-- ========================
+                             TINDAKAN
+                             ======================== -->
+                        <td
+                            class="audit-col-action"
+                            data-label="Tindakan"
+                        >
+                            <span class="audit-badge audit-action-{{ audit.action|lower }}">
+                                {{ audit.action }}
+                            </span>
+                        </td>
+
+
+                        <!-- ========================
+                             ENTITI
+                             ======================== -->
+                        <td
+                            class="audit-col-entity"
+                            data-label="Entiti"
+                        >
+                            <span class="audit-badge audit-entity-{{ audit.entity_type|lower }}">
+                                {{ audit.entity_type }}
+                            </span>
+                        </td>
+
+
+                        <!-- ========================
+                             ID ENTITI
+                             ======================== -->
+                        <td
+                            class="audit-col-id"
+                            data-label="ID Entiti"
+                        >
+                            {% if audit.entity_id is not none %}
+                                <strong>
+                                    #{{ audit.entity_id }}
+                                </strong>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+
+                        <!-- ========================
+                             KETERANGAN
+                             ======================== -->
+                        <td
+                            class="audit-col-description"
+                            data-label="Keterangan"
+                        >
+                            {% if audit.description %}
+                                {{ audit.description }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- ========================
+         PAGINATION
+         ======================== -->
+    {% if pagination.pages > 1 %}
+
+        <nav class="audit-pagination" aria-label="Navigasi halaman audit log">
+
+            {% if pagination.has_prev %}
+                <a
+                    href="{{ url_for(
+                        'admin.audit_logs',
+                        page=pagination.prev_num,
+                        entity_type=selected_entity,
+                        action=selected_action,
+                        q=search_query,
+                        date_from=date_from,
+                        date_to=date_to
+                    ) }}"
+                    class="audit-page-link audit-page-arrow"
+                    aria-label="Halaman sebelumnya"
+                >
+                    &lsaquo;
+                </a>
+            {% else %}
+                <span
+                    class="audit-page-link audit-page-arrow disabled"
+                    aria-hidden="true"
+                >
+                    &lsaquo;
+                </span>
+            {% endif %}
+
+
+            {% for page_num in pagination.iter_pages(
+                left_edge=1,
+                right_edge=1,
+                left_current=2,
+                right_current=2
+            ) %}
+
+                {% if page_num %}
+
+                    {% if page_num == pagination.page %}
+                        <span
+                            class="audit-page-link active"
+                            aria-current="page"
+                        >
+                            {{ page_num }}
+                        </span>
+                    {% else %}
+                        <a
+                            href="{{ url_for(
+                                'admin.audit_logs',
+                                page=page_num,
+                                entity_type=selected_entity,
+                                action=selected_action,
+                                q=search_query,
+                                date_from=date_from,
+                                date_to=date_to
+                            ) }}"
+                            class="audit-page-link"
+                        >
+                            {{ page_num }}
+                        </a>
+                    {% endif %}
+
+                {% else %}
+                    <span class="audit-page-ellipsis">
+                        ...
+                    </span>
+                {% endif %}
+
+            {% endfor %}
+
+
+            {% if pagination.has_next %}
+                <a
+                    href="{{ url_for(
+                        'admin.audit_logs',
+                        page=pagination.next_num,
+                        entity_type=selected_entity,
+                        action=selected_action,
+                        q=search_query,
+                        date_from=date_from,
+                        date_to=date_to
+                    ) }}"
+                    class="audit-page-link audit-page-arrow"
+                    aria-label="Halaman seterusnya"
+                >
+                    &rsaquo;
+                </a>
+            {% else %}
+                <span
+                    class="audit-page-link audit-page-arrow disabled"
+                    aria-hidden="true"
+                >
+                    &rsaquo;
+                </span>
+            {% endif %}
+
+        </nav>
+
+    {% endif %}
+
+
+<!-- ========================
+     EMPTY STATE
+     ======================== -->
+{% else %}
+
+    <div class="card">
+
+        <div class="empty-state">
+
+            <h3>
+                Tiada rekod audit dijumpai
+            </h3>
+
+            <p>
+                Tiada rekod audit yang sepadan dengan carian
+                atau filter yang dipilih.
+            </p>
+
+            <a
+                href="{{ url_for('admin.audit_logs') }}"
+                class="btn btn-secondary mt-2"
+            >
+                Reset Carian
+            </a>
+
+        </div>
+
+    </div>
+
+{% endif %}
+
+{% endblock %}

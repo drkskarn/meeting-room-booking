@@ -124,11 +124,31 @@ def users():
             or_(*search_conditions)
         )
 
-    users = db.session.scalars(
+    # users = db.session.scalars(
+    #     statement.order_by(
+    #         User.full_name.asc()
+    #     )
+    # ).all()
+    
+    # ========================
+    # Pagination
+    # ========================
+    page = request.args.get(
+        "page",
+        1,
+        type=int
+    )
+
+    pagination = db.paginate(
         statement.order_by(
             User.full_name.asc()
-        )
-    ).all()
+        ),
+        page=page,
+        per_page=5,
+        error_out=False,
+    )
+
+    users = pagination.items
 
     # ========================
     # Status Counts
@@ -179,6 +199,7 @@ def users():
         "admin/users.html",
         users=users,
         status_form=status_form,
+        pagination=pagination,
         selected_status=selected_status,
         selected_role=selected_role,
         search_query=search_query,
@@ -693,9 +714,25 @@ def rooms():
             or_(*search_conditions)
         )
 
-    rooms = db.session.scalars(
-        statement.order_by(Room.room_name)
-    ).all()
+    # ========================
+    # Pagination
+    # ========================
+    page = request.args.get(
+        "page",
+        1,
+        type=int
+    )
+
+    pagination = db.paginate(
+        statement.order_by(
+            Room.room_name.asc()
+        ),
+        page=page,
+        per_page=5,
+        error_out=False,
+    )
+
+    rooms = pagination.items
 
     # ========================
     # Status Counts
@@ -723,6 +760,7 @@ def rooms():
     return render_template(
         "admin/rooms.html",
         rooms=rooms,
+        pagination=pagination,
         toggle_form=toggle_form,
         selected_status=selected_status,
         search_query=search_query,
@@ -1132,11 +1170,25 @@ def bookings():
             Booking.status == selected_status
         )
 
-    bookings = db.session.scalars(
+    # ========================
+    # Pagination
+    # ========================
+    page = request.args.get(
+        "page",
+        1,
+        type=int
+    )
+
+    pagination = db.paginate(
         statement.order_by(
-            Booking.created_at.desc()
-        )
-    ).all()
+            Booking.start_datetime.desc()
+        ),
+        page=page,
+        per_page=10,
+        error_out=False,
+    )
+
+    bookings = pagination.items
 
     # ========================
     # Status Counts
@@ -1177,6 +1229,7 @@ def bookings():
     return render_template(
         "admin/bookings.html",
         bookings=bookings,
+        pagination=pagination,
         action_form=action_form,
         selected_status=selected_status,
         search_query=search_query,
@@ -1680,16 +1733,30 @@ def audit_logs():
         AuditLog.id == -1
     )
         
-    audit_logs = db.session.scalars(
+    # ========================
+    # Pagination
+    # ========================
+    page = request.args.get(
+        "page",
+        1,
+        type=int
+    )
+
+    pagination = db.paginate(
         statement.order_by(
             AuditLog.created_at.desc()
-        )
-    ).all()
+        ),
+        page=page,
+        per_page=5,
+        error_out=False,
+    )
 
+    audit_logs = pagination.items
     
     return render_template(
         "admin/audit_logs.html",
         audit_logs=audit_logs,
+        pagination=pagination,
         selected_entity=selected_entity,
         date_from=date_from,
         date_to=date_to,

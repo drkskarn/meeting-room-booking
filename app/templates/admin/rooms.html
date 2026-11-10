@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}
 Pengurusan Bilik
@@ -290,6 +290,113 @@ Pengurusan Bilik
 
     </div>
 
+<!-- ========================
+     PAGINATION
+     ======================== -->
+{% if pagination.pages > 1 %}
+
+    <nav class="app-pagination">
+
+        {% if pagination.has_prev %}
+
+            <a
+                href="{{ url_for(
+                    'admin.rooms',
+                    page=pagination.prev_num,
+                    status=selected_status,
+                    q=search_query
+                ) }}"
+                class="app-page-link app-page-arrow"
+                aria-label="Halaman sebelumnya"
+            >
+                &lsaquo;
+            </a>
+
+        {% else %}
+
+            <span
+                class="app-page-link
+                       app-page-arrow
+                       disabled"
+            >
+                &lsaquo;
+            </span>
+
+        {% endif %}
+
+
+        {% for page_num in pagination.iter_pages(
+            left_edge=1,
+            right_edge=1,
+            left_current=2,
+            right_current=2
+        ) %}
+
+            {% if page_num %}
+
+                {% if page_num == pagination.page %}
+
+                    <span class="app-page-link active">
+                        {{ page_num }}
+                    </span>
+
+                {% else %}
+
+                    <a
+                        href="{{ url_for(
+                            'admin.rooms',
+                            page=page_num,
+                            status=selected_status,
+                            q=search_query
+                        ) }}"
+                        class="app-page-link"
+                    >
+                        {{ page_num }}
+                    </a>
+
+                {% endif %}
+
+            {% else %}
+
+                <span class="app-page-ellipsis">
+                    ...
+                </span>
+
+            {% endif %}
+
+        {% endfor %}
+
+
+        {% if pagination.has_next %}
+
+            <a
+                href="{{ url_for(
+                    'admin.rooms',
+                    page=pagination.next_num,
+                    status=selected_status,
+                    q=search_query
+                ) }}"
+                class="app-page-link app-page-arrow"
+                aria-label="Halaman seterusnya"
+            >
+                &rsaquo;
+            </a>
+
+        {% else %}
+
+            <span
+                class="app-page-link
+                       app-page-arrow
+                       disabled"
+            >
+                &rsaquo;
+            </span>
+
+        {% endif %}
+
+    </nav>
+
+{% endif %}
 
 <!-- ========================
      EMPTY STATE
@@ -345,3 +452,4 @@ Pengurusan Bilik
 
 
 {% endblock %}
+

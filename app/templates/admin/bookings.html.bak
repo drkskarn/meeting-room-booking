@@ -57,7 +57,7 @@ Pengurusan Tempahan
                 Cari
             </button>
 
-            {% if search_query or selected_status != "ALL" %}
+            {% if search_query or selected_status != "ALL" or date_from or date_to %}
                 <a
                     href="{{ url_for('admin.bookings') }}"
                     class="btn btn-secondary"
@@ -67,6 +67,40 @@ Pengurusan Tempahan
             {% endif %}
 
         </div>
+
+    </div>
+
+
+    <!-- ========================
+         DATE RANGE FILTER
+         ======================== -->
+    <div class="booking-period-filter admin-booking-period-filter">
+
+        <div class="booking-period-field">
+            <label for="admin-date-from">Dari</label>
+            <input
+                type="date"
+                id="admin-date-from"
+                name="date_from"
+                value="{{ date_from }}"
+                {% if date_to %}max="{{ date_to }}"{% endif %}
+            >
+        </div>
+
+        <div class="booking-period-field">
+            <label for="admin-date-to">Hingga</label>
+            <input
+                type="date"
+                id="admin-date-to"
+                name="date_to"
+                value="{{ date_to }}"
+                {% if date_from %}min="{{ date_from }}"{% endif %}
+            >
+        </div>
+
+        <span class="booking-period-help">
+            Carian merangkumi tempahan yang bertindih dengan tempoh dipilih.
+        </span>
 
     </div>
 
@@ -422,6 +456,122 @@ Pengurusan Tempahan
 
     </div>
 
+<!-- ========================
+     PAGINATION
+     ======================== -->
+{% if pagination.pages > 1 %}
+
+    <nav class="audit-pagination">
+
+        <!-- Previous -->
+        {% if pagination.has_prev %}
+
+            <a
+                href="{{ url_for(
+                    'admin.bookings',
+                    page=pagination.prev_num,
+                    status=selected_status,
+                    q=search_query,
+                    date_from=date_from,
+                    date_to=date_to
+                ) }}"
+                class="audit-page-link audit-page-arrow"
+                aria-label="Halaman sebelumnya"
+            >
+                &lsaquo;
+            </a>
+
+        {% else %}
+
+            <span
+                class="audit-page-link
+                       audit-page-arrow
+                       disabled"
+            >
+                &lsaquo;
+            </span>
+
+        {% endif %}
+
+
+        <!-- Page Numbers -->
+        {% for page_num in pagination.iter_pages(
+            left_edge=1,
+            right_edge=1,
+            left_current=2,
+            right_current=2
+        ) %}
+
+            {% if page_num %}
+
+                {% if page_num == pagination.page %}
+
+                    <span class="audit-page-link active">
+                        {{ page_num }}
+                    </span>
+
+                {% else %}
+
+                    <a
+                        href="{{ url_for(
+                            'admin.bookings',
+                            page=page_num,
+                            status=selected_status,
+                            q=search_query,
+                            date_from=date_from,
+                            date_to=date_to
+                        ) }}"
+                        class="audit-page-link"
+                    >
+                        {{ page_num }}
+                    </a>
+
+                {% endif %}
+
+            {% else %}
+
+                <span class="audit-page-ellipsis">
+                    ...
+                </span>
+
+            {% endif %}
+
+        {% endfor %}
+
+
+        <!-- Next -->
+        {% if pagination.has_next %}
+
+            <a
+                href="{{ url_for(
+                    'admin.bookings',
+                    page=pagination.next_num,
+                    status=selected_status,
+                    q=search_query,
+                    date_from=date_from,
+                    date_to=date_to
+                ) }}"
+                class="audit-page-link audit-page-arrow"
+                aria-label="Halaman seterusnya"
+            >
+                &rsaquo;
+            </a>
+
+        {% else %}
+
+            <span
+                class="audit-page-link
+                       audit-page-arrow
+                       disabled"
+            >
+                &rsaquo;
+            </span>
+
+        {% endif %}
+
+    </nav>
+
+{% endif %}
 
 {% else %}
 
