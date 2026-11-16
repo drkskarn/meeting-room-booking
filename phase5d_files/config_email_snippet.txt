@@ -1,0 +1,55 @@
+# ========================
+# OPTIONAL CONFIG.PY SNIPPET
+# ========================
+# Tambah apabila anda mahu membaca SMTP dari .env.
+# Tidak diperlukan untuk test semasa kerana
+# send_email_safely() default kepada disabled.
+
+import os
+
+MAIL_NOTIFICATIONS_ENABLED = (
+    os.getenv(
+        "MAIL_NOTIFICATIONS_ENABLED",
+        "false",
+    ).lower()
+    == "true"
+)
+
+MAIL_SERVER = os.getenv(
+    "MAIL_SERVER"
+)
+
+MAIL_PORT = int(
+    os.getenv(
+        "MAIL_PORT",
+        "587",
+    )
+)
+
+MAIL_USE_TLS = (
+    os.getenv(
+        "MAIL_USE_TLS",
+        "true",
+    ).lower()
+    == "true"
+)
+
+MAIL_USE_SSL = (
+    os.getenv(
+        "MAIL_USE_SSL",
+        "false",
+    ).lower()
+    == "true"
+)
+
+MAIL_USERNAME = os.getenv(
+    "MAIL_USERNAME"
+)
+
+MAIL_PASSWORD = os.getenv(
+    "MAIL_PASSWORD"
+)
+
+MAIL_DEFAULT_SENDER = os.getenv(
+    "MAIL_DEFAULT_SENDER"
+)

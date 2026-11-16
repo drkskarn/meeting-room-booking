@@ -19,6 +19,11 @@ from app.booking.forms import (
     EditBookingForm,
 )
 
+from app.email import (
+    send_booking_created_email,
+    send_email_safely,
+)
+
 from app.audit import log_audit
 
 from app.extensions import db
@@ -145,6 +150,8 @@ def create_booking():
 
         db.session.commit()
 
+        send_email_safely(send_booking_created_email, booking)
+        
         flash(
             "Permohonan tempahan berjaya dihantar "
             "dan sedang menunggu kelulusan.",

@@ -1,0 +1,425 @@
+from flask import current_app
+from flask_mail import Message
+
+from app.extensions import mail
+
+
+# ========================
+# Send Email Safely
+# ========================
+def send_email_safely(
+    send_function,
+    *args,
+    **kwargs,
+):
+    if not current_app.config.get(
+        "MAIL_NOTIFICATIONS_ENABLED",
+        False,
+    ):
+        current_app.logger.info(
+            "Email notification skipped: "
+            "MAIL_NOTIFICATIONS_ENABLED=False"
+        )
+        return False
+
+    try:
+        send_function(
+            *args,
+            **kwargs,
+        )
+    except Exception:
+        current_app.logger.exception(
+            "Email notification failed using %s",
+            send_function.__name__,
+        )
+        return False
+
+    return True
+
+
+# ========================
+# Activation Email
+# ========================
+def send_activation_email(user, activation_url):
+    message = Message(
+        subject=(
+            "Pengaktifan Akaun Sistem "
+            "Tempahan Bilik Mesyuarat"
+        ),
+        recipients=[
+            user.email
+        ],
+    )
+
+    message.body = f"""
+Assalamualaikum dan Salam Sejahtera,
+
+Tuan/Puan {user.full_name},
+
+Pendaftaran akaun anda bagi Sistem Tempahan Bilik Mesyuarat telah diterima.
+
+Sila klik pautan berikut untuk mengaktifkan akaun anda:
+
+{activation_url}
+
+Pautan ini akan tamat tempoh selepas 1 jam.
+
+Sekiranya anda tidak membuat pendaftaran ini, sila abaikan emel ini.
+
+Terima kasih.
+
+Sistem Tempahan Bilik Mesyuarat
+"""
+
+    mail.send(message)
+
+    current_app.logger.info(
+        "Activation email sent to %s",
+        user.email,
+    )
+
+
+# ========================
+# Booking Email Helpers
+# ========================
+def _booking_datetime_text(booking):
+    start_datetime = (
+        booking.start_datetime.strftime(
+            "%d/%m/%Y %H:%M"
+        )
+    )
+
+    end_datetime = (
+        booking.end_datetime.strftime(
+            "%d/%m/%Y %H:%M"
+        )
+    )
+
+    return (
+        start_datetime,
+        end_datetime,
+    )
+
+
+# ========================
+# Build Booking Created Email
+# ========================
+def build_booking_created_message(booking):
+    applicant = booking.applicant
+    room = booking.room
+
+    (
+        start_datetime,
+        end_datetime,
+    ) = _booking_datetime_text(
+        booking
+    )
+
+    room_location = (
+        room.location
+        or "-"
+    )
+
+    message = Message(
+        subject=(
+            f"Permohonan Tempahan "
+            f"#{booking.id} Diterima"
+        ),
+        recipients=[
+            applicant.email
+        ],
+    )
+
+    message.body = f"""
+Assalamualaikum dan Salam Sejahtera,
+
+Tuan/Puan {applicant.full_name},
+
+Permohonan tempahan bilik mesyuarat anda telah diterima oleh sistem.
+
+Maklumat tempahan:
+
+ID Tempahan: #{booking.id}
+Bilik: {room.room_name}
+Lokasi: {room_location}
+Tarikh / Masa Mula: {start_datetime}
+Tarikh / Masa Tamat: {end_datetime}
+Tujuan: {booking.purpose}
+Status: {booking.status}
+
+Permohonan anda sedang menunggu tindakan Pentadbir Sistem.
+
+Anda akan menerima emel seterusnya selepas permohonan diproses.
+
+Terima kasih.
+
+Sistem Tempahan Bilik Mesyuarat
+"""
+
+    return message
+
+
+# ========================
+# Send Booking Created Email
+# ========================
+def send_booking_created_email(booking):
+    message = (
+        build_booking_created_message(
+            booking
+        )
+    )
+
+    mail.send(message)
+
+    current_app.logger.info(
+        "Booking created email sent to %s "
+        "for booking #%s",
+        booking.applicant.email,
+        booking.id,
+    )
+
+
+# ========================
+# Build Booking Approved Email
+# ========================
+def build_booking_approved_message(booking):
+    applicant = booking.applicant
+    room = booking.room
+
+    (
+        start_datetime,
+        end_datetime,
+    ) = _booking_datetime_text(
+        booking
+    )
+
+    room_location = (
+        room.location
+        or "-"
+    )
+
+    message = Message(
+        subject=(
+            f"Permohonan Tempahan "
+            f"#{booking.id} Diluluskan"
+        ),
+        recipients=[
+            applicant.email
+        ],
+    )
+
+    message.body = f"""
+Assalamualaikum dan Salam Sejahtera,
+
+Tuan/Puan {applicant.full_name},
+
+Permohonan tempahan bilik mesyuarat anda telah diluluskan.
+
+Maklumat tempahan:
+
+ID Tempahan: #{booking.id}
+Bilik: {room.room_name}
+Lokasi: {room_location}
+Tarikh / Masa Mula: {start_datetime}
+Tarikh / Masa Tamat: {end_datetime}
+Tujuan: {booking.purpose}
+Status: {booking.status}
+
+Sila pastikan bilik digunakan mengikut tarikh dan masa yang telah diluluskan.
+
+Terima kasih.
+
+Sistem Tempahan Bilik Mesyuarat
+"""
+
+    return message
+
+
+# ========================
+# Send Booking Approved Email
+# ========================
+def send_booking_approved_email(booking):
+    message = (
+        build_booking_approved_message(
+            booking
+        )
+    )
+
+    mail.send(message)
+
+    current_app.logger.info(
+        "Booking approved email sent to %s "
+        "for booking #%s",
+        booking.applicant.email,
+        booking.id,
+    )
+
+
+# ========================
+# Build Booking Rejected Email
+# ========================
+def build_booking_rejected_message(booking):
+    applicant = booking.applicant
+    room = booking.room
+
+    (
+        start_datetime,
+        end_datetime,
+    ) = _booking_datetime_text(
+        booking
+    )
+
+    room_location = (
+        room.location
+        or "-"
+    )
+
+    rejection_reason = (
+        booking.rejection_reason
+        or "Tiada sebab diberikan."
+    )
+
+    message = Message(
+        subject=(
+            f"Permohonan Tempahan "
+            f"#{booking.id} Ditolak"
+        ),
+        recipients=[
+            applicant.email
+        ],
+    )
+
+    message.body = f"""
+Assalamualaikum dan Salam Sejahtera,
+
+Tuan/Puan {applicant.full_name},
+
+Permohonan tempahan bilik mesyuarat anda tidak dapat diluluskan.
+
+Maklumat tempahan:
+
+ID Tempahan: #{booking.id}
+Bilik: {room.room_name}
+Lokasi: {room_location}
+Tarikh / Masa Mula: {start_datetime}
+Tarikh / Masa Tamat: {end_datetime}
+Tujuan: {booking.purpose}
+Status: {booking.status}
+
+Sebab penolakan:
+
+{rejection_reason}
+
+Sila hubungi Pentadbir Sistem sekiranya anda memerlukan maklumat lanjut.
+
+Terima kasih.
+
+Sistem Tempahan Bilik Mesyuarat
+"""
+
+    return message
+
+
+# ========================
+# Send Booking Rejected Email
+# ========================
+def send_booking_rejected_email(booking):
+    message = (
+        build_booking_rejected_message(
+            booking
+        )
+    )
+
+    mail.send(message)
+
+    current_app.logger.info(
+        "Booking rejected email sent to %s "
+        "for booking #%s",
+        booking.applicant.email,
+        booking.id,
+    )
+
+
+# ========================
+# Build Booking Cancelled Email
+# ========================
+def build_booking_cancelled_message(booking):
+    applicant = booking.applicant
+    room = booking.room
+
+    (
+        start_datetime,
+        end_datetime,
+    ) = _booking_datetime_text(
+        booking
+    )
+
+    room_location = (
+        room.location
+        or "-"
+    )
+
+    cancellation_reason = (
+        booking.cancellation_reason
+        or "Tiada sebab diberikan."
+    )
+
+    message = Message(
+        subject=(
+            f"Tempahan #{booking.id} "
+            f"Dibatalkan"
+        ),
+        recipients=[
+            applicant.email
+        ],
+    )
+
+    message.body = f"""
+Assalamualaikum dan Salam Sejahtera,
+
+Tuan/Puan {applicant.full_name},
+
+Tempahan bilik mesyuarat berikut telah dibatalkan.
+
+Maklumat tempahan:
+
+ID Tempahan: #{booking.id}
+Bilik: {room.room_name}
+Lokasi: {room_location}
+Tarikh / Masa Mula: {start_datetime}
+Tarikh / Masa Tamat: {end_datetime}
+Tujuan: {booking.purpose}
+Status: {booking.status}
+
+Sebab pembatalan:
+
+{cancellation_reason}
+
+Tempahan ini tidak lagi aktif dalam sistem.
+
+Terima kasih.
+
+Sistem Tempahan Bilik Mesyuarat
+"""
+
+    return message
+
+
+# ========================
+# Send Booking Cancelled Email
+# ========================
+def send_booking_cancelled_email(booking):
+    message = (
+        build_booking_cancelled_message(
+            booking
+        )
+    )
+
+    mail.send(message)
+
+    current_app.logger.info(
+        "Booking cancelled email sent to %s "
+        "for booking #%s",
+        booking.applicant.email,
+        booking.id,
+    )

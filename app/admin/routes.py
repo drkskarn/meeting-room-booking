@@ -20,6 +20,13 @@ from app.extensions import db
 
 from zoneinfo import ZoneInfo
 
+from app.email import (
+    send_booking_approved_email,
+    send_booking_rejected_email,
+    send_email_safely,
+    send_booking_cancelled_email,
+)
+
 from app.booking.services import (
     has_booking_conflict,
     mark_completed_bookings,
@@ -1333,6 +1340,8 @@ def approve_booking(booking_id):
 
     db.session.commit()
 
+    send_email_safely(send_booking_approved_email, booking)
+
     flash(
         "Permohonan tempahan berjaya diluluskan.",
         "success"
@@ -1393,7 +1402,7 @@ def reject_booking(booking_id):
         booking.rejection_reason = form.reason.data.strip()
 
         # ========================
-        # Audit - Approve Booking
+        # Audit - Rejected Booking
         # ========================
         log_audit(
             action="REJECTED",
@@ -1405,6 +1414,8 @@ def reject_booking(booking_id):
         )
 
         db.session.commit()
+        
+        send_email_safely(send_booking_rejected_email, booking)
 
         flash(
             "Permohonan tempahan telah ditolak.",
@@ -1475,7 +1486,7 @@ def cancel_booking(booking_id):
         booking.cancellation_reason = form.reason.data.strip()
         
         # ========================
-        # Audit - Approve Booking
+        # Audit - Cancel Booking
         # ========================
         log_audit(
             action="CANCELLED",
@@ -1488,6 +1499,8 @@ def cancel_booking(booking_id):
 
         db.session.commit()
 
+        send_email_safely(send_booking_cancelled_email, booking)
+        
         flash(
             "Tempahan telah dibatalkan.",
             "success"
